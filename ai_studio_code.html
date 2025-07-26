@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的個人文章空間</title>
+    
+    <!-- CSS 樣式區塊 -->
+    <style>
+        /* --- 全域設定與字體 --- */
+        :root {
+            --primary-color: #3498db; /* 主題藍色 */
+            --secondary-color: #2c3e50; /* 深藍灰 */
+            --background-color: #f4f6f9; /* 淺灰背景 */
+            --card-bg-color: #ffffff; /* 卡片白色 */
+            --font-color: #333;
+            --light-gray: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, '蘋方-繁', 'Microsoft JhengHei', sans-serif;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--font-color);
+            line-height: 1.6;
+        }
+
+        /* --- 頁首、標題與導航列 --- */
+        .header {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        #edit-mode-toggle {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #edit-mode-toggle:hover {
+            background-color: #2980b9;
+        }
+        #edit-mode-toggle.active {
+            background-color: #e74c3c; /* 啟用時變紅色 */
+        }
+
+        .navbar {
+            text-align: center;
+            padding: 1rem 0;
+            background-color: var(--card-bg-color);
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .nav-btn {
+            background: none;
+            border: 1px solid var(--light-gray);
+            color: var(--secondary-color);
+            padding: 0.6rem 1.2rem;
+            margin: 0 0.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .nav-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        /* --- 文章網格與卡片 --- */
+        main {
+            padding: 2rem 5%;
+        }
+
+        #articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .article-card {
+            background-color: var(--card-bg-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .article-card:hover {
+            transform: translateY(-8px); /* 這就是滑動效果 */
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.15);
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .card-content h3 {
+            margin-top: 0;
+            color: var(--secondary-color);
+        }
+
+        .card-content p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .card-category {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.8rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+        
+        /* 用於篩選的動畫效果 */
+        .article-card.hidden {
+            transform: scale(0.8);
+            opacity: 0;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+            height: 0;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+
+
+        /* --- 彈出式文章視窗 (Modal) --- */
+        .modal {
+            display: none; /* 預設隱藏 */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 40px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .modal-body #modal-title {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+        
+        /* 編輯模式下的輸入框 */
+        #modal-title-input {
+            width: 100%;
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            border: none;
+            border-bottom: 2px solid var(--light-gray);
+            margin-bottom: 1rem;
+            font-weight: bold;
+            font-family: inherit;
+        }
+        #modal-title-input:focus {
+            outline: none;
+            border-bottom-color: var(--primary-color);
+        }
+
+        .modal-body #modal-text {
+            font-size: 1.1rem;
+            white-space: pre-wrap; /* 保留換行和空格 */
+            color: var(--font-color);
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        #modal-text-textarea {
+            width: 100%;
+            height: 50vh;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--font-color);
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            padding: 10px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        #modal-text-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        .modal-footer {
+            margin-top: 2rem;
+            text-align: right;
+        }
+        
+        #save-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        #save-btn:hover {
+            background-color: #219d56;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <h1>我的個人文章空間</h1>
+        <button id="edit-mode-toggle">啟用編輯模式</button>
+    </header>
+
+    <nav class="navbar">
+        <button class="nav-btn active" data-category="all">所有文章</button>
+        <button class="nav-btn" data-category="tech">技術分享</button>
+        <button class="nav-btn" data-category="life">生活隨筆</button>
+        <button class="nav-btn" data-category="travel">旅行紀錄</button>
+    </nav>
+
+    <main>
+        <div id="articles-grid">
+            <!-- 文章卡片會由 JavaScript 動態生成於此 -->
+        </div>
+    </main>
+
+    <!-- 彈出式文章視窗 (Modal) -->
+    <div id="article-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-body">
+                <!-- 標題區域 -->
+                <h2 id="modal-title"></h2>
+                <input type="text" id="modal-title-input" style="display:none;" />
+                
+                <!-- 內容區域 -->
+                <p id="modal-text"></p>
+                <textarea id="modal-text-textarea" style="display:none;"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="save-btn" style="display:none;">儲存變更</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JavaScript 功能區塊 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 狀態與資料管理 ---
+            const adminPassword = '1234'; // 在這裡修改你的管理員密碼
+            let isEditMode = false;
+            let articles = [];
+
+            // 這是預設的文章內容，只在使用者第一次開啟或清除快取時載入
+            const defaultArticles = [
+                {
+                    id: 1,
+                    category: 'tech',
+                    title: '探索JavaScript的非同步世界',
+                    content: '這是一篇關於JavaScript非同步處理的深入探討文章。\n\n我們將從回呼函式 (Callback) 開始，談到 Promise，最終介紹現代非同步語法 Async/Await。\n\n- Callback\n- Promise\n- Async/Await\n\n掌握這些，你就能寫出更優雅、更易維護的非同步程式碼。'
+                },
+                {
+                    id: 2,
+                    category: 'life',
+                    title: '一杯咖啡的午後',
+                    content: '陽光斜斜地灑在木桌上，空氣中瀰漫著咖啡豆的香氣。\n\n偶爾停下腳步，給自己一個喘息的空間，是為了走更長遠的路。\n\n今天，我選擇用一杯手沖耶加雪菲，犒賞努力的自己。'
+                },
+                {
+                    id: 3,
+                    category: 'travel',
+                    title: '京都的秋日楓紅',
+                    content: '如果說世界上有一種顏色能代表秋天，那一定是京都的紅葉。\n\n清水寺的舞台、嵐山的渡月橋、永觀堂的回望阿彌陀，每一處的楓葉都有它獨特的姿態與故事。漫步其中，彷彿置身於一幅流動的畫卷之中。'
+                },
+                {
+                    id: 4,
+                    category: 'tech',
+                    title: 'CSS Grid佈局實戰',
+                    content: '再見了，浮動 (float)！CSS Grid 帶來了前所未有的二維佈局能力。\n\n本篇文章將透過實例，教你如何使用 `grid-template-columns`、`gap` 和 `grid-area` 等屬性，輕鬆打造出複雜又具響應性的網頁版面。這個網站的卡片佈局就是用 Grid 做的喔！'
+                }
+            ];
+
+            // --- DOM 元素獲取 ---
+            const grid = document.getElementById('articles-grid');
+            const modal = document.getElementById('article-modal');
+            const closeBtn = document.querySelector('.close-btn');
+            const editModeBtn = document.getElementById('edit-mode-toggle');
+            const saveBtn = document.getElementById('save-btn');
+            const navButtons = document.querySelectorAll('.nav-btn');
+
+            // --- 核心功能函式 ---
+
+            // 1. 載入文章 (從 LocalStorage 或預設)
+            function loadArticles() {
+                const storedArticles = localStorage.getItem('myBlogArticles');
+                if (storedArticles) {
+                    articles = JSON.parse(storedArticles);
+                } else {
+                    articles = defaultArticles;
+                    saveArticles(); // 將預設文章存入 LocalStorage
+                }
+            }
+
+            // 2. 儲存文章到 LocalStorage
+            function saveArticles() {
+                localStorage.setItem('myBlogArticles', JSON.stringify(articles));
+            }
+
+            // 3. 渲染文章卡片到頁面上
+            function renderArticles() {
+                grid.innerHTML = '';
+                articles.forEach(article => {
+                    const articleCard = document.createElement('div');
+                    articleCard.className = 'article-card';
+                    articleCard.dataset.id = article.id;
+                    articleCard.dataset.category = article.category;
+                    
+                    // 只顯示內容的前100個字作為預覽
+                    const snippet = article.content.substring(0, 100) + '...';
+
+                    articleCard.innerHTML = `
+                        <div class="card-content">
+                            <span class="card-category">${getCategoryName(article.category)}</span>
+                            <h3>${article.title}</h3>
+                            <p>${snippet}</p>
+                        </div>
+                    `;
+                    // 為每張卡片加上點擊事件
+                    articleCard.addEventListener('click', () => openModal(article.id));
+                    grid.appendChild(articleCard);
+                });
+            }
+
+            // 4. 開啟文章內容視窗 (Modal)
+            function openModal(id) {
+                const article = articles.find(a => a.id === id);
+                if (!article) return;
+                
+                // 將文章ID存儲在modal上，方便儲存時取用
+                modal.dataset.currentArticleId = id;
+                
+                const modalTitle = document.getElementById('modal-title');
+                const modalText = document.getElementById('modal-text');
+                const modalTitleInput = document.getElementById('modal-title-input');
+                const modalTextArea = document.getElementById('modal-text-textarea');
+                
+                if (isEditMode) {
+                    // 編輯模式
+                    modalTitle.style.display = 'none';
+                    modalText.style.display = 'none';
+                    
+                    modalTitleInput.style.display = 'block';
+                    modalTextArea.style.display = 'block';
+                    saveBtn.style.display = 'inline-block';
+
+                    modalTitleInput.value = article.title;
+                    modalTextArea.value = article.content;
+                } else {
+                    // 瀏覽模式
+                    modalTitle.style.display = 'block';
+                    modalText.style.display = 'block';
+                    
+                    modalTitleInput.style.display = 'none';
+                    modalTextArea.style.display = 'none';
+                    saveBtn.style.display = 'none';
+
+                    modalTitle.textContent = article.title;
+                    modalText.textContent = article.content;
+                }
+
+                modal.style.display = 'flex';
+            }
+
+            // 5. 關閉文章視窗
+            function closeModal() {
+                modal.style.display = 'none';
+            }
+            
+            // 6. 啟用/關閉編輯模式
+            function toggleEditMode() {
+                if (isEditMode) {
+                    // 如果已是編輯模式，則登出
+                    isEditMode = false;
+                    editModeBtn.textContent = '啟用編輯模式';
+                    editModeBtn.classList.remove('active');
+                    alert('編輯模式已關閉。');
+                } else {
+                    const password = prompt('請輸入管理密碼:');
+                    if (password === adminPassword) {
+                        isEditMode = true;
+                        editModeBtn.textContent = '編輯模式已啟用 (點此關閉)';
+                        editModeBtn.classList.add('active');
+                        alert('歡迎回來！編輯模式已成功啟用。');
+                    } else if (password !== null) { // prompt 不為空 (使用者不是按取消)
+                        alert('密碼錯誤！');
+                    }
+                }
+            }
+
+            // 7. 儲存文章變更
+            function handleSave() {
+                const id = parseInt(modal.dataset.currentArticleId);
+                const articleIndex = articles.findIndex(a => a.id === id);
+                if (articleIndex === -1) return;
+
+                const newTitle = document.getElementById('modal-title-input').value;
+                const newContent = document.getElementById('modal-text-textarea').value;
+                
+                articles[articleIndex].title = newTitle;
+                articles[articleIndex].content = newContent;
+                
+                saveArticles();
+                closeModal();
+                renderArticles(); // 重新渲染以更新預覽
+                alert('文章已成功儲存！');
+            }
+            
+            // 8. 篩選文章分類
+            function filterCategory(e) {
+                const selectedCategory = e.target.dataset.category;
+
+                // 更新導航按鈕樣式
+                navButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.category === selectedCategory) {
+                        btn.classList.add('active');
+                    }
+                });
+                
+                // 篩選文章卡片
+                const articleCards = document.querySelectorAll('.article-card');
+                articleCards.forEach(card => {
+                    if (selectedCategory === 'all' || card.dataset.category === selectedCategory) {
+                        card.classList.remove('hidden');
+                    } else {
+                        card.classList.add('hidden');
+                    }
+                });
+            }
+
+            // 輔助函式: 根據分類代碼獲取中文名稱
+            function getCategoryName(category) {
+                switch(category) {
+                    case 'tech': return '技術分享';
+                    case 'life': return '生活隨筆';
+                    case 'travel': return '旅行紀錄';
+                    default: return '未分類';
+                }
+            }
+
+
+            // --- 事件監聽器綁定 ---
+            editModeBtn.addEventListener('click', toggleEditMode);
+            closeBtn.addEventListener('click', closeModal);
+            saveBtn.addEventListener('click', handleSave);
+            
+            // 點擊 Modal 外部區域也關閉視窗
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+            
+            // 綁定所有導航按鈕的點擊事件
+            navButtons.forEach(btn => btn.addEventListener('click', filterCategory));
+
+
+            // --- 程式初始化 ---
+            loadArticles();
+            renderArticles();
+            
+        });
+    </script>
+</body>
+</html>
