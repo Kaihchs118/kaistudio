@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>科技漫遊者 | Final Pro</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231c1c1e'/><path d='M20 30 H80 M50 30 V80' stroke-width='12' stroke='%23007aff' stroke-linecap='round' fill='none'/></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #007aff; --secondary-color: #1c1c1e; --background-color: #f2f2f7;
+            --card-bg-color: #ffffff; --font-color: #1d1d1f; --light-gray: #e5e5ea;
+            --border-radius: 16px; --transition-speed: 0.4s;
+        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif; margin: 0; background-color: var(--background-color); color: var(--font-color); line-height: 1.7; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--background-color); }
+        ::-webkit-scrollbar-thumb { background-color: var(--light-gray); border-radius: 10px; border: 2px solid var(--background-color); }
+        .view { transition: transform var(--transition-speed) ease-in-out, opacity var(--transition-speed) ease-in-out; }
+        #grid-view { position: relative; z-index: 10; }
+        #article-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--card-bg-color); transform: translateX(100%); opacity: 0; z-index: 20; overflow-y: auto; }
+        #article-view.visible { transform: translateX(0); opacity: 1; }
+        .header { background-color: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--light-gray); position: sticky; top: 0; z-index: 100; }
+        .header h1 { margin: 0; font-size: 1.8rem; cursor: pointer; user-select: none; }
+        .header-controls { display: flex; align-items: center; gap: 1rem; }
+        #search-box { padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--light-gray); font-size: 0.9rem; width: 200px; transition: width 0.3s ease; }
+        #search-box:focus { width: 250px; }
+        #new-post-btn { display: none; background-color: var(--primary-color); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background-color 0.3s; }
+        #new-post-btn:hover { background-color: #0056b3; }
+        .navbar { text-align: center; padding: 1rem 0; background-color: var(--card-bg-color); }
+        .nav-btn { background: none; border: 1px solid var(--light-gray); color: var(--secondary-color); padding: 0.6rem 1.2rem; margin: 0 0.5rem; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; }
+        .nav-btn:hover { background-color: #e9ecef; border-color: #e9ecef; }
+        .nav-btn.active { background-color: var(--secondary-color); color: white; border-color: var(--secondary-color); }
+        main { padding: 2rem 5%; }
+        #articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+        .article-card { background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: 0 8px 30px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; overflow: hidden; }
+        .article-card:hover { transform: translateY(-10px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+        .card-image { width: 100%; height: 200px; object-fit: cover; background-color: #eee; }
+        .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-content h3 { margin: 0.5rem 0; color: var(--secondary-color); font-size: 1.25rem; }
+        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .card-meta .tag { display: inline-block; padding: 0.3rem 0.8rem; font-size: 0.75rem; border-radius: 15px; font-weight: 500; }
+        .card-meta .reading-time { font-size: 0.8rem; color: #6c757d; }
+        .card-content p { color: #6c757d; font-size: 0.95rem; margin-top: 0.5rem; flex-grow: 1; }
+        .tag.mactips { background-color: #e0e0e0; color: #000; } .tag.software { background-color: #e8f5e9; color: #28a745; } .tag.news { background-color: #e7f3ff; color: #007bff; } .tag.productivity { background-color: #fff8e1; color: #ffc107; } .tag.youtube { background-color: #fbe9e7; color: #ff5722; }
+        #article-view-content { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+        #article-cover-image { width: 100%; height: 350px; object-fit: cover; border-radius: var(--border-radius); margin-bottom: 2rem; background-color: #eee; }
+        .article-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .nav-arrow-btn { background: #e5e5ea; color: var(--font-color); border: none; padding: 0.8rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: background-color 0.2s; }
+        .nav-arrow-btn:hover:not(:disabled) { background: #dcdce0; }
+        .nav-arrow-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        #article-content-rendered { line-height: 1.8; }
+        #article-content-rendered h1, #article-content-rendered h2 { border-bottom: 1px solid var(--light-gray); padding-bottom: 0.5rem; margin-top: 2rem; }
+        #article-content-rendered p { margin-bottom: 1.2rem; }
+        #article-content-rendered pre { position: relative; background-color: #1c1c1e; color: #f2f2f7; padding: 1.5rem 1rem; border-radius: 8px; overflow-x: auto; }
+        #article-content-rendered pre .copy-code-btn { position: absolute; top: 10px; right: 10px; background: #333; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; opacity: 0; transition: opacity 0.3s; }
+        #article-content-rendered pre:hover .copy-code-btn { opacity: 1; }
+        #article-content-rendered .youtube-embed { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; margin: 2rem 0; border-radius: var(--border-radius); }
+        #article-content-rendered .youtube-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        #article-content-rendered a { color: var(--primary-color); text-decoration: none; } #article-content-rendered a:hover { text-decoration: underline; }
+        .edit-form { position: relative; }
+        .edit-form .form-group { margin-bottom: 1.5rem; }
+        .edit-form label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
+        .edit-form input, .edit-form textarea, .edit-form select { width: 100%; padding: 0.8rem; font-size: 1rem; border: 1px solid var(--light-gray); border-radius: 8px; box-sizing: border-box; background-color: #f8f9fa; }
+        #article-content-textarea { height: 60vh; resize: vertical; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; line-height: 1.6; }
+        #save-post-btn { background-color: #34c759; color: white; border: none; padding: 0.8rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1.1rem; float: right; font-weight: 500; }
+        #slash-command-menu { position: absolute; background: white; border: 1px solid var(--light-gray); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; z-index: 1000; }
+        .command-item { padding: 0.5rem 1rem; cursor: pointer; } .command-item:hover { background-color: #f2f2f7; }
+        .hidden { display: none !important; }
+        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .toast { background-color: rgba(28, 28, 30, 0.9); color: white; padding: 12px 20px; border-radius: 25px; font-weight: 500; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div id="grid-view" class="view">
+        <header class="header"><h1 id="site-title">科技漫遊者</h1><div class="header-controls"><input type="search" id="search-box" placeholder="搜尋文章..."><button id="new-post-btn">新增文章</button></div></header>
+        <nav class="navbar">
+            <button class="nav-btn active" data-category="all">所有文章</button><button class="nav-btn" data-category="mactips">Mac 神技巧</button><button class="nav-btn" data-category="software">免費神軟體</button><button class="nav-btn" data-category="news">科技最前線</button><button class="nav-btn" data-category="productivity">生產力神器</button><button class="nav-btn" data-category="youtube">大神影音閣</button>
+        </nav>
+        <main><div id="articles-grid"></div></main>
+    </div>
+    <div id="article-view" class="view">
+        <div id="article-view-content">
+            <div class="article-navigation"><button id="back-to-grid-btn" class="nav-arrow-btn">&larr; 返回</button><div><button id="prev-article-btn" class="nav-arrow-btn">上一篇</button><button id="next-article-btn" class="nav-arrow-btn">下一篇</button></div></div>
+            <img id="article-cover-image" src="" alt="文章封面">
+            <div id="article-content-rendered"></div>
+            <div id="article-edit-form" class="edit-form hidden">
+                <div class="form-group"><label>文章標題</label><input type="text" id="article-title-input"></div>
+                <div class="form-group"><label>文章分類</label><select id="article-category-select"><option value="mactips">Mac 神技巧</option><option value="software">免費神軟體</option><option value="news">科技最前線</option><option value="productivity">生產力神器</option><option value="youtube">大神影音閣</option></select></div>
+                <div class="form-group"><label>圖片 URL</label><input type="text" id="article-image-input" placeholder="貼上圖片的網址"></div>
+                <div class="form-group"><label>文章內容 (支援 Markdown 及 / 指令)</label><textarea id="article-content-textarea"></textarea><div id="slash-command-menu"><div class="command-item" data-command="youtube">插入 YouTube 影片</div></div></div>
+                <button id="save-post-btn">儲存文章</button>
+            </div>
+        </div>
+    </div>
+    <div id="toast-container"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const adminPassword = '980621';
+        let isEditMode = false;
+        let articles = [];
+        let currentArticleList = [];
+        let currentArticleIndex = -1;
+        let titleClickCount = 0;
+        let titleClickTimer;
+
+        const defaultArticles = [
+            { id: 1, category: 'mactips', title: '5個你可能不知道的 Mac 神級技巧', imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 1. 輸入蘋果 Logo： \n\n這絕對是必學的裝...技巧！只要按下 `Shift (⇧) + Option (⌥) + K`，就可以輕鬆打出蘋果的 Logo。\n\n## 2. 精確的音量/亮度調整\n\n按住 `Shift (⇧) + Option (⌥)` 再按音量或亮度鍵，你會發現可以進行 1/4 格的微調，對於追求極致體驗的你來說非常實用。\n\n## 3. 快速鎖定螢幕\n\n需要暫時離開座位？按下 `Command (⌘) + Control (⌃) + Q` 即可立即鎖定螢幕，保護你的隱私。\n\n## 4. 叫出 Emoji 與符號鍵盤\n\n在任何文字輸入區，按下 `Control (⌃) + Command (⌘) + 空白鍵`，就能快速叫出表情符號與各種特殊符號的選擇視窗。\n\n## 5. 視窗管理：快速隱藏與切換\n\n- `Command (⌘) + H`：隱藏當前應用程式的所有視窗。\n- `Command (⌘) + M`：將當前視窗最小化。\n- `Command (⌘) + Tab`：在開啟的應用程式之間快速切換。' },
+            { id: 6, category: 'mactips', title: 'Mac 必學「螢幕截圖」進階功法', imageUrl: 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 基礎三招\n\n- `Command (⌘) + Shift (⇧) + 3`: 截取整個螢幕。\n- `Command (⌘) + Shift (⇧) + 4`: 叫出十字準星，拖曳選取範圍截圖。\n- `Command (⌘) + Shift (⇧) + 5`: 叫出螢幕截圖工具列，提供更多選項，包含錄製螢幕！\n\n## 進階技巧\n\n1.  **視窗截圖含陰影**：按下 `Command (⌘) + Shift (⇧) + 4` 後，再按 `空白鍵`，滑鼠會變成相機圖示。點擊任何視窗，就能截取該視窗，並保留漂亮的 macOS 陰影效果。\n\n2.  **截圖到剪貼簿**：在上述任何快捷鍵組合中，**同時按住 `Control (⌃)` 鍵**，截圖就不會儲存成檔案，而是直接複製到剪貼簿，方便你立即貼到其他地方。' },
+            { id: 2, category: 'software', title: '創作者必備！Mac 免費神級軟體推薦', imageUrl: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 影片剪輯：DaVinci Resolve\n\n誰說專業剪輯一定要花大錢？DaVinci Resolve (達芬奇) 的免費版功能就已經打趴一堆付費軟體。它集剪輯、調色、視覺特效 (Fusion) 和音訊後製 (Fairlight) 於一身，尤其以「好萊塢級」的調色功能聞名。\n\n[前往官網下載](https://www.blackmagicdesign.com/products/davinciresolve)\n\n## 繪圖與設計：Krita\n\nKrita 是一款開源的專業級數位繪畫軟體，完全免費。無論是概念藝術、插畫還是漫畫，它強大的筆刷引擎和豐富的功能都能滿足你的需求，是 Photoshop 和 Painter 的絕佳替代品。\n\n[前往官網下載](https://krita.org/)\n\n## 圖片壓縮：ImageOptim\n\n網頁載入速度很重要！ImageOptim 是一款超簡單的無損圖片壓縮工具。你只需要把圖片拖曳進去，它就會自動幫你最佳化檔案大小，同時盡可能保持畫質，對於部落客和網站開發者來說是必備神器。\n\n[前往官網下載](https://imageoptim.com/mac)' },
+            { id: 7, category: 'software', title: '除了 Office，你還有這些免費文書選擇', imageUrl: 'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 雲端協作：Google 文件、試算表、簡報\n\n這組工具的優點無需多言。只要有 Google 帳號就能免費使用，跨平台、即時協作的功能非常強大，對於團隊合作或需要在多裝置間同步工作的用戶來說是首選。\n\n## 單機全能：LibreOffice\n\n如果你需要一個功能完整的單機版 Office 套裝，LibreOffice 是最佳的開源替代方案。它包含 Writer（對應 Word）、Calc（對應 Excel）、Impress（對應 PowerPoint）等，高度相容微軟 Office 檔案格式，且完全免費。\n\n## 簡潔專注：Typora (Markdown 編輯器)\n\n對於只需要專注寫作的人來說，Typora 提供了「所見即所得」的 Markdown 編輯體驗。介面極簡，讓你專注於內容本身。雖然新版本開始收費，但仍然非常值得推薦。' },
+            { id: 3, category: 'news', title: '科技前線：台灣科技圈熱門動態', imageUrl: 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 電腦王阿達：COMPUTEX 2024 AI PC 大爆發\n\n根據電腦王阿達報導，今年的台北國際電腦展 (COMPUTEX) 無疑是 AI 的主場。從晶片巨頭到筆電品牌，無不展示最新的 AI PC 解決方案。搭載 NPU (神經網路處理單元) 的新一代筆電成為焦點，強調能在本機端執行更多 AI 運算，提供更即時、更安全的個人化 AI 體驗。微軟的 Copilot+ PC 概念也與各大廠商深度結合，預計下半年將迎來一波換機潮。\n\n## 全台首座！台積電 2 奈米廠落腳高雄\n\n經濟日報指出，全球晶圓代工龍頭台積電已正式宣布其先進的 2 奈米製程晶圓廠將落腳高雄。此舉不僅將為南台灣帶來龐大的就業機會與產業鏈轉型，也再次鞏固了台灣在全球半導體產業中的關鍵地位。高雄廠預計將成為推動下一代高效能運算、AI 晶片發展的核心基地。\n\n## Gogoro Network 換電站突破 13,000 座\n\n電動機車龍頭 Gogoro 宣布，其在全台灣的 GoStation 電池交換站數量已正式超越 13,000 座，這個數字甚至超過了全台加油站的總數。這標誌著台灣電動運具的基礎建設達到新的里程碑，大幅提升了騎士的便利性，也加速了台灣邁向淨零碳排的腳步。' },
+            { id: 4, category: 'productivity', title: '生產力神器：Anytype 深度解析', imageUrl: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 什麼是 Anytype？\n\n你是否厭倦了 Notion 的延遲和必須連網的限制？試試 Anytype 吧！它是一款主打**本機優先 (Local-first)**、**保護隱私**的次世代知識管理工具。它擁有 Notion 般強大的物件導向和資料庫功能，但所有資料都儲存在你的裝置上，速度飛快且支援離線使用。\n\n::youtube[https://www.youtube.com/watch?v=uGf4M2_d57o]::\n\n## 核心概念：物件與關係\n\n在 Anytype 中，萬物皆為「物件」。一篇筆記、一個任務、一本書、甚至一個聯絡人，都可以是一個物件。你可以自訂物件的「模板」，並在物件之間建立「關係」，自由地打造屬於你的個人知識圖譜。\n\n[前往官網探索](https://anytype.io/)\n' },
+            { id: 8, category: 'productivity', title: 'Mac 內建的音樂工作室：GarageBand 入門', imageUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '想踏入音樂製作或 Podcast 的世界嗎？你的 Mac 其實早就內建了一套強大的免費工具：GarageBand (庫樂隊)。\n\n- **直覺的介面**：拖拉式的音軌和樂段，讓你輕鬆上手。\n- **豐富的音源庫**：內建大量的虛擬樂器、鼓組和音效，從鋼琴到電子合成器應有盡有。\n- **聰明鼓手**：能自動生成擬真、多變的鼓點，是你的專屬虛擬鼓手。\n\n無論是錄製吉他、製作 Podcast，還是編曲一首完整的歌，GarageBand 都是你踏出第一步的最佳選擇。' },
+            { id: 5, category: 'youtube', title: '大神影音閣：台灣科技圈必追 YouTuber', imageUrl: 'https://images.unsplash.com/photo-1611162616805-669b3fa2898c?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 電獺少女 AotterGirls\n\n由一群活潑可愛的女生組成，用輕鬆有趣的方式開箱評測各種 3C 產品、App 和科技新知。她們的影片風格平易近人，即使是不懂科技的觀眾也能看得津津有味，是了解消費性電子產品的好管道。\n\n[前往頻道](https://www.youtube.com/@aottergirls)\n\n## Joeman\n\n雖然 Joeman 的內容包羅萬象，但他的「Joe 是要對決」系列中的奢華與平價 3C 產品對比，以及各種新品開箱，總能引發大量討論。他的評測直接、坦率，兼具娛樂性與參考價值。\n\n[前往頻道](https://www.youtube.com/@Joeman)\n\n## 好和弦 NiceChord\n\n由官大（Wiwi）創立的音樂知識頻道。如果你對編曲、樂理或音樂製作有興趣，好和弦絕對是中文圈的寶庫。官大用極其清晰、系統化的方式講解複雜的樂理知識，讓音樂學習變得不再枯燥。\n\n[前往頻道](https://www.youtube.com/@NiceChord)' },
+            { id: 9, category: 'youtube', title: 'Linus Tech Tips：全球頂尖硬體評測頻道', imageUrl: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: 'Linus Tech Tips (LTT) 是全球最知名的科技 YouTube 頻道之一。他們以專業、深入且極具娛樂性的方式評測各種電腦硬體。\n\n## 頻道亮點\n\n- **極致的測試**：從將電腦浸入礦物油，到測試數十款散熱器，他們的評測總是超乎想像。\n- **娛樂性十足**：Linus 本人誇張的風格和團隊的幽默感讓硬體評測變得像一場秀。\n- **內容廣泛**：除了 PC 硬體，他們也涵蓋伺服器、家庭網路、DIY 專案等各種主題。\n\n雖然是英文頻道，但其專業度和娛樂性絕對值得一看。\n\n[前往頻道](https://www.youtube.com/@LinusTechTips)' },
+            { id: 10, category: 'news', title: 'Apple WWDC 最新發布：Apple Intelligence 登場', imageUrl: 'https://images.unsplash.com/photo-1558002038-105552353313?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '蘋果在最新的全球開發者大會（WWDC）上，正式推出了其個人化智慧系統——Apple Intelligence。\n\n## 核心功能\n\nApple Intelligence 深度整合至 iOS 18、iPadOS 18 和 macOS Sequoia 中，旨在提供更實用、更具情境感知能力的 AI 功能。\n\n1.  **寫作工具**：系統級的改寫、校對和摘要功能，能在郵件、備忘錄等各種 App 中使用。\n2.  **圖像生成**：名為 Image Playground 的功能，可以快速生成「動畫」、「插圖」和「素描」三種風格的圖片。\n3.  **更強大的 Siri**：Siri 現在能理解螢幕上的內容，進行更複雜的操作，例如「把這張照片加到我的『靈感』備忘錄裡」。\n\n## 隱私優先\n\n蘋果強調，多數運算將在裝置端完成。需要更強大運算能力時，會透過「私有雲運算」（Private Cloud Compute）將資料傳送至使用 Apple 晶片的專用伺服器，確保資料不會被儲存或被蘋果存取。' },
+        ];
+        
+        // ... (The rest of the extensive JavaScript will go here)
+        const getEl = (id) => document.getElementById(id);
+        const gridView = getEl('grid-view'), articleView = getEl('article-view'), grid = getEl('articles-grid'), newPostBtn = getEl('new-post-btn'), backBtn = getEl('back-to-grid-btn'), saveBtn = getEl('save-post-btn'), searchBox = getEl('search-box'), prevBtn = getEl('prev-article-btn'), nextBtn = getEl('next-article-btn'), siteTitle = getEl('site-title');
+        const contentTextarea = getEl('article-content-textarea'), slashMenu = getEl('slash-command-menu');
+
+        function showToast(message) {
+            const container = getEl('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                toast.addEventListener('transitionend', () => toast.remove());
+            }, 3000);
+        }
+
+        function calculateReadingTime(text) {
+            const wordsPerMinute = 200;
+            const textLength = text.split(/\s+/).length;
+            const time = Math.ceil(textLength / wordsPerMinute);
+            return `${time} 分鐘閱讀`;
+        }
+
+        const renderer = new marked.Renderer();
+        renderer.link = (href, title, text) => `<a target="_blank" rel="noopener noreferrer" href="${href}" title="${title || ''}">${text}</a>`;
+        
+        function customRender(markdown) {
+            let html = markdown.replace(/::youtube\[(.*?)\]::/g, (match, url) => {
+                const videoId = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop();
+                return `<div class="youtube-embed"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+            });
+            return marked.parse(html, { renderer });
+        }
+        
+        function loadArticles() {
+            const storedArticles = localStorage.getItem('proBlogArticlesFinal');
+            articles = storedArticles ? JSON.parse(storedArticles) : defaultArticles;
+            saveArticles();
+        }
+
+        function saveArticles() { localStorage.setItem('proBlogArticlesFinal', JSON.stringify(articles)); }
+
+        function renderArticles(category = 'all', searchTerm = '') {
+            searchTerm = searchTerm.toLowerCase().trim();
+            const filtered = articles.filter(a => (category === 'all' || a.category === category) && (searchTerm === '' || a.title.toLowerCase().includes(searchTerm) || a.content.toLowerCase().includes(searchTerm)));
+            currentArticleList = filtered;
+            grid.innerHTML = '';
+            filtered.forEach(article => {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'article-card';
+                articleCard.dataset.id = article.id;
+                const snippet = article.content.substring(0, 80).replace(/#|`|\*|::youtube\[.*?\]::/g, '') + '...';
+                articleCard.innerHTML = `
+                    <img class="card-image" src="${article.imageUrl}" alt="${article.title}">
+                    <div class="card-content">
+                        <div class="card-meta">
+                            <span class="tag ${article.category}">${getCategoryName(article.category)}</span>
+                            <span class="reading-time">${calculateReadingTime(article.content)}</span>
+                        </div>
+                        <h3>${article.title}</h3><p>${snippet}</p>
+                    </div>`;
+                articleCard.addEventListener('click', () => showArticleView(article.id));
+                grid.appendChild(articleCard);
+            });
+        }
+
+        function showView(viewName) {
+            if (viewName === 'article') {
+                gridView.style.pointerEvents = 'none';
+                articleView.classList.add('visible');
+                articleView.scrollTop = 0;
+            } else {
+                gridView.style.pointerEvents = 'auto';
+                articleView.classList.remove('visible');
+            }
+        }
+        
+        function copyCodeToClipboard(button, code) {
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = '已複製!';
+                setTimeout(() => { button.textContent = '複製'; }, 2000);
+            }).catch(err => { showToast('複製失敗'); });
+        }
+
+        function showArticleView(id) {
+            const article = articles.find(a => a.id === id);
+            if (!article) return;
+            currentArticleIndex = currentArticleList.findIndex(a => a.id === id);
+            updatePrevNextButtons();
+
+            getEl('article-cover-image').src = article.imageUrl;
+            getEl('article-cover-image').alt = article.title;
+            const renderedContent = getEl('article-content-rendered');
+            const editForm = getEl('article-edit-form');
+            
+            if (isEditMode) {
+                renderedContent.classList.add('hidden');
+                editForm.classList.remove('hidden');
+                getEl('article-title-input').value = article.title;
+                getEl('article-category-select').value = article.category;
+                getEl('article-image-input').value = article.imageUrl;
+                contentTextarea.value = article.content;
+            } else {
+                renderedContent.classList.remove('hidden');
+                editForm.classList.add('hidden');
+                renderedContent.innerHTML = `<h1>${article.title}</h1>` + customRender(article.content);
+                renderedContent.querySelectorAll('pre code').forEach(el => {
+                    const pre = el.parentNode;
+                    const btn = document.createElement('button');
+                    btn.className = 'copy-code-btn';
+                    btn.textContent = '複製';
+                    btn.addEventListener('click', () => copyCodeToClipboard(btn, el.innerText));
+                    pre.appendChild(btn);
+                });
+            }
+            showView('article');
+        }
+
+        function updatePrevNextButtons() {
+            prevBtn.disabled = currentArticleIndex <= 0;
+            nextBtn.disabled = currentArticleIndex >= currentArticleList.length - 1;
+        }
+
+        function handleNewPost() {
+            const newId = Date.now();
+            const newArticle = { id: newId, category: 'mactips', title: '新文章標題', imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1600', content: '# 在這裡寫下你的新點子...' };
+            articles.unshift(newArticle);
+            saveArticles();
+            renderArticles(getEl('nav-btn.active')?.dataset.category, searchBox.value);
+            showArticleView(newId);
+        }
+
+        function handleSavePost() {
+            const articleId = currentArticleList[currentArticleIndex].id;
+            const articleIndexInAll = articles.findIndex(a => a.id === articleId);
+            if (articleIndexInAll === -1) return;
+            articles[articleIndexInAll] = {
+                ...articles[articleIndexInAll],
+                title: getEl('article-title-input').value,
+                category: getEl('article-category-select').value,
+                imageUrl: getEl('article-image-input').value.trim(),
+                content: contentTextarea.value
+            };
+            saveArticles();
+            showToast('文章已儲存！');
+            showView('grid');
+            renderArticles(document.querySelector('.nav-btn.active').dataset.category, searchBox.value);
+        }
+
+        function toggleEditMode() {
+            if (isEditMode) {
+                isEditMode = false;
+                newPostBtn.style.display = 'none';
+                showToast('編輯模式已關閉');
+            } else {
+                const password = prompt('請輸入管理密碼:');
+                if (password === adminPassword) {
+                    isEditMode = true;
+                    newPostBtn.style.display = 'inline-block';
+                    showToast('歡迎回來！編輯模式已啟用');
+                } else if (password !== null) {
+                    showToast('密碼錯誤！');
+                }
+            }
+        }
+        
+        function getCategoryName(category) {
+            const names = { mactips: 'Mac 神技巧', software: '免費神軟體', news: '科技最前線', productivity: '生產力神器', youtube: '大神影音閣' };
+            return names[category] || '未分類';
+        }
+
+        siteTitle.addEventListener('click', () => {
+            clearTimeout(titleClickTimer);
+            titleClickCount++;
+            if (titleClickCount === 5) {
+                toggleEditMode();
+                titleClickCount = 0;
+            }
+            titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 1000);
+        });
+
+        newPostBtn.addEventListener('click', handleNewPost);
+        backBtn.addEventListener('click', () => { showView('grid'); });
+        saveBtn.addEventListener('click', handleSavePost);
+        prevBtn.addEventListener('click', () => currentArticleIndex > 0 && showArticleView(currentArticleList[currentArticleIndex - 1].id));
+        nextBtn.addEventListener('click', () => currentArticleIndex < currentArticleList.length - 1 && showArticleView(currentArticleList[currentArticleIndex + 1].id));
+        searchBox.addEventListener('input', () => renderArticles(document.querySelector('.nav-btn.active').dataset.category, searchBox.value));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', e => {
+            document.querySelector('.nav-btn.active').classList.remove('active');
+            e.target.classList.add('active');
+            renderArticles(e.target.dataset.category, searchBox.value);
+        }));
+
+        contentTextarea.addEventListener('input', () => {
+            const text = contentTextarea.value;
+            const cursorPos = contentTextarea.selectionStart;
+            const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
+            const currentLine = text.substring(lineStart, cursorPos);
+            if (currentLine === '/') {
+                const textareaRect = contentTextarea.getBoundingClientRect();
+                const textCoords = getCaretCoordinates(contentTextarea, cursorPos);
+                slashMenu.style.top = (textareaRect.top + textCoords.top - contentTextarea.scrollTop + 20) + 'px';
+                slashMenu.style.left = (textareaRect.left + textCoords.left) + 'px';
+                slashMenu.style.display = 'block';
+            } else {
+                slashMenu.style.display = 'none';
+            }
+        });
+        
+        document.querySelectorAll('.command-item').forEach(item => item.addEventListener('click', e => {
+            const command = e.target.dataset.command;
+            slashMenu.style.display = 'none';
+            const text = contentTextarea.value;
+            const cursorPos = contentTextarea.selectionStart;
+            const textBefore = text.substring(0, cursorPos - 1);
+            const textAfter = text.substring(cursorPos);
+            if (command === 'youtube') {
+                const url = prompt('請貼上 YouTube 影片網址:');
+                if (url) {
+                    contentTextarea.value = textBefore + `::youtube[${url}]::` + textAfter;
+                } else {
+                    contentTextarea.value = textBefore + textAfter;
+                }
+            }
+        }));
+        
+        // This is a utility function to get the coordinates of the caret in a textarea
+        function getCaretCoordinates(element, position) {
+            const properties = ['direction', 'boxSizing', 'width', 'height', 'overflowX', 'overflowY', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'fontStyle', 'fontVariant', 'fontWeight', 'fontStretch', 'fontSize', 'fontSizeAdjust', 'lineHeight', 'fontFamily', 'textAlign', 'textTransform', 'textIndent', 'textDecoration', 'letterSpacing', 'wordSpacing'];
+            const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+            const div = document.createElement('div');
+            div.id = 'input-textarea-caret-position-mirror-div';
+            document.body.appendChild(div);
+            const style = div.style;
+            const computed = window.getComputedStyle ? window.getComputedStyle(element) : element.currentStyle;
+            properties.forEach(prop => { style[prop] = computed[prop]; });
+            if (isFirefox) { style.width = parseInt(style.width) - 2 + 'px'; }
+            style.whiteSpace = 'pre-wrap';
+            style.wordWrap = 'break-word';
+            style.position = 'absolute';
+            style.visibility = 'hidden';
+            div.textContent = element.value.substring(0, position);
+            const span = document.createElement('span');
+            span.textContent = element.value.substring(position) || '.';
+            div.appendChild(span);
+            const coordinates = { top: span.offsetTop + parseInt(computed['borderTopWidth']), left: span.offsetLeft + parseInt(computed['borderLeftWidth']) };
+            document.body.removeChild(div);
+            return coordinates;
+        }
+
+        loadArticles();
+        renderArticles();
+    });
+    </script>
+</body>
+</html>
