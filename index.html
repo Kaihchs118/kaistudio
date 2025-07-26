@@ -3,307 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的個人文章空間</title>
+    <title>我的進化版文章空間</title>
     
+    <!-- 引入 Marked.js 函式庫來解析 Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <!-- CSS 樣式區塊 -->
     <style>
-        /* --- 全域設定與字體 --- */
+        /* --- 全域設定與變數 --- */
         :root {
-            --primary-color: #3498db; /* 主題藍色 */
-            --secondary-color: #2c3e50; /* 深藍灰 */
-            --background-color: #f4f6f9; /* 淺灰背景 */
-            --card-bg-color: #ffffff; /* 卡片白色 */
-            --font-color: #333;
-            --light-gray: #ecf0f1;
+            --primary-color: #007bff; /* 活力藍 */
+            --secondary-color: #343a40; /* 深灰 */
+            --background-color: #f8f9fa; /* 更亮的背景 */
+            --card-bg-color: #ffffff;
+            --font-color: #212529;
+            --light-gray: #dee2e6;
+            --border-radius: 12px;
+            --transition-speed: 0.5s;
         }
 
         body {
-            font-family: 'Helvetica Neue', Arial, '蘋方-繁', 'Microsoft JhengHei', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
             background-color: var(--background-color);
             color: var(--font-color);
-            line-height: 1.6;
+            line-height: 1.7;
+            overflow-x: hidden; /* 防止頁面切換時出現水平滾動條 */
         }
 
-        /* --- 頁首、標題與導航列 --- */
+        /* --- 主要視圖容器 --- */
+        .view {
+            transition: transform var(--transition-speed) ease-in-out, opacity var(--transition-speed) ease-in-out;
+        }
+        #grid-view {
+            position: relative;
+            z-index: 10;
+        }
+        #article-view {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background-color);
+            transform: translateX(100%); /* 預設移出畫面右側 */
+            opacity: 0;
+            z-index: 20;
+            overflow-y: auto;
+            padding: 2rem 5%;
+            box-sizing: border-box;
+        }
+        #article-view.visible {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        /* --- 頁首與導航 --- */
         .header {
-            background-color: var(--secondary-color);
-            color: white;
+            background-color: var(--card-bg-color);
             padding: 1rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
-
-        #edit-mode-toggle {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        #edit-mode-toggle:hover {
-            background-color: #2980b9;
-        }
-        #edit-mode-toggle.active {
-            background-color: #e74c3c; /* 啟用時變紅色 */
-        }
-
-        .navbar {
-            text-align: center;
-            padding: 1rem 0;
-            background-color: var(--card-bg-color);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
             border-bottom: 1px solid var(--light-gray);
         }
-
-        .nav-btn {
-            background: none;
-            border: 1px solid var(--light-gray);
-            color: var(--secondary-color);
-            padding: 0.6rem 1.2rem;
-            margin: 0 0.5rem;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        .nav-btn:hover {
+        .header h1 { margin: 0; font-size: 1.8rem; }
+        .header-controls button {
             background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
+            color: white; border: none; padding: 0.6rem 1.2rem;
+            border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
+            margin-left: 1rem;
         }
-        .nav-btn.active {
-            background-color: var(--secondary-color);
-            color: white;
-            border-color: var(--secondary-color);
+        .header-controls button:hover { background-color: #0056b3; }
+        #edit-mode-toggle.active { background-color: #dc3545; }
+        #new-post-btn { display: none; } /* 預設隱藏 */
+
+        .navbar { text-align: center; padding: 1rem 0; background-color: var(--card-bg-color); }
+        .nav-btn {
+            background: none; border: 1px solid var(--light-gray); color: var(--secondary-color);
+            padding: 0.6rem 1.2rem; margin: 0 0.5rem; border-radius: 20px;
+            cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;
         }
+        .nav-btn:hover { background-color: #e9ecef; border-color: #e9ecef; }
+        .nav-btn.active { background-color: var(--secondary-color); color: white; border-color: var(--secondary-color); }
 
         /* --- 文章網格與卡片 --- */
-        main {
-            padding: 2rem 5%;
-        }
-
+        main { padding: 2rem 5%; }
         #articles-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
         }
-
         .article-card {
             background-color: var(--card-bg-color);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
             cursor: pointer;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
-
         .article-card:hover {
-            transform: translateY(-8px); /* 這就是滑動效果 */
-            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.15);
+            transform: translateY(-10px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.1);
         }
-
-        .card-content {
-            padding: 1.5rem;
+        .card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover; /* 關鍵：讓圖片填滿容器不變形 */
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
         }
-        
-        .card-content h3 {
-            margin-top: 0;
-            color: var(--secondary-color);
-        }
-
-        .card-content p {
-            color: #666;
-            font-size: 0.95rem;
-        }
-
-        .card-category {
+        .card-content { padding: 1.5rem; flex-grow: 1; }
+        .card-content h3 { margin-top: 0; margin-bottom: 0.5rem; color: var(--secondary-color); }
+        .card-content p { color: #6c757d; font-size: 0.95rem; margin-bottom: 1rem; }
+        .card-tags .tag {
             display: inline-block;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 0.2rem 0.6rem;
-            font-size: 0.8rem;
-            border-radius: 12px;
-            margin-bottom: 1rem;
+            background-color: #e9ecef; color: #495057;
+            padding: 0.3rem 0.8rem; font-size: 0.75rem;
+            border-radius: 15px; font-weight: 500;
         }
-        
-        /* 用於篩選的動畫效果 */
-        .article-card.hidden {
-            transform: scale(0.8);
-            opacity: 0;
-            transition: transform 0.4s ease, opacity 0.4s ease;
-            height: 0;
-            padding: 0;
-            margin: 0;
-            overflow: hidden;
+        /* 不同分類的標籤顏色 */
+        .tag.tech { background-color: #e7f3ff; color: #007bff; }
+        .tag.life { background-color: #e8f5e9; color: #28a745; }
+        .tag.travel { background-color: #fff8e1; color: #ffc107; }
+
+        /* --- 單篇文章/編輯頁面 --- */
+        .article-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        #back-to-grid-btn {
+            background: var(--secondary-color); color: white; border: none; padding: 0.8rem 1.5rem;
+            border-radius: 8px; cursor: pointer; font-size: 1rem;
+        }
+        #article-content-rendered { line-height: 1.8; }
+        #article-content-rendered h1, #article-content-rendered h2 { border-bottom: 1px solid var(--light-gray); padding-bottom: 0.5rem; margin-top: 2rem; }
+        #article-content-rendered p { margin-bottom: 1.2rem; }
+        #article-content-rendered code { background-color: #e9ecef; padding: 0.2em 0.4em; border-radius: 3px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+        #article-content-rendered pre { background-color: #212529; color: #f8f9fa; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+        #article-content-rendered blockquote { border-left: 4px solid var(--light-gray); padding-left: 1rem; color: #6c757d; margin-left: 0; }
+        #article-content-rendered ul, #article-content-rendered ol { padding-left: 1.5rem; }
+
+        .edit-form .form-group { margin-bottom: 1.5rem; }
+        .edit-form label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
+        .edit-form input, .edit-form textarea {
+            width: 100%; padding: 0.8rem; font-size: 1rem; border: 1px solid var(--light-gray);
+            border-radius: 8px; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .edit-form input:focus, .edit-form textarea:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+        #article-content-textarea { height: 50vh; resize: vertical; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; line-height: 1.6; }
+        #save-post-btn {
+            background-color: #28a745; color: white; border: none; padding: 0.8rem 2rem;
+            border-radius: 8px; cursor: pointer; font-size: 1.1rem; float: right;
         }
 
-
-        /* --- 彈出式文章視窗 (Modal) --- */
-        .modal {
-            display: none; /* 預設隱藏 */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.5s;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: auto;
-            padding: 40px;
-            border-radius: 8px;
-            width: 80%;
-            max-width: 800px;
-            position: relative;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            animation: slideIn 0.5s;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .close-btn {
-            color: #aaa;
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close-btn:hover {
-            color: #333;
-        }
-        
-        .modal-body #modal-title {
-            font-size: 2.5rem;
-            color: var(--secondary-color);
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
-        
-        /* 編輯模式下的輸入框 */
-        #modal-title-input {
-            width: 100%;
-            font-size: 2.5rem;
-            color: var(--secondary-color);
-            border: none;
-            border-bottom: 2px solid var(--light-gray);
-            margin-bottom: 1rem;
-            font-weight: bold;
-            font-family: inherit;
-        }
-        #modal-title-input:focus {
-            outline: none;
-            border-bottom-color: var(--primary-color);
-        }
-
-        .modal-body #modal-text {
-            font-size: 1.1rem;
-            white-space: pre-wrap; /* 保留換行和空格 */
-            color: var(--font-color);
-            max-height: 60vh;
-            overflow-y: auto;
-        }
-
-        #modal-text-textarea {
-            width: 100%;
-            height: 50vh;
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: var(--font-color);
-            border: 1px solid var(--light-gray);
-            border-radius: 5px;
-            padding: 10px;
-            resize: vertical;
-            font-family: inherit;
-        }
-        #modal-text-textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-        }
-        
-        .modal-footer {
-            margin-top: 2rem;
-            text-align: right;
-        }
-        
-        #save-btn {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-        #save-btn:hover {
-            background-color: #219d56;
-        }
+        /* --- 工具類 --- */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <header class="header">
-        <h1>我的個人文章空間</h1>
-        <button id="edit-mode-toggle">啟用編輯模式</button>
-    </header>
+    <!-- 主網格視圖 -->
+    <div id="grid-view" class="view">
+        <header class="header">
+            <h1>我的進化版文章空間</h1>
+            <div class="header-controls">
+                <button id="new-post-btn">新增文章</button>
+                <button id="edit-mode-toggle">啟用編輯模式</button>
+            </div>
+        </header>
 
-    <nav class="navbar">
-        <button class="nav-btn active" data-category="all">所有文章</button>
-        <button class="nav-btn" data-category="tech">技術分享</button>
-        <button class="nav-btn" data-category="life">生活隨筆</button>
-        <button class="nav-btn" data-category="travel">旅行紀錄</button>
-    </nav>
+        <nav class="navbar">
+            <button class="nav-btn active" data-category="all">所有文章</button>
+            <button class="nav-btn" data-category="tech">技術分享</button>
+            <button class="nav-btn" data-category="life">生活隨筆</button>
+            <button class="nav-btn" data-category="travel">旅行紀錄</button>
+        </nav>
 
-    <main>
-        <div id="articles-grid">
-            <!-- 文章卡片會由 JavaScript 動態生成於此 -->
+        <main>
+            <div id="articles-grid">
+                <!-- 文章卡片將由 JS 動態生成 -->
+            </div>
+        </main>
+    </div>
+
+    <!-- 單篇文章/編輯視圖 -->
+    <div id="article-view" class="view">
+        <div class="article-header">
+            <button id="back-to-grid-btn">&larr; 返回列表</button>
         </div>
-    </main>
-
-    <!-- 彈出式文章視窗 (Modal) -->
-    <div id="article-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <div class="modal-body">
-                <!-- 標題區域 -->
-                <h2 id="modal-title"></h2>
-                <input type="text" id="modal-title-input" style="display:none;" />
-                
-                <!-- 內容區域 -->
-                <p id="modal-text"></p>
-                <textarea id="modal-text-textarea" style="display:none;"></textarea>
+        
+        <!-- 瀏覽模式下顯示的內容 -->
+        <div id="article-content-rendered"></div>
+        
+        <!-- 編輯模式下顯示的表單 -->
+        <div id="article-edit-form" class="edit-form hidden">
+            <div class="form-group">
+                <label for="article-title-input">文章標題</label>
+                <input type="text" id="article-title-input">
             </div>
-            <div class="modal-footer">
-                <button id="save-btn" style="display:none;">儲存變更</button>
+            <div class="form-group">
+                <label for="article-category-select">文章分類</label>
+                <select id="article-category-select">
+                    <option value="tech">技術分享</option>
+                    <option value="life">生活隨筆</option>
+                    <option value="travel">旅行紀錄</option>
+                </select>
             </div>
+            <div class="form-group">
+                <label for="article-image-input">圖片關鍵字 (英文，例如: nature, tokyo, code)</label>
+                <input type="text" id="article-image-input">
+            </div>
+            <div class="form-group">
+                <label for="article-content-textarea">文章內容 (支援 Markdown)</label>
+                <textarea id="article-content-textarea"></textarea>
+            </div>
+            <button id="save-post-btn">儲存文章</button>
         </div>
     </div>
 
@@ -313,227 +229,178 @@
         document.addEventListener('DOMContentLoaded', () => {
 
             // --- 狀態與資料管理 ---
-            const adminPassword = '1234'; // 在這裡修改你的管理員密碼
+            const adminPassword = '980621'; // 已更新您的密碼
             let isEditMode = false;
             let articles = [];
+            let currentEditingId = null;
 
-            // 這是預設的文章內容，只在使用者第一次開啟或清除快取時載入
+            // 預設文章 (現在包含 imageKeyword)
             const defaultArticles = [
-                {
-                    id: 1,
-                    category: 'tech',
-                    title: '探索JavaScript的非同步世界',
-                    content: '這是一篇關於JavaScript非同步處理的深入探討文章。\n\n我們將從回呼函式 (Callback) 開始，談到 Promise，最終介紹現代非同步語法 Async/Await。\n\n- Callback\n- Promise\n- Async/Await\n\n掌握這些，你就能寫出更優雅、更易維護的非同步程式碼。'
-                },
-                {
-                    id: 2,
-                    category: 'life',
-                    title: '一杯咖啡的午後',
-                    content: '陽光斜斜地灑在木桌上，空氣中瀰漫著咖啡豆的香氣。\n\n偶爾停下腳步，給自己一個喘息的空間，是為了走更長遠的路。\n\n今天，我選擇用一杯手沖耶加雪菲，犒賞努力的自己。'
-                },
-                {
-                    id: 3,
-                    category: 'travel',
-                    title: '京都的秋日楓紅',
-                    content: '如果說世界上有一種顏色能代表秋天，那一定是京都的紅葉。\n\n清水寺的舞台、嵐山的渡月橋、永觀堂的回望阿彌陀，每一處的楓葉都有它獨特的姿態與故事。漫步其中，彷彿置身於一幅流動的畫卷之中。'
-                },
-                {
-                    id: 4,
-                    category: 'tech',
-                    title: 'CSS Grid佈局實戰',
-                    content: '再見了，浮動 (float)！CSS Grid 帶來了前所未有的二維佈局能力。\n\n本篇文章將透過實例，教你如何使用 `grid-template-columns`、`gap` 和 `grid-area` 等屬性，輕鬆打造出複雜又具響應性的網頁版面。這個網站的卡片佈局就是用 Grid 做的喔！'
-                }
+                { id: 1, category: 'tech', title: 'Markdown 語法指南', imageKeyword: 'writing,code', content: '# 歡迎使用 Markdown\n\n這是一個使用 Markdown 語法寫成的範例。\n\n## 列表\n\n*   項目一\n*   項目二\n*   項目三\n\n## 程式碼區塊\n\n```javascript\nconsole.log("Hello, Markdown!");\n```\n\n> 這是一個引言區塊。自由書寫，盡情發揮！' },
+                { id: 2, category: 'life', title: '週末的烘焙時光', imageKeyword: 'baking,coffee', content: '午後的陽光正好，烤箱傳來陣陣香氣。自己動手做的巴斯克乳酪蛋糕，雖然外觀不完美，但每一口都是滿滿的幸福感。' },
+                { id: 3, category: 'travel', title: '探索冰島的極光', imageKeyword: 'iceland,aurora', content: '追逐極光是一場與大自然的浪漫約會。當那道綠色的光帶在夜空中舞動時，所有的等待都化為了無與倫比的震撼。' },
+                { id: 4, category: 'tech', title: '前端框架大比拼', imageKeyword: 'react,vue,angular', content: 'React, Vue, Angular，三大前端框架各有千秋。\n\n本文將從學習曲線、生態系、效能表現等角度進行比較，幫助你找到最適合專案的選擇。' }
             ];
 
             // --- DOM 元素獲取 ---
+            const gridView = document.getElementById('grid-view');
+            const articleView = document.getElementById('article-view');
             const grid = document.getElementById('articles-grid');
-            const modal = document.getElementById('article-modal');
-            const closeBtn = document.querySelector('.close-btn');
             const editModeBtn = document.getElementById('edit-mode-toggle');
-            const saveBtn = document.getElementById('save-btn');
-            const navButtons = document.querySelectorAll('.nav-btn');
+            const newPostBtn = document.getElementById('new-post-btn');
+            const backBtn = document.getElementById('back-to-grid-btn');
+            const saveBtn = document.getElementById('save-post-btn');
 
             // --- 核心功能函式 ---
 
-            // 1. 載入文章 (從 LocalStorage 或預設)
             function loadArticles() {
-                const storedArticles = localStorage.getItem('myBlogArticles');
-                if (storedArticles) {
-                    articles = JSON.parse(storedArticles);
-                } else {
-                    articles = defaultArticles;
-                    saveArticles(); // 將預設文章存入 LocalStorage
-                }
+                const storedArticles = localStorage.getItem('myCoolBlogArticles');
+                articles = storedArticles ? JSON.parse(storedArticles) : defaultArticles;
+                saveArticles();
             }
 
-            // 2. 儲存文章到 LocalStorage
             function saveArticles() {
-                localStorage.setItem('myBlogArticles', JSON.stringify(articles));
+                localStorage.setItem('myCoolBlogArticles', JSON.stringify(articles));
             }
 
-            // 3. 渲染文章卡片到頁面上
-            function renderArticles() {
+            function renderArticles(filterCategory = 'all') {
                 grid.innerHTML = '';
-                articles.forEach(article => {
+                const filteredArticles = (filterCategory === 'all')
+                    ? articles
+                    : articles.filter(a => a.category === filterCategory);
+                
+                filteredArticles.forEach(article => {
                     const articleCard = document.createElement('div');
                     articleCard.className = 'article-card';
                     articleCard.dataset.id = article.id;
-                    articleCard.dataset.category = article.category;
                     
-                    // 只顯示內容的前100個字作為預覽
-                    const snippet = article.content.substring(0, 100) + '...';
+                    const snippet = article.content.substring(0, 100).replace(/#/g, '') + '...';
 
                     articleCard.innerHTML = `
+                        <img class="card-image" src="https://source.unsplash.com/random/800x600?${article.imageKeyword}" alt="${article.title}">
                         <div class="card-content">
-                            <span class="card-category">${getCategoryName(article.category)}</span>
+                            <div class="card-tags">
+                                <span class="tag ${article.category}">${getCategoryName(article.category)}</span>
+                            </div>
                             <h3>${article.title}</h3>
                             <p>${snippet}</p>
                         </div>
                     `;
-                    // 為每張卡片加上點擊事件
-                    articleCard.addEventListener('click', () => openModal(article.id));
+                    articleCard.addEventListener('click', () => showArticleView(article.id));
                     grid.appendChild(articleCard);
                 });
             }
 
-            // 4. 開啟文章內容視窗 (Modal)
-            function openModal(id) {
-                const article = articles.find(a => a.id === id);
-                if (!article) return;
-                
-                // 將文章ID存儲在modal上，方便儲存時取用
-                modal.dataset.currentArticleId = id;
-                
-                const modalTitle = document.getElementById('modal-title');
-                const modalText = document.getElementById('modal-text');
-                const modalTitleInput = document.getElementById('modal-title-input');
-                const modalTextArea = document.getElementById('modal-text-textarea');
-                
-                if (isEditMode) {
-                    // 編輯模式
-                    modalTitle.style.display = 'none';
-                    modalText.style.display = 'none';
-                    
-                    modalTitleInput.style.display = 'block';
-                    modalTextArea.style.display = 'block';
-                    saveBtn.style.display = 'inline-block';
-
-                    modalTitleInput.value = article.title;
-                    modalTextArea.value = article.content;
+            function showView(viewName) {
+                if (viewName === 'article') {
+                    gridView.style.pointerEvents = 'none';
+                    articleView.classList.add('visible');
                 } else {
-                    // 瀏覽模式
-                    modalTitle.style.display = 'block';
-                    modalText.style.display = 'block';
-                    
-                    modalTitleInput.style.display = 'none';
-                    modalTextArea.style.display = 'none';
-                    saveBtn.style.display = 'none';
-
-                    modalTitle.textContent = article.title;
-                    modalText.textContent = article.content;
+                    gridView.style.pointerEvents = 'auto';
+                    articleView.classList.remove('visible');
                 }
-
-                modal.style.display = 'flex';
-            }
-
-            // 5. 關閉文章視窗
-            function closeModal() {
-                modal.style.display = 'none';
             }
             
-            // 6. 啟用/關閉編輯模式
+            function showArticleView(id) {
+                currentEditingId = id;
+                const article = articles.find(a => a.id === id);
+                const renderedContent = document.getElementById('article-content-rendered');
+                const editForm = document.getElementById('article-edit-form');
+
+                if (isEditMode) {
+                    renderedContent.classList.add('hidden');
+                    editForm.classList.remove('hidden');
+                    
+                    document.getElementById('article-title-input').value = article.title;
+                    document.getElementById('article-category-select').value = article.category;
+                    document.getElementById('article-image-input').value = article.imageKeyword;
+                    document.getElementById('article-content-textarea').value = article.content;
+
+                } else {
+                    renderedContent.classList.remove('hidden');
+                    editForm.classList.add('hidden');
+                    
+                    // 使用 marked.js 解析 Markdown
+                    renderedContent.innerHTML = marked.parse(article.content);
+                }
+                showView('article');
+            }
+            
+            function handleNewPost() {
+                const newId = Date.now(); // 使用時間戳作為唯一ID
+                const newArticle = {
+                    id: newId,
+                    category: 'tech',
+                    title: '新文章標題',
+                    imageKeyword: 'new,post',
+                    content: '# 在這裡寫下你的新點子...'
+                };
+                articles.push(newArticle);
+                saveArticles();
+                showArticleView(newId);
+            }
+
+            function handleSavePost() {
+                const articleIndex = articles.findIndex(a => a.id === currentEditingId);
+                if (articleIndex === -1) return;
+
+                articles[articleIndex].title = document.getElementById('article-title-input').value;
+                articles[articleIndex].category = document.getElementById('article-category-select').value;
+                articles[articleIndex].imageKeyword = document.getElementById('article-image-input').value;
+                articles[articleIndex].content = document.getElementById('article-content-textarea').value;
+
+                saveArticles();
+                alert('文章已儲存！');
+                showView('grid');
+                renderArticles(document.querySelector('.nav-btn.active').dataset.category);
+            }
+
             function toggleEditMode() {
                 if (isEditMode) {
-                    // 如果已是編輯模式，則登出
                     isEditMode = false;
                     editModeBtn.textContent = '啟用編輯模式';
                     editModeBtn.classList.remove('active');
+                    newPostBtn.style.display = 'none';
                     alert('編輯模式已關閉。');
                 } else {
                     const password = prompt('請輸入管理密碼:');
                     if (password === adminPassword) {
                         isEditMode = true;
-                        editModeBtn.textContent = '編輯模式已啟用 (點此關閉)';
+                        editModeBtn.textContent = '編輯模式已啟用';
                         editModeBtn.classList.add('active');
+                        newPostBtn.style.display = 'inline-block';
                         alert('歡迎回來！編輯模式已成功啟用。');
-                    } else if (password !== null) { // prompt 不為空 (使用者不是按取消)
+                    } else if (password !== null) {
                         alert('密碼錯誤！');
                     }
                 }
             }
 
-            // 7. 儲存文章變更
-            function handleSave() {
-                const id = parseInt(modal.dataset.currentArticleId);
-                const articleIndex = articles.findIndex(a => a.id === id);
-                if (articleIndex === -1) return;
-
-                const newTitle = document.getElementById('modal-title-input').value;
-                const newContent = document.getElementById('modal-text-textarea').value;
-                
-                articles[articleIndex].title = newTitle;
-                articles[articleIndex].content = newContent;
-                
-                saveArticles();
-                closeModal();
-                renderArticles(); // 重新渲染以更新預覽
-                alert('文章已成功儲存！');
-            }
-            
-            // 8. 篩選文章分類
-            function filterCategory(e) {
-                const selectedCategory = e.target.dataset.category;
-
-                // 更新導航按鈕樣式
-                navButtons.forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.dataset.category === selectedCategory) {
-                        btn.classList.add('active');
-                    }
-                });
-                
-                // 篩選文章卡片
-                const articleCards = document.querySelectorAll('.article-card');
-                articleCards.forEach(card => {
-                    if (selectedCategory === 'all' || card.dataset.category === selectedCategory) {
-                        card.classList.remove('hidden');
-                    } else {
-                        card.classList.add('hidden');
-                    }
-                });
-            }
-
-            // 輔助函式: 根據分類代碼獲取中文名稱
             function getCategoryName(category) {
-                switch(category) {
-                    case 'tech': return '技術分享';
-                    case 'life': return '生活隨筆';
-                    case 'travel': return '旅行紀錄';
-                    default: return '未分類';
-                }
+                const names = { tech: '技術分享', life: '生活隨筆', travel: '旅行紀錄' };
+                return names[category] || '未分類';
             }
-
 
             // --- 事件監聽器綁定 ---
             editModeBtn.addEventListener('click', toggleEditMode);
-            closeBtn.addEventListener('click', closeModal);
-            saveBtn.addEventListener('click', handleSave);
-            
-            // 點擊 Modal 外部區域也關閉視窗
-            window.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
+            newPostBtn.addEventListener('click', handleNewPost);
+            backBtn.addEventListener('click', () => {
+                showView('grid');
+                renderArticles(document.querySelector('.nav-btn.active').dataset.category);
             });
-            
-            // 綁定所有導航按鈕的點擊事件
-            navButtons.forEach(btn => btn.addEventListener('click', filterCategory));
+            saveBtn.addEventListener('click', handleSavePost);
 
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderArticles(e.target.dataset.category);
+                });
+            });
 
             // --- 程式初始化 ---
             loadArticles();
             renderArticles();
-            
         });
     </script>
 </body>
