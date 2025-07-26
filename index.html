@@ -3,405 +3,589 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我的進化版文章空間</title>
-    
-    <!-- 引入 Marked.js 函式庫來解析 Markdown -->
+    <title>KAI STUDIO</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <!-- CSS 樣式區塊 -->
     <style>
         /* --- 全域設定與變數 --- */
         :root {
-            --primary-color: #007bff; /* 活力藍 */
-            --secondary-color: #343a40; /* 深灰 */
-            --background-color: #f8f9fa; /* 更亮的背景 */
-            --card-bg-color: #ffffff;
-            --font-color: #212529;
-            --light-gray: #dee2e6;
-            --border-radius: 12px;
-            --transition-speed: 0.5s;
+            --bg-color: #ffffff;
+            --text-color: #1a1a1a;
+            --primary-color: #007aff;
+            --secondary-color: #6c757d;
+            --border-color: #dee2e6;
+            --card-bg: #f8f9fa;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --header-bg: rgba(255, 255, 255, 0.85);
+            --code-bg: #e9ecef;
+            --code-color: #333;
+            --danger-color: #dc3545;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            background-color: var(--background-color);
-            color: var(--font-color);
-            line-height: 1.7;
-            overflow-x: hidden; /* 防止頁面切換時出現水平滾動條 */
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --primary-color: #0a84ff;
+            --secondary-color: #8e8e93;
+            --border-color: #3a3a3c;
+            --card-bg: #1c1c1e;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --header-bg: rgba(28, 28, 30, 0.85);
+            --code-bg: #2c2c2e;
+            --code-color: #f0f0f0;
+            --danger-color: #ff453a;
         }
 
-        /* --- 主要視圖容器 --- */
-        .view {
-            transition: transform var(--transition-speed) ease-in-out, opacity var(--transition-speed) ease-in-out;
-        }
-        #grid-view {
-            position: relative;
-            z-index: 10;
-        }
-        #article-view {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: var(--background-color);
-            transform: translateX(100%); /* 預設移出畫面右側 */
-            opacity: 0;
-            z-index: 20;
-            overflow-y: auto;
-            padding: 2rem 5%;
-            box-sizing: border-box;
-        }
-        #article-view.visible {
-            transform: translateX(0);
-            opacity: 1;
-        }
+        /* --- 基礎樣式 --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            line-height: 1.7;
+        }
+        a { color: var(--primary-color); text-decoration: none; }
+
         /* --- 頁首與導航 --- */
-        .header {
-            background-color: var(--card-bg-color);
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-            border-bottom: 1px solid var(--light-gray);
+        .site-header {
+            position: sticky; top: 0; z-index: 100;
+            background-color: var(--header-bg);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 5%;
+            transition: background-color 0.3s, border-color 0.3s;
         }
-        .header h1 { margin: 0; font-size: 1.8rem; }
-        .header-controls button {
-            background-color: var(--primary-color);
-            color: white; border: none; padding: 0.6rem 1.2rem;
-            border-radius: 8px; cursor: pointer; transition: background-color 0.3s;
-            margin-left: 1rem;
-        }
-        .header-controls button:hover { background-color: #0056b3; }
-        #edit-mode-toggle.active { background-color: #dc3545; }
-        #new-post-btn { display: none; } /* 預設隱藏 */
+        .header-content { display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .site-title { font-size: 1.5rem; font-weight: 600; cursor: pointer; }
+        .main-nav { display: flex; gap: 20px; position: absolute; left: 50%; transform: translateX(-50%); }
+        .nav-link { font-size: 1rem; font-weight: 500; color: var(--secondary-color); padding: 5px 0; border-bottom: 2px solid transparent; transition: color 0.3s, border-color 0.3s; }
+        .nav-link:hover, .nav-link.active { color: var(--text-color); border-bottom-color: var(--primary-color); }
 
-        .navbar { text-align: center; padding: 1rem 0; background-color: var(--card-bg-color); }
-        .nav-btn {
-            background: none; border: 1px solid var(--light-gray); color: var(--secondary-color);
-            padding: 0.6rem 1.2rem; margin: 0 0.5rem; border-radius: 20px;
-            cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease;
-        }
-        .nav-btn:hover { background-color: #e9ecef; border-color: #e9ecef; }
-        .nav-btn.active { background-color: var(--secondary-color); color: white; border-color: var(--secondary-color); }
+        /* --- 控制項 --- */
+        .controls { display: flex; align-items: center; gap: 15px; }
+        .search-box { position: relative; }
+        .search-input { width: 180px; padding: 8px 15px 8px 35px; border-radius: 20px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: var(--primary-color); width: 220px; }
+        .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; }
+        #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 500; transition: background-color 0.3s, opacity 0.3s; color: white; }
+        #new-article-btn { background-color: var(--primary-color); }
+        #exit-edit-btn { background-color: var(--secondary-color); }
+        #new-article-btn:hover, #exit-edit-btn:hover { opacity: 0.8; }
 
-        /* --- 文章網格與卡片 --- */
-        main { padding: 2rem 5%; }
-        #articles-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-        }
-        .article-card {
-            background-color: var(--card-bg-color);
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 25px rgba(0,0,0,0.06);
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-        .article-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 35px rgba(0,0,0,0.1);
-        }
-        .card-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover; /* 關鍵：讓圖片填滿容器不變形 */
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-        }
-        .card-content { padding: 1.5rem; flex-grow: 1; }
-        .card-content h3 { margin-top: 0; margin-bottom: 0.5rem; color: var(--secondary-color); }
-        .card-content p { color: #6c757d; font-size: 0.95rem; margin-bottom: 1rem; }
-        .card-tags .tag {
-            display: inline-block;
-            background-color: #e9ecef; color: #495057;
-            padding: 0.3rem 0.8rem; font-size: 0.75rem;
-            border-radius: 15px; font-weight: 500;
-        }
-        /* 不同分類的標籤顏色 */
-        .tag.tech { background-color: #e7f3ff; color: #007bff; }
-        .tag.life { background-color: #e8f5e9; color: #28a745; }
-        .tag.travel { background-color: #fff8e1; color: #ffc107; }
+        /* --- 主要內容 --- */
+        main { padding: 40px 5%; }
+        .view { display: none; }
+        .view.active { display: block; }
 
-        /* --- 單篇文章/編輯頁面 --- */
-        .article-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        #back-to-grid-btn {
-            background: var(--secondary-color); color: white; border: none; padding: 0.8rem 1.5rem;
-            border-radius: 8px; cursor: pointer; font-size: 1rem;
-        }
-        #article-content-rendered { line-height: 1.8; }
-        #article-content-rendered h1, #article-content-rendered h2 { border-bottom: 1px solid var(--light-gray); padding-bottom: 0.5rem; margin-top: 2rem; }
-        #article-content-rendered p { margin-bottom: 1.2rem; }
-        #article-content-rendered code { background-color: #e9ecef; padding: 0.2em 0.4em; border-radius: 3px; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
-        #article-content-rendered pre { background-color: #212529; color: #f8f9fa; padding: 1rem; border-radius: 8px; overflow-x: auto; }
-        #article-content-rendered blockquote { border-left: 4px solid var(--light-gray); padding-left: 1rem; color: #6c757d; margin-left: 0; }
-        #article-content-rendered ul, #article-content-rendered ol { padding-left: 1.5rem; }
+        /* --- 文章網格 --- */
+        #home-view .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .article-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px var(--shadow-color); }
+        .card-cover-image { width: 100%; height: 180px; object-fit: cover; background-color: var(--border-color); }
+        .card-content { padding: 20px; }
+        .card-category { font-size: 0.8rem; color: var(--primary-color); font-weight: 600; margin-bottom: 5px; }
+        .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; color: var(--text-color); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+        .card-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+        .card-tag { background-color: var(--code-bg); color: var(--secondary-color); padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; }
+        
+        /* --- 文章閱讀頁 --- */
+        #article-view .article-container { max-width: 800px; margin: 0 auto; }
+        .article-header-image { width: 100%; height: 350px; object-fit: cover; border-radius: 12px; margin-bottom: 30px; background-color: var(--border-color); }
+        .article-title { font-size: 2.8rem; font-weight: 700; margin-bottom: 15px; line-height: 1.2; }
+        .article-meta { color: var(--secondary-color); margin-bottom: 30px; }
+        .article-content { font-size: 1.1rem; }
+        .article-content h1, .article-content h2, .article-content h3 { margin-top: 2em; margin-bottom: 1em; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+        .article-content h1 { font-size: 2rem; } .article-content h2 { font-size: 1.7rem; } .article-content h3 { font-size: 1.4rem; }
+        .article-content p { margin-bottom: 1.2em; }
+        .article-content blockquote { border-left: 3px solid var(--primary-color); padding-left: 1.5em; margin: 1.5em 0; color: var(--secondary-color); font-style: italic; }
+        .article-content pre { background-color: var(--code-bg); color: var(--code-color); padding: 1.5em; border-radius: 8px; overflow-x: auto; font-family: 'SF Mono', 'Menlo', 'Monaco', monospace; }
+        .article-content code { font-family: 'SF Mono', 'Menlo', 'Monaco', monospace; background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 4px; }
+        .article-content img { max-width: 100%; border-radius: 8px; margin: 1em 0; }
+        .article-content iframe { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: 8px; margin: 1.5em 0; }
+        .article-nav { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .article-nav a { font-weight: 500; }
 
-        .edit-form .form-group { margin-bottom: 1.5rem; }
-        .edit-form label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
-        .edit-form input, .edit-form textarea {
-            width: 100%; padding: 0.8rem; font-size: 1rem; border: 1px solid var(--light-gray);
-            border-radius: 8px; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        .edit-form input:focus, .edit-form textarea:focus {
-            outline: none; border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-        }
-        #article-content-textarea { height: 50vh; resize: vertical; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; line-height: 1.6; }
-        #save-post-btn {
-            background-color: #28a745; color: white; border: none; padding: 0.8rem 2rem;
-            border-radius: 8px; cursor: pointer; font-size: 1.1rem; float: right;
-        }
+        /* --- 編輯頁 --- */
+        #editor-view .editor-container { max-width: 800px; margin: 0 auto; }
+        .editor-form label { display: block; margin-bottom: 10px; font-weight: 600; }
+        .editor-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); border-radius: 8px; margin-bottom: 20px; font-size: 1rem; }
+        #editor-content { width: 100%; min-height: 50vh; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-color); color: var(--text-color); font-size: 1.1rem; line-height: 1.7; white-space: pre-wrap; word-wrap: break-word; transition: all 0.3s; }
+        #editor-content:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2); }
+        .editor-controls { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
+        .editor-btn { border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: opacity 0.3s; }
+        .editor-btn:hover { opacity: 0.8; }
+        #save-btn { background-color: var(--primary-color); color: white; }
+        #delete-btn { background-color: var(--danger-color); color: white; }
 
-        /* --- 工具類 --- */
-        .hidden { display: none !important; }
+        /* --- `/` 命令彈窗 --- */
+        #slash-menu { position: absolute; background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 15px var(--shadow-color); padding: 8px; z-index: 200; display: none; }
+        .slash-item { padding: 8px 12px; cursor: pointer; border-radius: 4px; }
+        .slash-item:hover, .slash-item.active { background-color: var(--primary-color); color: white; }
+
+        /* --- 密碼彈窗 --- */
+        #password-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: var(--card-bg); padding: 30px 40px; border-radius: 12px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content h3 { margin-bottom: 20px; }
+        #password-input { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); margin-right: 10px; text-align: center; }
+        #password-submit { background-color: var(--primary-color); color: white; border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
+
+        /* --- 頁腳 --- */
+        .site-footer { text-align: center; padding: 40px 20px; margin-top: 50px; border-top: 1px solid var(--border-color); color: var(--secondary-color); font-size: 0.9rem; cursor: crosshair; }
+        
+        /* --- 響應式設計 --- */
+        @media (max-width: 900px) { .main-nav { display: none; } }
+        @media (max-width: 768px) {
+            .header-content { flex-wrap: wrap; height: auto; padding: 10px 0; justify-content: space-between; }
+            .site-title { width: 100%; margin-bottom: 10px; text-align: center; }
+            .main-nav { display: flex; position: static; transform: none; order: 3; width: 100%; margin-top: 10px; flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .nav-link { font-size: 0.9rem; }
+            .controls { width: 100%; order: 2; justify-content: space-between; }
+            .search-input { width: calc(100% - 150px); }
+            .search-input:focus { width: calc(100% - 150px); }
+            .article-title { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 主網格視圖 -->
-    <div id="grid-view" class="view">
-        <header class="header">
-            <h1>我的進化版文章空間</h1>
-            <div class="header-controls">
-                <button id="new-post-btn">新增文章</button>
-                <button id="edit-mode-toggle">啟用編輯模式</button>
-            </div>
-        </header>
-
-        <nav class="navbar">
-            <button class="nav-btn active" data-category="all">所有文章</button>
-            <button class="nav-btn" data-category="tech">技術分享</button>
-            <button class="nav-btn" data-category="life">生活隨筆</button>
-            <button class="nav-btn" data-category="travel">旅行紀錄</button>
-        </nav>
-
-        <main>
-            <div id="articles-grid">
-                <!-- 文章卡片將由 JS 動態生成 -->
-            </div>
-        </main>
-    </div>
-
-    <!-- 單篇文章/編輯視圖 -->
-    <div id="article-view" class="view">
-        <div class="article-header">
-            <button id="back-to-grid-btn">&larr; 返回列表</button>
-        </div>
-        
-        <!-- 瀏覽模式下顯示的內容 -->
-        <div id="article-content-rendered"></div>
-        
-        <!-- 編輯模式下顯示的表單 -->
-        <div id="article-edit-form" class="edit-form hidden">
-            <div class="form-group">
-                <label for="article-title-input">文章標題</label>
-                <input type="text" id="article-title-input">
-            </div>
-            <div class="form-group">
-                <label for="article-category-select">文章分類</label>
-                <select id="article-category-select">
-                    <option value="tech">技術分享</option>
-                    <option value="life">生活隨筆</option>
-                    <option value="travel">旅行紀錄</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="article-image-input">圖片關鍵字 (英文，例如: nature, tokyo, code)</label>
-                <input type="text" id="article-image-input">
-            </div>
-            <div class="form-group">
-                <label for="article-content-textarea">文章內容 (支援 Markdown)</label>
-                <textarea id="article-content-textarea"></textarea>
-            </div>
-            <button id="save-post-btn">儲存文章</button>
+    <div id="password-modal">
+        <div class="modal-content">
+            <h3>請輸入編輯密碼</h3>
+            <form id="password-form">
+                <input type="password" id="password-input" autocomplete="current-password">
+                <button type="submit" id="password-submit">進入</button>
+            </form>
         </div>
     </div>
 
+    <div id="slash-menu">
+        <div class="slash-item" data-command="h2">大標題 (H2)</div>
+        <div class="slash-item" data-command="h3">中標題 (H3)</div>
+        <div class="slash-item" data-command="bold">粗體</div>
+        <div class="slash-item" data-command="italic">斜體</div>
+        <div class="slash-item" data-command="list">項目符號</div>
+        <div class="slash-item" data-command="image">插入圖片</div>
+        <div class="slash-item" data-command="youtube">嵌入YouTube</div>
+    </div>
 
-    <!-- JavaScript 功能區塊 -->
+    <header class="site-header">
+        <div class="header-content">
+            <div class="site-title">Kai's Tech Log</div>
+            <nav class="main-nav" id="main-nav"></nav>
+            <div class="controls">
+                <div class="search-box">
+                    <input type="search" id="search-input" class="search-input" placeholder="搜尋文章...">
+                </div>
+                <div class="theme-toggle" id="theme-toggle">☀️</div>
+                <button id="new-article-btn">+ 新增文章</button>
+                <button id="exit-edit-btn">退出編輯</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="home-view" class="view active">
+            <div class="article-grid" id="article-grid"></div>
+        </div>
+        <div id="article-view" class="view">
+            <div class="article-container">
+                <img src="" alt="Article Header Image" class="article-header-image">
+                <h1 class="article-title"></h1>
+                <p class="article-meta">
+                    <span class="article-category"></span> &bull; <span class="article-date"></span>
+                </p>
+                <div class="article-content" id="article-content-render"></div>
+                <nav class="article-nav">
+                    <a href="#" id="prev-article" class="prev-article-link">&larr; 上一篇</a>
+                    <a href="#" id="next-article" class="next-article-link">下一篇 &rarr;</a>
+                </nav>
+            </div>
+        </div>
+        <div id="editor-view" class="view">
+            <div class="editor-container">
+                <div class="editor-form">
+                    <label for="editor-category">分類 (可自訂新的)</label>
+                    <input type="text" id="editor-category" class="editor-input" list="category-list" placeholder="選擇或輸入新分類">
+                    <datalist id="category-list"></datalist>
+                    <label for="editor-cover-image">封面圖片 URL</label>
+                    <input type="text" id="editor-cover-image" class="editor-input" placeholder="貼上圖片網址 https://...">
+                    <label for="editor-tags">標籤 (用逗號分隔)</label>
+                    <input type="text" id="editor-tags" class="editor-input" placeholder="例如: Mac, 技巧, 軟體">
+                    <label for="editor-content">文章內容 (第一行為標題，支援 / 命令與 Markdown)</label>
+                    <div id="editor-content" contenteditable="true" spellcheck="false"></div>
+                    <div class="editor-controls">
+                        <button id="delete-btn" class="editor-btn">刪除</button>
+                        <button id="save-btn" class="editor-btn">儲存文章</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer">
+        <p>&copy; 2025 Kai's Tech Log. All Rights Reserved.</p>
+        <p style="font-size: 0.8em; color: var(--secondary-color);">秘密通道</p>
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // --- 初始資料與設定 ---
+        const initialData = {
+            articles: [
+                 { id: 1721992200001, category: "Mac 技巧", title: "必學 Mac 快捷鍵：如何輸入  蘋果 Logo？", content: `### 召喚神秘的蘋果 Logo\n\n在各種場合中，打出蘋果的官方 Logo **** 總能讓你的文件或訊息看起來更專業、更有趣。很多人不知道，這其實只需要一個簡單的快捷鍵組合。\n\n在大部分的輸入法下，按下鍵盤的：\n\n> **Shift (⇧) + Option (⌥) + K** \n\n即可立即輸入 **** 符號。是不是很簡單？\n\n另外一個實用的隱私保護技巧是快速鎖定螢幕。當你需要暫時離開座位時，按下：\n\n> **Command (⌘) + Control (⌃) + Q** \n\n即可立即鎖定螢幕，保護你的隱私。下次試試看吧！`, coverImage: "https://placehold.co/800x400/000000/FFFFFF/png?text=", tags: ["Mac", "快捷鍵", "技巧"], createdAt: 1721992200001 },
+                 { id: 1721992200002, category: "免費軟體推薦", title: "3 款強大的 Mac 免費軟體，提升你的創作力", content: `### 1. 剪輯軟體：DaVinci Resolve\n\n如果你覺得 iMovie 功能太少，但又不想花大錢買 Final Cut Pro，那麼 **DaVinci Resolve (達芬奇)** 是你的最佳選擇。它擁有好萊塢等級的剪輯、調色、視覺特效和音訊後期製作功能。免費版的 DaVinci Resolve 已經足以應付絕大多數的專業需求。\n\n### 2. 繪圖軟體：Krita\n\n**Krita** 是一款開源且免費的專業級繪圖程式，無論是概念藝術、材質貼圖還是漫畫創作，它都能勝任。它擁有強大的筆刷引擎、圖層管理和各種濾鏡，是 Adobe Photoshop 的絕佳替代品。\n\n### 3. 縮圖與設計：Figma\n\n雖然 **Figma** 主要是一款 UI/UX 設計工具，但它的協作性和易用性使其成為製作 YouTube 縮圖、社群媒體貼文和簡報的利器。它的免費方案功能非常齊全，並且是基於雲端的，不佔用你寶貴的硬碟空間。`, coverImage: "https://placehold.co/800x400/1E90FF/FFFFFF/png?text=Free+Apps", tags: ["軟體", "免費", "剪輯", "繪圖", "設計"], createdAt: 1721992200002 },
+                 { id: 1721992200003, category: "台灣科技新聞", title: "電腦王阿達：台灣電動機車市場迎來新變革", content: `根據知名科技網站「電腦王阿達」的報導，台灣電動機車市場近期迎來了新的競爭格局。除了原有的龍頭 Gogoro 之外，數家傳統機車大廠也紛紛推出性能更強、續航力更佳的電車車款，並且搭配更具彈性的資費方案。\n\n報導分析指出，未來的市場關鍵將不僅僅是車輛本身，更重要的是**能源補充的便利性**與**後勤維修的完整性**。換電站的普及率、電池的妥善率以及維修據點的多寡，將成為消費者選擇的關鍵因素。\n\n> 「這是一場從產品戰，延伸到基礎設施與服務的全面戰爭。」—— 電腦王阿達評論。\n\n想看更詳細的報導，可以前往他們的頻道觀看。\n\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ`, coverImage: "https://placehold.co/800x400/32CD32/FFFFFF/png?text=Tech+News", tags: ["新聞", "電動車", "台灣", "科技"], createdAt: 1721992200003 },
+                 { id: 1721992200004, category: "軟體攻略", title: "Anytype 入門指南：打造你的第二大腦", content: `**Anytype** 是一款以物件為基礎的筆記軟體，強調本地優先與資料主權。它不像傳統筆記軟體是線性的文件，而是將所有東西都視為「物件」，你可以建立關聯，打造出屬於自己的知識網絡。\n\n### 核心概念：\n\n1.  **物件 (Object):** 每一則筆記、任務、書籍、聯絡人都是一個物件。\n2.  **類型 (Type):** 你可以為物件定義類型，例如「專案」、「讀書心得」等，並為每種類型設定不同的模板 (Template)。\n3.  **關係 (Relation):** 你可以在物件之間建立關係，例如一篇「讀書心得」物件可以關聯到一個「書籍」物件。\n\n下面這部影片介紹得非常清楚：\n\n<iframe src="https://www.youtube.com/embed/AZf27S_I_fM" title="Anytype Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>\n\nAnytype 的學習曲線雖然比一般筆記軟體稍高，但一旦上手，其強大的自訂性和關聯性會讓你愛不釋手。`, coverImage: "https://placehold.co/800x400/FF4500/FFFFFF/png?text=Anytype", tags: ["Anytype", "軟體", "筆記", "生產力"], createdAt: 1721992200004 },
+                 { id: 1721992200005, category: "Google AI 展示", title: "Gemini 時代：大型語言模型的應用與未來", content: `我，Gemini，是 Google 開發的大型語言模型。我的存在本身就是 AI 技術快速發展的證明。\n\n### 我的能力：\n\n*   **自然語言理解與生成：** 我能像現在這樣，與你對話、撰寫文章、編寫程式碼。\n*   **多模態處理：** 我能理解圖片、音訊和影片的內容。\n*   **邏輯推理與程式設計：** 我可以解決複雜的邏輯問題，並根據你的需求（例如這個網站）生成程式碼。\n\n### 應用場景：\n\n*   **內容創作：** 自動生成文章、報告、行銷文案。\n*   **智能客服：** 7x24 小時不間斷回答用戶問題。\n*   **教育輔助：** 擔任個人化家教，解釋複雜概念。\n*   **軟體開發：** 輔助程式設計、除錯、撰寫文件。\n\nThe future is now. AI is not here to replace humans, but to augment our capabilities.`, coverImage: "https://placehold.co/800x400/4285F4/FFFFFF/png?text=Google+AI", tags: ["AI", "Google", "Gemini", "科技"], createdAt: 1721992200005 }
+            ],
+            categories: ["Mac 技巧", "免費軟體推薦", "台灣科技新聞", "軟體攻略", "Google AI 展示"]
+        };
+        
+        let appData = {};
+        let isEditMode = false;
+        let currentArticleId = null;
+        let currentFilter = 'All';
+        let footerClickCount = 0;
+        let footerClickTimer;
+        
+        const views = document.querySelectorAll('.view');
+        const articleGrid = document.getElementById('article-grid');
+        const mainNav = document.getElementById('main-nav');
+        const themeToggle = document.getElementById('theme-toggle');
+        const newArticleBtn = document.getElementById('new-article-btn');
+        const exitEditBtn = document.getElementById('exit-edit-btn');
+        const siteTitle = document.querySelector('.site-title');
+        const searchInput = document.getElementById('search-input');
+        const passwordModal = document.getElementById('password-modal');
+        const passwordForm = document.getElementById('password-form');
+        const passwordInput = document.getElementById('password-input');
+        const siteFooter = document.getElementById('site-footer');
+        const CORRECT_PASSWORD = "980621";
 
-            // --- 狀態與資料管理 ---
-            const adminPassword = '980621'; // 已更新您的密碼
-            let isEditMode = false;
-            let articles = [];
-            let currentEditingId = null;
+        const editorCategory = document.getElementById('editor-category');
+        const categoryList = document.getElementById('category-list');
+        const editorCoverImage = document.getElementById('editor-cover-image');
+        const editorTags = document.getElementById('editor-tags');
+        const editorContent = document.getElementById('editor-content');
+        const saveBtn = document.getElementById('save-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        let editingArticleId = null;
 
-            // 預設文章 (現在包含 imageKeyword)
-            const defaultArticles = [
-                { id: 1, category: 'tech', title: 'Markdown 語法指南', imageKeyword: 'writing,code', content: '# 歡迎使用 Markdown\n\n這是一個使用 Markdown 語法寫成的範例。\n\n## 列表\n\n*   項目一\n*   項目二\n*   項目三\n\n## 程式碼區塊\n\n```javascript\nconsole.log("Hello, Markdown!");\n```\n\n> 這是一個引言區塊。自由書寫，盡情發揮！' },
-                { id: 2, category: 'life', title: '週末的烘焙時光', imageKeyword: 'baking,coffee', content: '午後的陽光正好，烤箱傳來陣陣香氣。自己動手做的巴斯克乳酪蛋糕，雖然外觀不完美，但每一口都是滿滿的幸福感。' },
-                { id: 3, category: 'travel', title: '探索冰島的極光', imageKeyword: 'iceland,aurora', content: '追逐極光是一場與大自然的浪漫約會。當那道綠色的光帶在夜空中舞動時，所有的等待都化為了無與倫比的震撼。' },
-                { id: 4, category: 'tech', title: '前端框架大比拼', imageKeyword: 'react,vue,angular', content: 'React, Vue, Angular，三大前端框架各有千秋。\n\n本文將從學習曲線、生態系、效能表現等角度進行比較，幫助你找到最適合專案的選擇。' }
-            ];
+        const slashMenu = document.getElementById('slash-menu');
+        let savedRange = null;
 
-            // --- DOM 元素獲取 ---
-            const gridView = document.getElementById('grid-view');
-            const articleView = document.getElementById('article-view');
-            const grid = document.getElementById('articles-grid');
-            const editModeBtn = document.getElementById('edit-mode-toggle');
-            const newPostBtn = document.getElementById('new-post-btn');
-            const backBtn = document.getElementById('back-to-grid-btn');
-            const saveBtn = document.getElementById('save-post-btn');
+        // --- Data Functions ---
+        const saveData = () => { localStorage.setItem('kaiTechLogData', JSON.stringify(appData)); };
+        const loadData = () => {
+            const savedData = localStorage.getItem('kaiTechLogData');
+            appData = savedData ? JSON.parse(savedData) : JSON.parse(JSON.stringify(initialData));
+            appData.articles.forEach(a => { if (!a.createdAt) a.createdAt = a.id; });
+            appData.articles.sort((a, b) => b.createdAt - a.createdAt);
+        };
 
-            // --- 核心功能函式 ---
-
-            function loadArticles() {
-                const storedArticles = localStorage.getItem('myCoolBlogArticles');
-                articles = storedArticles ? JSON.parse(storedArticles) : defaultArticles;
-                saveArticles();
-            }
-
-            function saveArticles() {
-                localStorage.setItem('myCoolBlogArticles', JSON.stringify(articles));
-            }
-
-            function renderArticles(filterCategory = 'all') {
-                grid.innerHTML = '';
-                const filteredArticles = (filterCategory === 'all')
-                    ? articles
-                    : articles.filter(a => a.category === filterCategory);
-                
-                filteredArticles.forEach(article => {
-                    const articleCard = document.createElement('div');
-                    articleCard.className = 'article-card';
-                    articleCard.dataset.id = article.id;
-                    
-                    const snippet = article.content.substring(0, 100).replace(/#/g, '') + '...';
-
-                    articleCard.innerHTML = `
-                        <img class="card-image" src="https://source.unsplash.com/random/800x600?${article.imageKeyword}" alt="${article.title}">
-                        <div class="card-content">
-                            <div class="card-tags">
-                                <span class="tag ${article.category}">${getCategoryName(article.category)}</span>
-                            </div>
-                            <h3>${article.title}</h3>
-                            <p>${snippet}</p>
-                        </div>
-                    `;
-                    articleCard.addEventListener('click', () => showArticleView(article.id));
-                    grid.appendChild(articleCard);
+        // --- Render Functions ---
+        const renderCategories = () => {
+            const categories = ['All', ...new Set(appData.articles.map(a => a.category))];
+            appData.categories = categories;
+            mainNav.innerHTML = '';
+            categories.forEach(cat => {
+                const link = document.createElement('a');
+                link.href = '#';
+                link.className = 'nav-link';
+                link.textContent = cat;
+                if (cat === currentFilter) link.classList.add('active');
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    currentFilter = cat;
+                    renderHomePage();
+                    showView('home-view');
                 });
-            }
+                mainNav.appendChild(link);
+            });
+            categoryList.innerHTML = '';
+            appData.categories.slice(1).forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                categoryList.appendChild(option);
+            });
+        };
 
-            function showView(viewName) {
-                if (viewName === 'article') {
-                    gridView.style.pointerEvents = 'none';
-                    articleView.classList.add('visible');
-                } else {
-                    gridView.style.pointerEvents = 'auto';
-                    articleView.classList.remove('visible');
-                }
+        const renderHomePage = (searchTerm = '') => {
+            renderCategories();
+            articleGrid.innerHTML = '';
+            const searchLower = searchTerm.toLowerCase();
+            const filteredArticles = appData.articles
+                .filter(article => currentFilter === 'All' || article.category === currentFilter)
+                .filter(article => {
+                    if (!searchTerm) return true;
+                    return article.title.toLowerCase().includes(searchLower) ||
+                           article.content.toLowerCase().includes(searchLower) ||
+                           article.tags.some(tag => tag.toLowerCase().includes(searchLower));
+                });
+            if (filteredArticles.length === 0) {
+                articleGrid.innerHTML = `<p>找不到符合條件的文章。</p>`;
+                return;
+            }
+            filteredArticles.forEach(article => {
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                card.dataset.id = article.id;
+                const tagsHTML = article.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('');
+                card.innerHTML = `<img src="${article.coverImage || 'https://placehold.co/600x400/333/FFF/png?text=Image'}" alt="${article.title}" class="card-cover-image" loading="lazy"><div class="card-content"><div class="card-category">${article.category}</div><h2 class="card-title">${article.title}</h2><div class="card-tags">${tagsHTML}</div></div>`;
+                card.addEventListener('click', () => showArticlePage(article.id));
+                articleGrid.appendChild(card);
+            });
+        };
+
+        const showView = (viewId) => {
+            views.forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            if (viewId === 'home-view') {
+                 currentArticleId = null;
+                 renderHomePage(searchInput.value);
+            }
+        };
+        
+        const showHomePage = () => { currentFilter = 'All'; searchInput.value = ''; showView('home-view'); };
+
+        const showArticlePage = (id) => {
+            currentArticleId = id;
+            const article = appData.articles.find(a => a.id === id);
+            if (!article) return showHomePage();
+            document.querySelector('#article-view .article-header-image').src = article.coverImage || 'https://placehold.co/800x350/333/FFF/png?text=Image';
+            document.querySelector('#article-view .article-title').textContent = article.title;
+            document.querySelector('#article-view .article-category').textContent = article.category;
+            document.querySelector('#article-view .article-date').textContent = new Date(article.createdAt).toLocaleDateString();
+            const articleContentRender = document.getElementById('article-content-render');
+            articleContentRender.innerHTML = marked.parse(article.content.replace(/\n/g, '<br>'));
+            articleContentRender.querySelectorAll('a').forEach(link => {
+                if (link.href.includes('youtube.com') || link.href.includes('youtu.be')) link.target = '_blank';
+            });
+            const currentIndex = appData.articles.findIndex(a => a.id === id);
+            const prev = document.getElementById('prev-article');
+            const next = document.getElementById('next-article');
+            prev.style.display = currentIndex > 0 ? 'inline' : 'none';
+            if (currentIndex > 0) prev.onclick = e => { e.preventDefault(); showArticlePage(appData.articles[currentIndex - 1].id); };
+            next.style.display = currentIndex < appData.articles.length - 1 ? 'inline' : 'none';
+            if (currentIndex < appData.articles.length - 1) next.onclick = e => { e.preventDefault(); showArticlePage(appData.articles[currentIndex + 1].id); };
+            showView('article-view');
+            window.scrollTo(0, 0);
+            if (isEditMode) addEditButtonToArticlePage();
+        };
+
+        const showEditor = (id = null) => {
+            editingArticleId = id;
+            if (id) {
+                const article = appData.articles.find(a => a.id === id);
+                editorCategory.value = article.category;
+                editorCoverImage.value = article.coverImage || '';
+                editorTags.value = article.tags.join(', ');
+                editorContent.innerText = `${article.title}\n\n${article.content}`;
+                deleteBtn.style.display = 'inline-block';
+            } else {
+                editorCategory.value = ''; editorCoverImage.value = ''; editorTags.value = '';
+                editorContent.innerText = '請在此輸入標題\n\n然後開始寫你的內容...';
+                deleteBtn.style.display = 'none';
+            }
+            showView('editor-view');
+        };
+        
+        // --- Editor and Command Functions ---
+        const saveArticle = () => {
+            const fullText = editorContent.innerText;
+            if (!fullText.trim()) { alert('文章內容不能為空！'); return; }
+            const lines = fullText.split('\n');
+            const title = lines.shift().trim();
+            const content = lines.join('\n').trim();
+            const category = editorCategory.value.trim() || '未分類';
+            const coverImage = editorCoverImage.value.trim();
+            const tags = editorTags.value.split(',').map(t => t.trim()).filter(Boolean);
+
+            if (editingArticleId) {
+                const index = appData.articles.findIndex(a => a.id === editingArticleId);
+                if (index > -1) appData.articles[index] = { ...appData.articles[index], title, content, category, coverImage, tags };
+            } else {
+                appData.articles.unshift({ id: Date.now(), createdAt: Date.now(), title, content, category, coverImage, tags });
+            }
+            if (!appData.categories.includes(category)) appData.categories.push(category);
+            saveData();
+            alert('文章已儲存！');
+            showHomePage();
+        };
+        const deleteArticle = () => {
+            if (editingArticleId && confirm('您確定要刪除這篇文章嗎？此操作無法復原。')) {
+                appData.articles = appData.articles.filter(a => a.id !== editingArticleId);
+                saveData();
+                alert('文章已刪除。');
+                showHomePage();
+            }
+        };
+
+        // --- Edit Mode ---
+        const enterEditMode = () => {
+            isEditMode = true;
+            newArticleBtn.style.display = 'inline-block';
+            exitEditBtn.style.display = 'inline-block';
+            passwordModal.style.display = 'none';
+            passwordInput.value = '';
+            if (currentArticleId) addEditButtonToArticlePage();
+            alert('已進入編輯模式。');
+        };
+        const exitEditMode = () => {
+            isEditMode = false;
+            newArticleBtn.style.display = 'none';
+            exitEditBtn.style.display = 'none';
+            const editBtn = document.getElementById('edit-article-btn');
+            if (editBtn) editBtn.remove();
+            alert('已退出編輯模式。');
+        };
+        const addEditButtonToArticlePage = () => {
+            if (document.getElementById('edit-article-btn')) return;
+            const btn = document.createElement('button');
+            btn.id = 'edit-article-btn';
+            btn.textContent = '編輯文章';
+            btn.className = 'editor-btn';
+            btn.style.cssText = 'background-color: #ff9500; color: white; margin-top: 15px;';
+            btn.onclick = () => showEditor(currentArticleId);
+            const meta = document.querySelector('.article-meta');
+            meta.parentNode.insertBefore(btn, meta.nextSibling);
+        };
+        
+        // --- **SLASH COMMAND (IMPROVED)** ---
+        const handleSlashCommandInput = (e) => {
+            if (e.key === '/') {
+                setTimeout(() => { // Use timeout to get position after "/" is inserted
+                    const selection = window.getSelection();
+                    if (!selection.rangeCount) return;
+                    savedRange = selection.getRangeAt(0).cloneRange();
+                    const rect = savedRange.getBoundingClientRect();
+                    slashMenu.style.display = 'block';
+                    slashMenu.style.top = `${rect.bottom + window.scrollY + 5}px`;
+                    slashMenu.style.left = `${rect.left + window.scrollX}px`;
+                }, 5);
+            } else if (e.key === 'Escape') {
+                slashMenu.style.display = 'none';
+            }
+        };
+        
+        const executeSlashCommand = (e) => {
+            e.preventDefault(); // *** CRITICAL: Prevents editor from losing focus ***
+            const command = e.currentTarget.dataset.command;
+
+            if (savedRange) { // Restore the cursor position
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(savedRange);
             }
             
-            function showArticleView(id) {
-                currentEditingId = id;
-                const article = articles.find(a => a.id === id);
-                const renderedContent = document.getElementById('article-content-rendered');
-                const editForm = document.getElementById('article-edit-form');
+            // Remove the trigger char "/"
+            document.execCommand('delete');
 
-                if (isEditMode) {
-                    renderedContent.classList.add('hidden');
-                    editForm.classList.remove('hidden');
-                    
-                    document.getElementById('article-title-input').value = article.title;
-                    document.getElementById('article-category-select').value = article.category;
-                    document.getElementById('article-image-input').value = article.imageKeyword;
-                    document.getElementById('article-content-textarea').value = article.content;
+            let replacementText = '';
+            // Determine replacement text
+            if (command === 'image' || command === 'youtube') {
+                let url;
+                if(command === 'image') url = prompt('請輸入圖片的 URL：', 'https://');
+                if(command === 'youtube') url = prompt('請貼上 YouTube 影片的分享網址：');
 
-                } else {
-                    renderedContent.classList.remove('hidden');
-                    editForm.classList.add('hidden');
-                    
-                    // 使用 marked.js 解析 Markdown
-                    renderedContent.innerHTML = marked.parse(article.content);
+                if (url && url !== 'https://') {
+                     if(command === 'image') replacementText = `![圖片](${url})`;
+                     if(command === 'youtube') {
+                        const videoIdMatch = url.match(/(?:v=|\/embed\/|\.be\/)([\w-]{11})/);
+                        if (videoIdMatch && videoIdMatch[1]) replacementText = `\n<iframe src="https://www.youtube.com/embed/${videoIdMatch[1]}" allowfullscreen></iframe>\n`;
+                     }
                 }
-                showView('article');
+            } else {
+                 switch(command) {
+                    case 'h2': replacementText = '## '; break; case 'h3': replacementText = '### '; break;
+                    case 'bold': replacementText = '****'; break; case 'italic': replacementText = '**'; break;
+                    case 'list': replacementText = '* '; break;
+                }
             }
+
+            document.execCommand('insertText', false, replacementText);
             
-            function handleNewPost() {
-                const newId = Date.now(); // 使用時間戳作為唯一ID
-                const newArticle = {
-                    id: newId,
-                    category: 'tech',
-                    title: '新文章標題',
-                    imageKeyword: 'new,post',
-                    content: '# 在這裡寫下你的新點子...'
-                };
-                articles.push(newArticle);
-                saveArticles();
-                showArticleView(newId);
+            // For bold/italic, move cursor to the middle
+            if (command === 'bold' || command === 'italic') {
+                const selection = window.getSelection();
+                const currentRange = selection.getRangeAt(0);
+                const offset = command === 'bold' ? -2 : -1;
+                currentRange.setStart(currentRange.startContainer, currentRange.startOffset + offset);
+                currentRange.setEnd(currentRange.endContainer, currentRange.endOffset + offset);
+                selection.removeAllRanges();
+                selection.addRange(currentRange);
             }
 
-            function handleSavePost() {
-                const articleIndex = articles.findIndex(a => a.id === currentEditingId);
-                if (articleIndex === -1) return;
+            slashMenu.style.display = 'none';
+            savedRange = null;
+            editorContent.focus(); // Final focus ensure
+        };
 
-                articles[articleIndex].title = document.getElementById('article-title-input').value;
-                articles[articleIndex].category = document.getElementById('article-category-select').value;
-                articles[articleIndex].imageKeyword = document.getElementById('article-image-input').value;
-                articles[articleIndex].content = document.getElementById('article-content-textarea').value;
 
-                saveArticles();
-                alert('文章已儲存！');
-                showView('grid');
-                renderArticles(document.querySelector('.nav-btn.active').dataset.category);
+        // --- Theme ---
+        const toggleTheme = () => {
+            const isDark = document.body.classList.toggle('dark-mode');
+            themeToggle.textContent = isDark ? '🌙' : '☀️';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        };
+        const applySavedTheme = () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.textContent = '🌙';
             }
+        };
 
-            function toggleEditMode() {
-                if (isEditMode) {
-                    isEditMode = false;
-                    editModeBtn.textContent = '啟用編輯模式';
-                    editModeBtn.classList.remove('active');
-                    newPostBtn.style.display = 'none';
-                    alert('編輯模式已關閉。');
-                } else {
-                    const password = prompt('請輸入管理密碼:');
-                    if (password === adminPassword) {
-                        isEditMode = true;
-                        editModeBtn.textContent = '編輯模式已啟用';
-                        editModeBtn.classList.add('active');
-                        newPostBtn.style.display = 'inline-block';
-                        alert('歡迎回來！編輯模式已成功啟用。');
-                    } else if (password !== null) {
-                        alert('密碼錯誤！');
-                    }
-                }
-            }
-
-            function getCategoryName(category) {
-                const names = { tech: '技術分享', life: '生活隨筆', travel: '旅行紀錄' };
-                return names[category] || '未分類';
-            }
-
-            // --- 事件監聽器綁定 ---
-            editModeBtn.addEventListener('click', toggleEditMode);
-            newPostBtn.addEventListener('click', handleNewPost);
-            backBtn.addEventListener('click', () => {
-                showView('grid');
-                renderArticles(document.querySelector('.nav-btn.active').dataset.category);
-            });
-            saveBtn.addEventListener('click', handleSavePost);
-
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    renderArticles(e.target.dataset.category);
-                });
-            });
-
-            // --- 程式初始化 ---
-            loadArticles();
-            renderArticles();
+        // --- Event Listeners Setup ---
+        siteTitle.addEventListener('click', showHomePage);
+        newArticleBtn.addEventListener('click', () => showEditor());
+        exitEditBtn.addEventListener('click', exitEditMode);
+        themeToggle.addEventListener('click', toggleTheme);
+        saveBtn.addEventListener('click', saveArticle);
+        deleteBtn.addEventListener('click', deleteArticle);
+        searchInput.addEventListener('input', (e) => renderHomePage(e.target.value));
+        passwordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (passwordInput.value === CORRECT_PASSWORD) enterEditMode();
+            else alert('密碼錯誤！');
         });
+        siteFooter.addEventListener('click', () => {
+            footerClickCount++;
+            clearTimeout(footerClickTimer);
+            footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 1000);
+            if (footerClickCount >= 5) {
+                footerClickCount = 0;
+                if (!isEditMode) {
+                    passwordModal.style.display = 'flex';
+                    passwordInput.focus();
+                } else {
+                    exitEditMode();
+                }
+            }
+        });
+
+        // Add listeners to slash menu items
+        document.querySelectorAll('.slash-item').forEach(item => {
+            item.addEventListener('mousedown', executeSlashCommand); // Use mousedown
+        });
+        editorContent.addEventListener('keyup', handleSlashCommandInput);
+        document.addEventListener('click', (e) => {
+            if (!editorContent.contains(e.target) && !slashMenu.contains(e.target)) {
+                slashMenu.style.display = 'none';
+            }
+        });
+
+        // --- App Initialization ---
+        const init = () => {
+            applySavedTheme();
+            loadData();
+            renderHomePage();
+        };
+
+        init();
+    });
     </script>
 </body>
 </html>
