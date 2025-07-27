@@ -324,4 +324,87 @@
                 document.getElementById(viewId).classList.add('active');
             },
             showHomePage: () => {
-                a
+                appState.currentFilter = 'All';
+                ui.searchInput.value = '';
+                actions.showView('home-view');
+                render.homePage();
+            },
+            showArticlePage: async (id) => {
+                actions.showView('article-view');
+                ui.articleView.innerHTML = `<div class="article-container"><p>正在載入文章...</p></div>`;
+                window.scrollTo(0, 0);
+
+                try {
+                    // 1. 檢查快取
+                    if (appState.articleCache[id]) {
+                        render.articlePage(appState.articleCache[id]);
+                        return;
+                    }
+                    // 2. 從 Firebase 獲取單一文章
+                    const snapshot = await get(ref(db, `blogData/articles/${id}`));
+                    if (snapshot.exists()) {
+                        const article = snapshot.val();
+                        appState.articleCache[id] = article; // 存入快取
+                        render.articlePage(article);
+                    } else {
+                        ui.articleView.innerHTML = `<div class="article-container"><p>錯誤：找不到這篇文章。</p></div>`;
+                    }
+                } catch (error) {
+                    console.error("獲取文章失敗:", error);
+                    ui.articleView.innerHTML = `<div class="article-container"><p>載入文章時發生錯誤。</p></div>`;
+                }
+            },
+            toggleTheme: () => {
+                const body = document.body;
+                body.classList.toggle('dark-mode');
+                ui.themeToggle.textContent = body.classList.contains('dark-mode') ? '🌙' : '☀️';
+                localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
+            }
+        };
+
+        // 初始化資料載入
+        function initializeAppLogic() {
+            // 初始載入主題
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                ui.themeToggle.textContent = '🌙';
+            }
+
+            // 1. 建立一個查詢，只獲取最新文章的摘要資訊 (id, title, category, tags, coverImage)
+            // 這裡我們取最新的 20 篇作為首頁列表
+            const homePageQuery = query(articlesRef, orderByChild('id'), limitToLast(20));
+
+            // 2. 監聽首頁文章列表
+            onValue(homePageQuery, (snapshot) => {
+                const articles = snapshot.val() || {};
+                appState.homePageArticles = articles;
+                render.homePage(); // 收到資料後渲染首頁
+            }, (error) => {
+                console.error("Firebase 讀取文章列表失敗:", error);
+                ui.articleGrid.innerHTML = `<p style="padding: 20px;">無法載入資料，請檢查網路連線或 Firebase 設定。</p>`;
+            });
+
+            // 3. 監聽分類資料
+            onValue(categoriesRef, (snapshot) => {
+                appState.allCategories = snapshot.val() || [];
+                render.categories(); // 收到資料後渲染分類
+            });
+
+            // 綁定事件
+            ui.siteTitle.addEventListener('click', actions.showHomePage);
+            ui.themeToggle.addEventListener('click', actions.toggleTheme);
+            ui.searchInput.addEventListener('input', () => render.homePage());
+            ui.catDisplayBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                ui.catDropdown.classList.toggle('active');
+            });
+            document.addEventListener('click', () => ui.catDropdown.classList.remove('active'));
+        }
+
+        // 啟動應用
+        initializeAppLogic();
+
+    </script>
+    <!-- --- JavaScript 程式碼結束 --- -->
+</body>
+</html>
