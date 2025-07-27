@@ -80,7 +80,6 @@
             databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com",
         };
         
-        // This data is now only used if the database is completely empty.
         const initialData = {
             articles: [
                  { id: 1722000001, category: "Mac 技巧", title: "必學 Mac 快捷鍵：如何輸入  蘋果 Logo？", content: "在各種場合中，打出蘋果的官方 Logo **** 總能讓你的文件或訊息看起來更專業、更有趣。很多人不知道，這其實只需要一個簡單的快捷鍵組合。\n\n在大部分的輸入法下，按下鍵盤的：\n\n> **Shift (⇧) + Option (⌥) + K** \n\n即可立即輸入 **** 符號。是不是很簡單？\n\n另外一個實用的隱私保護技巧是快速鎖定螢幕。當你需要暫時離開座位時，按下：\n\n> **Command (⌘) + Control (⌃) + Q** \n\n即可立即鎖定螢幕，保護你的隱私。下次試試看吧！", coverImage: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=800", tags: ["Mac", "快捷鍵", "技巧"], createdAt: 1722000001 },
@@ -99,40 +98,19 @@
             categories: ["Mac 技巧", "免費軟體推薦", "台灣科技新聞", "軟體攻略", "Google AI 展示", "硬體評測", "AI 新聞", "雲端技術", "生產力工具"]
         };
         
-        // --- App State ---
+        // --- App State & Elements ---
         let appData = { articles: {}, categories: [] };
-        let isEditMode = false;
-        let currentArticleId = null;
-        let currentFilter = 'All';
-        let editingArticleId = null;
-        
-        // --- Firebase Initialization ---
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const dbRef = ref(db, 'blogData');
-        const dbApi = {
-            saveArticle: (article) => set(ref(db, `blogData/articles/${article.id}`), article),
-            deleteArticle: (id) => remove(ref(db, `blogData/articles/${id}`)),
-            saveCategories: (categories) => set(ref(db, 'blogData/categories'), categories)
-        };
-        
-        // --- UI Elements ---
-        const elements = {
-            articleGrid: document.getElementById('article-grid'), mainNav: document.getElementById('main-nav'),
-            themeToggle: document.getElementById('theme-toggle'), newArticleBtn: document.getElementById('new-article-btn'),
-            exitEditBtn: document.getElementById('exit-edit-btn'), siteTitle: document.querySelector('.site-title'),
-            searchInput: document.getElementById('search-input'), editorOverlay: document.getElementById('editor-overlay'),
-            editor: { category: document.getElementById('editor-category'), list: document.getElementById('category-list'), cover: document.getElementById('editor-cover-image'), tags: document.getElementById('editor-tags'), content: document.getElementById('editor-content') },
-            saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'), cancelBtn: document.getElementById('cancel-btn'),
-            articleView: { image: document.querySelector('#article-view .article-header-image'), title: document.querySelector('#article-view .article-title'), category: document.querySelector('#article-view .article-category'), date: document.querySelector('#article-view .article-date'), content: document.getElementById('article-content-render'), prev: document.getElementById('prev-article'), next: document.getElementById('next-article'),}
-        };
+        let isEditMode = false, currentArticleId = null, currentFilter = 'All', editingArticleId = null;
+        const app = initializeApp(firebaseConfig), db = getDatabase(app), dbRef = ref(db, 'blogData');
+        const dbApi = { saveArticle: (a) => set(ref(db, `blogData/articles/${a.id}`), a), deleteArticle: (id) => remove(ref(db, `blogData/articles/${id}`)), saveCategories: (c) => set(ref(db, 'blogData/categories'), c) };
+        const elements = { articleGrid: document.getElementById('article-grid'), mainNav: document.getElementById('main-nav'), themeToggle: document.getElementById('theme-toggle'), newArticleBtn: document.getElementById('new-article-btn'), exitEditBtn: document.getElementById('exit-edit-btn'), siteTitle: document.querySelector('.site-title'), searchInput: document.getElementById('search-input'), editorOverlay: document.getElementById('editor-overlay'), editor: { category: document.getElementById('editor-category'), list: document.getElementById('category-list'), cover: document.getElementById('editor-cover-image'), tags: document.getElementById('editor-tags'), content: document.getElementById('editor-content') }, saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'), cancelBtn: document.getElementById('cancel-btn'), articleView: { image: document.querySelector('#article-view .article-header-image'), title: document.querySelector('#article-view .article-title'), category: document.querySelector('#article-view .article-category'), date: document.querySelector('#article-view .article-date'), content: document.getElementById('article-content-render'), prev: document.getElementById('prev-article'), next: document.getElementById('next-article'),} };
 
         // --- Render Functions ---
-        const renderCategories = () => { const cats = ['All', ...appData.categories]; elements.mainNav.innerHTML = ''; cats.forEach(c => { const a = document.createElement('a'); a.className = 'nav-link'; a.textContent = c; if (c === currentFilter) a.classList.add('active'); a.onclick = e => { e.preventDefault(); currentFilter = c; renderHomePage(); }; elements.mainNav.appendChild(a); }); elements.editor.list.innerHTML = ''; appData.categories.forEach(c => { const o = document.createElement('option'); o.value = c; elements.editor.list.appendChild(o); }); };
-        const renderHomePage = (term = '') => { renderCategories(); elements.articleGrid.innerHTML = ''; const s = term.toLowerCase(); const articlesArray = Object.values(appData.articles || {}).sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); const f = articlesArray.filter(a => currentFilter === 'All' || a.category === currentFilter).filter(a => !term || a.title.toLowerCase().includes(s) || a.content.toLowerCase().includes(s) || (a.tags && a.tags.some(t => t.toLowerCase().includes(s)))); if (f.length === 0) { elements.articleGrid.innerHTML = `<p style="padding: 20px;">找不到符合條件的文章。</p>`; return; } f.forEach(a => { const c = document.createElement('div'); c.className = 'article-card'; c.dataset.id = a.id; const t = a.tags ? a.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('') : ''; c.innerHTML = `<img src="${a.coverImage || ''}" alt="${a.title}" class="card-cover-image" loading="lazy"><div class="card-content"><div class="card-category">${a.category}</div><h2 class="card-title">${a.title}</h2><div class="card-tags">${t}</div></div>`; c.addEventListener('click', () => showArticlePage(a.id)); elements.articleGrid.appendChild(c); }); };
+        const renderCategories = () => { const cats = ['All', ...(appData.categories || [])]; elements.mainNav.innerHTML = ''; cats.forEach(c => { const a = document.createElement('a'); a.className = 'nav-link'; a.textContent = c; if (c === currentFilter) a.classList.add('active'); a.onclick = e => { e.preventDefault(); currentFilter = c; renderHomePage(); }; elements.mainNav.appendChild(a); }); elements.editor.list.innerHTML = ''; (appData.categories || []).forEach(c => { const o = document.createElement('option'); o.value = c; elements.editor.list.appendChild(o); }); };
+        const renderHomePage = (term = '') => { renderCategories(); elements.articleGrid.innerHTML = ''; const s = term.toLowerCase(); const articlesArray = Object.values(appData.articles || {}).sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); const f = articlesArray.filter(a => currentFilter === 'All' || a.category === currentFilter).filter(a => !term || a.title.toLowerCase().includes(s) || (a.content && a.content.toLowerCase().includes(s)) || (a.tags && a.tags.some(t => t.toLowerCase().includes(s)))); if (f.length === 0) { elements.articleGrid.innerHTML = `<p style="padding: 20px;">找不到符合條件的文章。</p>`; return; } f.forEach(a => { const c = document.createElement('div'); c.className = 'article-card'; c.dataset.id = a.id; const t = a.tags ? a.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('') : ''; c.innerHTML = `<img src="${a.coverImage || 'https://placehold.co/600x400'}" alt="${a.title}" class="card-cover-image" loading="lazy"><div class="card-content"><div class="card-category">${a.category}</div><h2 class="card-title">${a.title}</h2><div class="card-tags">${t}</div></div>`; c.addEventListener('click', () => showArticlePage(a.id)); elements.articleGrid.appendChild(c); }); };
         const showView = (v) => { document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(v).classList.add('active'); if (v === 'home-view') { currentArticleId = null; renderHomePage(elements.searchInput.value); }};
         const showHomePage = () => { currentFilter = 'All'; elements.searchInput.value = ''; showView('home-view'); };
-        const showArticlePage = (id) => { currentArticleId = id; const a = (appData.articles || {})[id]; if (!a) return showHomePage(); const v = elements.articleView; v.image.src = a.coverImage || ''; v.title.textContent = a.title; v.category.textContent = a.category; v.date.textContent = new Date(a.createdAt).toLocaleDateString(); v.content.innerHTML = marked.parse(a.content || ''); const articlesArray = Object.values(appData.articles || {}).sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); const i = articlesArray.findIndex(art => art.id === id); v.prev.style.display = i > 0 ? 'inline' : 'none'; if (i > 0) v.prev.onclick = () => showArticlePage(articlesArray[i - 1].id); v.next.style.display = i < articlesArray.length - 1 ? 'inline' : 'none'; if (i < articlesArray.length - 1) v.next.onclick = () => showArticlePage(articlesArray[i + 1].id); showView('article-view'); window.scrollTo(0, 0); if (isEditMode) addEditButtonToArticlePage(); };
+        const showArticlePage = (id) => { currentArticleId = id; const a = (appData.articles || {})[id]; if (!a) return showHomePage(); const v = elements.articleView; v.image.src = a.coverImage || 'https://placehold.co/800x350'; v.title.textContent = a.title; v.category.textContent = a.category; v.date.textContent = new Date(a.createdAt).toLocaleDateString(); v.content.innerHTML = marked.parse(a.content || ''); const articlesArray = Object.values(appData.articles || {}).sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); const i = articlesArray.findIndex(art => art.id === id); v.prev.style.display = i > 0 ? 'inline' : 'none'; if (i > 0) v.prev.onclick = () => showArticlePage(articlesArray[i - 1].id); v.next.style.display = i < articlesArray.length - 1 ? 'inline' : 'none'; if (i < articlesArray.length - 1) v.next.onclick = () => showArticlePage(articlesArray[i + 1].id); showView('article-view'); window.scrollTo(0, 0); if (isEditMode) addEditButtonToArticlePage(); };
         const showEditor = (id = null) => { editingArticleId = id; if (id) { const a = appData.articles[id]; elements.editor.category.value = a.category; elements.editor.cover.value = a.coverImage || ''; elements.editor.tags.value = (a.tags || []).join(', '); elements.editor.content.value = `${a.title}\n\n${a.content}`; elements.deleteBtn.style.display = 'inline-block'; } else { ['category','cover','tags','content'].forEach(k => elements.editor[k].value = ''); elements.editor.content.placeholder = '第一行為標題...'; elements.deleteBtn.style.display = 'none'; } elements.editorOverlay.classList.add('active'); };
         
         // --- Core Actions ---
@@ -144,34 +122,37 @@
         const toggleTheme = () => { const d = document.body.classList.toggle('dark-mode'); elements.themeToggle.textContent = d ? '🌙' : '☀️'; localStorage.setItem('theme', d ? 'dark' : 'light'); };
         const applySavedTheme = () => { if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); elements.themeToggle.textContent = '🌙'; }};
         
-        // --- App Initialization ---
+        // --- App Initialization (Robust Version) ---
         const init = () => {
             applySavedTheme();
             marked.setOptions({ breaks: true, gfm: true });
             onValue(dbRef, (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    appData.articles = data.articles || {};
-                    appData.categories = data.categories || [];
+                const data = snapshot.val();
+                if (data && data.articles && data.categories) {
+                    appData = data;
                 } else {
-                    set(dbRef, initialData).then(() => {
-                        console.log("Initial data populated to Firebase.");
-                        appData = { articles: initialData.articles, categories: initialData.categories };
-                    });
+                    // Database is empty or malformed, set initial data.
+                    set(dbRef, initialData);
+                    // We don't need to wait, use initialData immediately for the first render.
+                    appData = {
+                        articles: initialData.articles,
+                        categories: initialData.categories
+                    };
                 }
-                showHomePage(); // Always render with the latest data
-            }, { onlyOnce: false }); // Ensure it's a persistent listener
+                showHomePage(); // Render with whatever data we have now.
+            }, { onlyOnce: false }); // Persistent listener
             
-            elements.siteTitle.addEventListener('click', showHomePage);
-            elements.newArticleBtn.addEventListener('click', () => showEditor());
-            elements.exitEditBtn.addEventListener('click', exitEditMode);
-            elements.themeToggle.addEventListener('click', toggleTheme);
-            elements.saveBtn.addEventListener('click', saveArticle);
-            elements.deleteBtn.addEventListener('click', deleteArticle);
-            elements.cancelBtn.addEventListener('click', () => elements.editorOverlay.classList.remove('active'));
-            elements.searchInput.addEventListener('input', e => renderHomePage(e.target.value));
+            // Simplified event listeners
+            elements.siteTitle.onclick = showHomePage;
+            elements.newArticleBtn.onclick = () => showEditor();
+            elements.exitEditBtn.onclick = exitEditMode;
+            elements.themeToggle.onclick = toggleTheme;
+            elements.saveBtn.onclick = saveArticle;
+            elements.deleteBtn.onclick = deleteArticle;
+            elements.cancelBtn.onclick = () => elements.editorOverlay.classList.remove('active');
+            elements.searchInput.oninput = e => renderHomePage(e.target.value);
             
-            if (new URLSearchParams(window.location.search).get('admin') === 'kai') { // Changed from '1' to 'kai'
+            if (new URLSearchParams(window.location.search).get('admin') === 'kai') {
                 enterEditMode();
             }
         };
