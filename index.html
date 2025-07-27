@@ -6,23 +6,26 @@
     <title>KAI's Tech Log - Final CMS Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        :root {
-            --bg-color: #ffffff; --text-color: #1a1a1a; --primary-color: #007aff; --secondary-color: #6c757d;
-            --border-color: #dee2e6; --card-bg: #f8f9fa; --shadow-color: rgba(0, 0, 0, 0.1);
+        :root { 
+            --bg-color: #ffffff; --text-color: #1a1a1a; --primary-color: #007aff; --secondary-color: #6c757d; 
+            --border-color: #dee2e6; --card-bg: #f8f9fa; --shadow-color: rgba(0, 0, 0, 0.1); 
             --header-bg: rgba(255, 255, 255, 0.85); --code-bg: #e9ecef; --code-color: #333; --danger-color: #dc3545;
             --border-radius: 12px;
         }
-        body.dark-mode {
-            --bg-color: #121212; --text-color: #e0e0e0; --primary-color: #0a84ff; --secondary-color: #8e8e93;
-            --border-color: #3a3a3c; --card-bg: #1c1c1e; --shadow-color: rgba(0, 0, 0, 0.3);
+        body.dark-mode { 
+            --bg-color: #121212; --text-color: #e0e0e0; --primary-color: #0a84ff; --secondary-color: #8e8e93; 
+            --border-color: #3a3a3c; --card-bg: #1c1c1e; --shadow-color: rgba(0, 0, 0, 0.3); 
             --header-bg: rgba(28, 28, 30, 0.85); --code-bg: #2c2c2e; --code-color: #f0f0f0; --danger-color: #ff453a;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; line-height: 1.7; }
+        
+        /* --- MODIFIED: Header Layout --- */
         .site-header { position: sticky; top: 0; z-index: 100; background-color: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); padding: 0 5%; transition: background-color 0.3s, border-color 0.3s; }
         .header-content { display: flex; justify-content: space-between; align-items: center; height: 60px; }
         .site-title { font-size: 1.5rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
         .controls { display: flex; align-items: center; gap: 10px; }
+        
         .category-selector { position: relative; }
         .category-display-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
         .category-dropdown { display: none; position: absolute; top: 110%; right: 0; min-width: 200px; background-color: var(--card-bg); border-radius: var(--border-radius); box-shadow: 0 8px 25px var(--shadow-color); border: 1px solid var(--border-color); z-index: 110; padding: 10px; max-height: 300px; overflow-y: auto; }
@@ -30,6 +33,7 @@
         .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: 8px; }
         .dropdown-item:hover { background-color: var(--code-bg); }
         .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
+        
         .search-box { position: relative; }
         .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
         .search-input { width: 180px; padding: 8px 15px 8px 35px; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
@@ -37,33 +41,55 @@
         #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: var(--border-radius); cursor: pointer; font-weight: 500; transition: all 0.2s; color: white; white-space: nowrap; }
         #new-article-btn { background-color: var(--primary-color); } #exit-edit-btn { background-color: var(--secondary-color); }
         main { padding: 40px 5%; }
+        .view { display: none; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
         .article-card { background-color: var(--card-bg); border-radius: var(--border-radius); overflow: hidden; box-shadow: 0 4px 15px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px var(--shadow-color); }
         .card-cover-image { width: 100%; height: 180px; object-fit: cover; background-color: var(--border-color); }
         .card-content { padding: 20px; }
         .card-title { font-size: 1.3rem; font-weight: 600; }
         .article-container { max-width: 800px; margin: 0 auto; }
         .article-title { font-size: 2.8rem; }
-        #editor-overlay, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
-        #editor-overlay.active, .modal-overlay.active { display: flex; }
-        .editor-modal, .category-modal { background-color: var(--bg-color); width: 95%; max-width: 900px; border-radius: var(--border-radius); box-shadow: 0 10px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
-        .editor-modal { height: 90vh; } .category-modal { max-height: 90vh; }
-        .modal-header, .editor-modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); font-size: 1.2rem; font-weight: 600; }
-        .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+        
+        #editor-overlay, #cat-mgmt-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
+        #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; }
+        .modal { background-color: var(--bg-color); width: 95%; max-width: 900px; border-radius: var(--border-radius); box-shadow: 0 10px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .editor-modal { height: 90vh; }
+        .cat-mgmt-modal { max-height: 90vh; max-width: 500px; }
+        
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); font-size: 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; }
         .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 1rem; }
         .modal-body { padding: 25px; overflow-y: auto; }
         .editor-modal-body { flex-grow: 1; padding: 0; }
         #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; }
-        .modal-footer, .editor-modal-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+        .modal-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
         .editor-modal-footer { justify-content: space-between; }
-        .editor-btn { border: none; padding: 10px 20px; border-radius: var(--border-radius); cursor: pointer; font-weight: 500; }
-        #category-manager-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); }
-        #category-manager-list li:last-child { border-bottom: none; }
-        #category-manager-list .cat-name { flex-grow: 1; }
-        #category-manager-list .cat-actions button { margin-left: 10px; background: none; border: none; cursor: pointer; font-size: 1.1rem; }
-        .new-category-form { display: flex; gap: 10px; margin-bottom: 20px; }
-        .new-category-form input { flex-grow: 1; padding: 10px; }
+        
+        .btn { border: none; padding: 10px 20px; border-radius: var(--border-radius); cursor: pointer; font-weight: 500; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        
+        #cat-mgmt-list { list-style: none; padding: 0; margin: 0; }
+        #cat-mgmt-list li { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); }
+        #cat-mgmt-list li:last-child { border-bottom: none; }
+        #cat-mgmt-list .cat-name { flex-grow: 1; }
+        #cat-mgmt-list .cat-name-input { flex-grow: 1; padding: 5px; border-radius: 8px; border: 1px solid var(--primary-color); background-color: var(--bg-color); color: var(--text-color); }
+        #cat-mgmt-list .cat-actions { display: flex; gap: 10px; }
+        #cat-mgmt-list .cat-actions button { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+        #add-cat-form { display: flex; gap: 10px; margin-top: 20px; }
+        #add-cat-input { flex-grow: 1; padding: 10px; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); }
+
+        @media (max-width: 768px) {
+            .site-title { font-size: 1.2rem; }
+            .search-input { width: 120px; }
+            .search-input:focus { width: 150px; }
+            .article-title { font-size: 2rem; }
+            #new-article-btn, #exit-edit-btn { padding: 8px 10px; font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
@@ -82,160 +108,84 @@
             </div>
         </div>
     </header>
-    <main>
-        <div id="home-view" class="view active">
-            <div class="article-grid" id="article-grid"><p style="padding: 20px;">正在从云端加载数据...</p></div>
-        </div>
-        <div id="article-view" class="view">
-            <!-- Article view content -->
-        </div>
-    </main>
-    <div id="editor-overlay">
-        <div class="editor-modal">
-            <div class="editor-modal-header">
-                <input type="date" id="editor-date">
-                <input type="text" id="editor-category" placeholder="分类 (e.g., Mac 技巧)" list="category-list">
-                <input type="text" id="editor-cover-image" placeholder="封面图片 URL">
-                <input type="text" id="editor-tags" placeholder="标签 (用逗号分隔)">
-            </div>
-            <div class="editor-modal-body"><textarea id="editor-content" spellcheck="false" placeholder="第一行为标题..."></textarea></div>
-            <div class="editor-modal-footer">
-                <button id="delete-btn" class="editor-btn" style="background-color: var(--danger-color); color: white;">删除</button>
-                <div>
-                    <button id="cancel-btn" class="editor-btn" style="background-color: var(--secondary-color); color: white;">取消</button>
-                    <button id="save-btn" class="editor-btn" style="background-color: var(--primary-color); color: white;">保存</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="category-manager-overlay" class="modal-overlay">
-        <div class="category-modal">
-            <div class="modal-header">分类管理</div>
-            <div class="modal-body">
-                <div class="new-category-form">
-                    <input type="text" id="new-category-name" placeholder="输入新分类名称" class="editor-input">
-                    <button id="add-category-btn" class="editor-btn" style="background-color: var(--primary-color); color: white;">新增</button>
-                </div>
-                <ul id="category-manager-list" style="list-style: none;"></ul>
-            </div>
-            <div class="modal-footer">
-                <button id="close-cat-manager-btn" class="editor-btn" style="background-color: var(--secondary-color); color: white;">关闭</button>
-            </div>
-        </div>
-    </div>
+    <main><div id="home-view" class="view active"><div class="article-grid" id="article-grid"><p style="padding: 20px;">正在從雲端載入資料...</p></div></div><div id="article-view" class="view"></div></main>
+    <div id="editor-overlay" class="overlay"><div class="modal editor-modal"><div class="modal-header editor-modal-header"><input type="date" id="editor-date"><input type="text" id="editor-category" placeholder="分類 (e.g., Mac 技巧)" list="category-list"><input type="text" id="editor-cover-image" placeholder="封面圖片 URL"><input type="text" id="editor-tags" placeholder="標籤 (用逗號分隔)"></div><div class="modal-body editor-modal-body"><textarea id="editor-content" spellcheck="false" placeholder="第一行為標題..."></textarea></div><div class="modal-footer editor-modal-footer"><button id="delete-btn" class="btn btn-danger">刪除</button><div><button id="cancel-btn" class="btn btn-secondary" style="margin-right: 10px;">取消</button><button id="save-btn" class="btn btn-primary">儲存文章</button></div></div></div></div>
+    <div id="cat-mgmt-overlay" class="overlay"><div class="modal cat-mgmt-modal"><div class="modal-header"><h2>分類管理</h2><button id="close-cat-mgmt-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-color)">×</button></div><div class="modal-body"><ul id="cat-mgmt-list"></ul><form id="add-cat-form"><input id="add-cat-input" placeholder="輸入新分類名稱..." required class="editor-input"><button type="submit" class="btn btn-primary">新增</button></form></div></div></div>
     <datalist id="category-list"></datalist>
+    <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y",
-            authDomain: "blog-63ad2.firebaseapp.com",
-            projectId: "blog-63ad2",
-            storageBucket: "blog-63ad2.appspot.com",
-            messagingSenderId: "265914768921",
-            appId: "1:265914768921:web:e4c752780e604d0be69488",
-            databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com",
+        
+        const firebaseConfig = { apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", authDomain: "blog-63ad2.firebaseapp.com", projectId: "blog-63ad2", storageBucket: "blog-63ad2.appspot.com", messagingSenderId: "265914768921", appId: "1:265914768921:web:e4c752780e604d0be69488", databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", };
+        const initialData = {
+            articles: [
+                // Abridged for brevity
+                 { id: 1722000001, category: "Mac 技巧", title: "必學 Mac 快捷鍵：如何輸入  蘋果 Logo？", content: "在各種場合中，打出蘋果的官方 Logo **** 總能讓你的文件或訊息看起來更專業、更有趣...", coverImage: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=800", tags: ["Mac", "快捷鍵", "技巧"], createdAt: 1722000001, date: "2024-07-26" },
+                 { id: 1722000002, category: "免費軟體推薦", title: "3 款強大的 Mac 免費軟體，提升你的創作力", content: "### 1. 剪輯軟體：DaVinci Resolve\n\n如果你覺得 iMovie 功能太少...", coverImage: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=800", tags: ["軟體", "免費", "創作"], createdAt: 1722000002, date: "2024-07-25" },
+            ].reduce((acc, article) => { acc[article.id] = article; return acc; }, {}),
+            categories: ["Mac 技巧", "免費軟體推薦", "台灣科技新聞", "軟體攻略", "Google AI 展示", "硬體評測", "AI 新聞", "雲端技術", "生產力工具", "網站開發", "圖片處理"]
         };
-        const initialData = { /* Initial data remains the same */ };
-
+        
         let appState = { data: { articles: {}, categories: [] }, isEditMode: false, currentArticleId: null, currentFilter: 'All', editingArticleId: null };
         const app = initializeApp(firebaseConfig), db = getDatabase(app), dbRef = ref(db, 'blogData');
-        const dbApi = {
-            saveArticle: (a) => set(ref(db, `blogData/articles/${a.id}`), a),
-            deleteArticle: (id) => remove(ref(db, `blogData/articles/${id}`)),
-            saveCategories: (c) => set(ref(db, 'blogData/categories'), c),
-            updateAllArticles: (articles) => set(ref(db, 'blogData/articles'), articles)
-        };
-        const ui = { /* UI elements remain the same */ };
+        const dbApi = { saveArticle: (a) => set(ref(db, `blogData/articles/${a.id}`), a), deleteArticle: (id) => remove(ref(db, `blogData/articles/${id}`)), saveCategories: (c) => set(ref(db, 'blogData/categories'), c), updateAllArticles: (articles) => set(ref(db, 'blogData/articles'), articles) };
+        const ui = { homeView: document.getElementById('home-view'), articleView: document.getElementById('article-view'), articleGrid: document.getElementById('article-grid'), catDisplayBtn: document.getElementById('category-display-btn'), catDropdown: document.getElementById('category-dropdown'), catMgmtOverlay: document.getElementById('cat-mgmt-overlay'), catMgmtList: document.getElementById('cat-mgmt-list'), closeCatMgmtBtn: document.getElementById('close-cat-mgmt-btn'), addCatForm: document.getElementById('add-cat-form'), addCatInput: document.getElementById('add-cat-input'), themeToggle: document.getElementById('theme-toggle'), newArticleBtn: document.getElementById('new-article-btn'), exitEditBtn: document.getElementById('exit-edit-btn'), siteTitle: document.querySelector('.site-title'), searchInput: document.getElementById('search-input'), editorOverlay: document.getElementById('editor-overlay'), editor: { date: document.getElementById('editor-date'), category: document.getElementById('editor-category'), list: document.getElementById('category-list'), cover: document.getElementById('editor-cover-image'), tags: document.getElementById('editor-tags'), content: document.getElementById('editor-content') }, saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'), cancelBtn: document.getElementById('cancel-btn') };
 
         const render = {
-            categories: () => {
-                const allCats = ['All', ...(appState.data.categories || [])];
-                ui.catDisplayBtn.textContent = `分类：${appState.currentFilter} ▼`;
-                ui.catDropdown.innerHTML = '';
-                allCats.forEach(c => ui.catDropdown.appendChild(actions.createDropdownLink(c, () => { appState.currentFilter = c; render.homePage(); })));
-                if (appState.isEditMode) {
-                    ui.catDropdown.appendChild(actions.createDropdownDivider());
-                    ui.catDropdown.appendChild(actions.createDropdownLink('✏️ 管理分类', actions.manageCategories));
-                }
-            },
-            homePage: (term = '') => {
-                render.categories();
-                // ... homepage rendering logic remains the same
-            },
-            categoryManager: () => {
-                const list = document.getElementById('category-manager-list');
-                list.innerHTML = '';
-                appState.data.categories.forEach(cat => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <span class="cat-name">${cat}</span>
-                        <div class="cat-actions">
-                            <button data-cat-edit="${cat}">✏️</button>
-                            <button data-cat-delete="${cat}">❌</button>
-                        </div>
-                    `;
-                    list.appendChild(li);
-                });
-            }
+            categories: () => { const allCats = ['All', ...(appState.data.categories || [])]; ui.catDisplayBtn.textContent = `分類：${appState.currentFilter} ▼`; ui.catDropdown.innerHTML = ''; allCats.forEach(c => ui.catDropdown.appendChild(actions.createDropdownLink(c, () => { appState.currentFilter = c; render.homePage(); }))); if (appState.isEditMode) { ui.catDropdown.appendChild(actions.createDropdownDivider()); ui.catDropdown.appendChild(actions.createDropdownLink('✏️ 管理分類', actions.showCatMgmtPanel)); } ui.editor.list.innerHTML = ''; (appState.data.categories || []).forEach(c => { const o = document.createElement('option'); o.value = c; ui.editor.list.appendChild(o); }); },
+            homePage: (term = '') => { render.categories(); ui.articleGrid.innerHTML = ''; const s = term.toLowerCase(); const articlesArray = Object.values(appState.data.articles || {}).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()); const f = articlesArray.filter(a => appState.currentFilter === 'All' || a.category === appState.currentFilter).filter(a => !term || a.title.toLowerCase().includes(s) || (a.content && a.content.toLowerCase().includes(s)) || (a.tags && a.tags.some(t => t.toLowerCase().includes(s)))); if (f.length === 0) { ui.articleGrid.innerHTML = `<p style="padding: 20px;">找不到符合條件的文章。</p>`; return; } f.forEach(a => { const c = document.createElement('div'); c.className = 'article-card'; c.dataset.id = a.id; const t = a.tags ? a.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('') : ''; c.innerHTML = `<img src="${a.coverImage || 'https://placehold.co/600x400'}" alt="${a.title}" class="card-cover-image" loading="lazy"><div class="card-content"><div class="card-title">${a.title}</div></div>`; c.addEventListener('click', () => actions.showArticlePage(a.id)); ui.articleGrid.appendChild(c); }); },
+            articlePage: (article) => { const articlesArray = Object.values(appState.data.articles || {}).sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()); const i = articlesArray.findIndex(art => art.id === article.id); const prevLink = i > 0 ? `<a class="article-nav-link" data-id="${articlesArray[i-1].id}">← 上一篇</a>` : '<span></span>'; const nextLink = i < articlesArray.length - 1 ? `<a class="article-nav-link" data-id="${articlesArray[i+1].id}">下一篇 →</a>` : '<span></span>'; ui.articleView.innerHTML = `<div class="article-container"><img src="${article.coverImage || 'https://placehold.co/800x350'}" alt="Article Header Image" class="article-header-image"><h1 class="article-title">${article.title}</h1><p class="article-meta"><span class="article-category">${article.category}</span> • <span class="article-date">${article.date}</span></p><div class="article-content">${marked.parse(article.content || '')}</div><nav class="article-nav">${prevLink}${nextLink}</nav></div>`; if (appState.isEditMode) actions.addEditButtonToArticlePage(); },
+            catMgmtPanel: () => { ui.catMgmtList.innerHTML = ''; (appState.data.categories || []).forEach(cat => { const li = document.createElement('li'); li.innerHTML = `<span class="cat-name">${cat}</span><div class="cat-actions"><button data-cat-edit="${cat}">✏️</button><button data-cat-delete="${cat}">❌</button></div>`; ui.catMgmtList.appendChild(li); });}
         };
-
         const actions = {
-            // ... other actions remain the same
-            addNewCategory: () => {
-                const newCatInput = document.getElementById('new-category-name');
-                const newCat = newCatInput.value.trim();
-                if (newCat) {
-                    const newCats = [...new Set([...appState.data.categories, newCat])];
-                    dbApi.saveCategories(newCats);
-                    newCatInput.value = '';
-                }
-            },
-            manageCategories: () => {
-                render.categoryManager();
-                document.getElementById('category-manager-overlay').classList.add('active');
-            },
-            editCategory: (oldCat) => {
-                const newCat = prompt(`重命名分类 "${oldCat}":`, oldCat);
-                if (newCat && newCat.trim() !== oldCat) {
-                    const updatedCats = appState.data.categories.map(c => c === oldCat ? newCat.trim() : c);
-                    const updatedArticles = { ...appState.data.articles };
-                    Object.values(updatedArticles).forEach(a => { if (a.category === oldCat) a.category = newCat.trim(); });
-                    dbApi.saveCategories(updatedCats);
-                    dbApi.updateAllArticles(updatedArticles);
-                }
-            },
-            deleteCategory: (catToDelete) => {
-                if (confirm(`确定要删除分类 "${catToDelete}" 吗？相关文章将被归为“未分类”。`)) {
-                    const updatedCats = appState.data.categories.filter(c => c !== catToDelete);
-                    const updatedArticles = { ...appState.data.articles };
-                    Object.values(updatedArticles).forEach(a => { if (a.category === catToDelete) a.category = '未分类'; });
-                    dbApi.saveCategories(updatedCats);
-                    dbApi.updateAllArticles(updatedArticles);
-                }
-            },
+            createDropdownLink: (text, onClick) => { const btn = document.createElement('button'); btn.className = 'dropdown-item'; btn.textContent = text; btn.onclick = () => { onClick(); ui.catDropdown.classList.remove('active'); }; return btn; },
+            createDropdownDivider: () => { const div = document.createElement('div'); div.className = 'dropdown-divider'; return div; },
+            showView: (v) => { document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(v).classList.add('active'); if (v === 'home-view') { appState.currentArticleId = null; render.homePage(ui.searchInput.value); }},
+            showHomePage: () => { appState.currentFilter = 'All'; ui.searchInput.value = ''; actions.showView('home-view'); },
+            showArticlePage: (id) => { appState.currentArticleId = id; const a = (appState.data.articles || {})[id]; if (!a) return actions.showHomePage(); render.articlePage(a); actions.showView('article-view'); window.scrollTo(0, 0); },
+            showEditor: (id = null) => { appState.editingArticleId = id; if (id) { const a = appState.data.articles[id]; ui.editor.date.value = a.date || new Date(a.createdAt).toISOString().split('T')[0]; ui.editor.category.value = a.category; ui.editor.cover.value = a.coverImage || ''; ui.editor.tags.value = (a.tags || []).join(', '); ui.editor.content.value = `${a.title}\n\n${a.content}`; ui.deleteBtn.style.display = 'inline-block'; } else { ui.editor.date.value = new Date().toISOString().split('T')[0]; ['category','cover','tags','content'].forEach(k => ui.editor[k].value = ''); ui.editor.content.placeholder = '第一行為標題...'; ui.deleteBtn.style.display = 'none'; } ui.editorOverlay.classList.add('active'); },
+            saveArticle: () => { const txt = ui.editor.content.value; if (!txt.trim()) { alert('文章內容不能為空！'); return; } const parts = txt.split('\n\n'); const title = parts.shift().trim(); if (!title) { alert('標題（內容第一行）不可為空！'); return; } const content = parts.join('\n\n').trim(); const date = ui.editor.date.value; const category = ui.editor.category.value.trim() || '未分類'; const cover = ui.editor.cover.value.trim(); const tags = ui.editor.tags.value.split(',').map(t => t.trim()).filter(Boolean); let articleToSave; if (appState.editingArticleId) { articleToSave = { ...appState.data.articles[appState.editingArticleId], title, content, date, category, coverImage: cover, tags }; } else { const newId = Date.now(); articleToSave = { id: newId, createdAt: newId, title, content, date, category, coverImage: cover, tags }; } dbApi.saveArticle(articleToSave); if (!(appState.data.categories || []).includes(category)) { const newCats = [...new Set([...(appState.data.categories || []), category])]; dbApi.saveCategories(newCats); } alert('文章已成功儲存至雲端！'); ui.editorOverlay.classList.remove('active'); actions.showArticlePage(articleToSave.id); },
+            deleteArticle: () => { if (appState.editingArticleId && confirm(`您確定要刪除文章「${appState.data.articles[appState.editingArticleId].title}」嗎？\n此操作將永久從雲端移除。`)) { dbApi.deleteArticle(appState.editingArticleId).then(() => { alert('文章已刪除。'); ui.editorOverlay.classList.remove('active'); actions.showHomePage(); }); }},
+            addNewCategory: () => { const newCat = ui.addCatInput.value.trim(); if (newCat) { if ((appState.data.categories || []).includes(newCat)) { alert("這個分類已經存在了！"); return; } const newCats = [...(appState.data.categories || []), newCat]; dbApi.saveCategories(newCats); ui.addCatInput.value = ''; }},
+            showCatMgmtPanel: () => { render.catMgmtPanel(); ui.catMgmtOverlay.classList.add('active'); },
+            updateCategory: (oldCat, inputElement) => { const newCat = inputElement.value.trim(); if (!newCat || newCat === oldCat) { render.catMgmtPanel(); return; } if ((appState.data.categories || []).includes(newCat)) { alert("這個分類名稱已經存在了！"); inputElement.value = oldCat; return; } const updatedCats = appState.data.categories.map(c => c === oldCat ? newCat : c); const updatedArticles = { ...appState.data.articles }; Object.values(updatedArticles).forEach(a => { if (a.category === oldCat) a.category = newCat; }); dbApi.saveCategories(updatedCats); dbApi.updateAllArticles(updatedArticles); },
+            deleteCategory: (catToDelete) => { if (confirm(`確定要刪除分類「${catToDelete}」嗎？\n相關文章將被歸類為「未分類」。`)) { const updatedCats = appState.data.categories.filter(c => c !== catToDelete); const updatedArticles = { ...appState.data.articles }; Object.values(updatedArticles).forEach(a => { if (a.category === catToDelete) a.category = '未分類'; }); dbApi.saveCategories(updatedCats); dbApi.updateAllArticles(updatedArticles); }},
+            enterEditMode: () => { appState.isEditMode = true; ui.newArticleBtn.style.display = 'inline-block'; ui.exitEditBtn.style.display = 'inline-block'; if (appState.currentArticleId) actions.addEditButtonToArticlePage(); render.categories(); },
+            exitEditMode: () => window.location.href = window.location.pathname,
+            addEditButtonToArticlePage: () => { let btn = document.getElementById('edit-article-btn'); if(btn) return; btn = document.createElement('button'); btn.id = 'edit-article-btn'; btn.textContent = '編輯此文'; btn.className = 'btn'; btn.style.cssText = 'background-color: #ff9500; color: white; margin-left: 10px;'; btn.onclick = () => actions.showEditor(appState.currentArticleId); const meta = ui.articleView.querySelector('.article-meta'); meta.parentNode.insertBefore(btn, meta.nextSibling); },
+            toggleTheme: () => { const d = document.body.classList.toggle('dark-mode'); ui.themeToggle.textContent = d ? '🌙' : '☀️'; localStorage.setItem('theme', d ? 'dark' : 'light'); },
+            applySavedTheme: () => { if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); ui.themeToggle.textContent = '🌙'; }},
             init: () => {
-                // ... init logic remains the same
+                actions.applySavedTheme();
+                marked.setOptions({ breaks: true, gfm: true });
                 onValue(dbRef, (snapshot) => {
                     const data = snapshot.val();
                     if (!data || !data.articles) {
-                        set(dbRef, initialData);
-                        return;
+                        set(dbRef, initialData); return;
                     }
                     appState.data = data;
-                    render.homePage(ui.searchInput.value);
-                    if (document.getElementById('category-manager-overlay').classList.contains('active')) {
-                        render.categoryManager();
+                    if (document.getElementById('home-view').classList.contains('active')) {
+                        render.homePage(ui.searchInput.value);
+                    } else if (document.getElementById('cat-mgmt-overlay').classList.contains('active')) {
+                        render.catMgmtPanel();
                     }
                 });
-                // ... event listeners remain the same, with additions for new UI
-                document.getElementById('add-category-btn').onclick = actions.addNewCategory;
-                document.getElementById('close-cat-manager-btn').onclick = () => document.getElementById('category-manager-overlay').classList.remove('active');
-                document.getElementById('category-manager-list').addEventListener('click', e => {
-                    if (e.target.dataset.catEdit) actions.editCategory(e.target.dataset.catEdit);
-                    if (e.target.dataset.catDelete) actions.deleteCategory(e.target.dataset.catDelete);
+                ui.siteTitle.onclick = actions.showHomePage; ui.newArticleBtn.onclick = () => actions.showEditor(); ui.exitEditBtn.onclick = actions.exitEditMode;
+                ui.themeToggle.onclick = actions.toggleTheme; ui.saveBtn.onclick = actions.saveArticle; ui.deleteBtn.onclick = actions.deleteArticle;
+                ui.cancelBtn.onclick = () => ui.editorOverlay.classList.remove('active'); ui.searchInput.oninput = e => render.homePage(e.target.value);
+                ui.catDisplayBtn.onclick = () => ui.catDropdown.classList.toggle('active');
+                document.addEventListener('click', (e) => { if (e.target.closest('.article-nav-link')) { actions.showArticlePage(parseInt(e.target.dataset.id)); } if (!ui.catDisplayBtn.contains(e.target) && !ui.catDropdown.contains(e.target)) { ui.catDropdown.classList.remove('active'); }});
+                ui.closeCatMgmtBtn.onclick = () => ui.catMgmtOverlay.classList.remove('active');
+                ui.addCatForm.onsubmit = (e) => { e.preventDefault(); actions.addNewCategory(); };
+                ui.catMgmtList.addEventListener('click', (e) => {
+                    const editBtn = e.target.closest('[data-cat-edit]');
+                    const deleteBtn = e.target.closest('[data-cat-delete]');
+                    if (editBtn) { const cat = editBtn.dataset.catEdit; const span = editBtn.closest('li').querySelector('.cat-name'); span.innerHTML = `<input class="cat-name-input" type="text" value="${cat}">`; const input = span.querySelector('input'); input.focus(); input.onblur = () => actions.updateCategory(cat, input); input.onkeydown = (ev) => { if (ev.key === 'Enter') input.blur(); }; }
+                    if (deleteBtn) { actions.deleteCategory(deleteBtn.dataset.catDelete); }
                 });
+                if (new URLSearchParams(window.location.search).get('admin') === 'kai') { actions.enterEditMode(); }
             }
         };
         actions.init();
