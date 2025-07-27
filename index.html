@@ -3,377 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI STUDIO</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231c1c1e'/><path d='M20 30 H80 M50 30 V80' stroke-width='12' stroke='%23007aff' stroke-linecap='round' fill='none'/></svg>">
+    <title>KAI's Tech Log</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        :root {
-            --primary-color: #007aff; --secondary-color: #1c1c1e; --background-color: #f2f2f7;
-            --card-bg-color: #ffffff; --font-color: #1d1d1f; --light-gray: #e5e5ea;
-            --border-radius: 16px; --transition-speed: 0.4s;
-        }
-        *, *::before, *::after { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif; margin: 0; background-color: var(--background-color); color: var(--font-color); line-height: 1.7; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--background-color); }
-        ::-webkit-scrollbar-thumb { background-color: var(--light-gray); border-radius: 10px; border: 2px solid var(--background-color); }
-        .view { transition: transform var(--transition-speed) ease-in-out, opacity var(--transition-speed) ease-in-out; }
-        #grid-view { position: relative; z-index: 10; }
-        #article-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--card-bg-color); transform: translateX(100%); opacity: 0; z-index: 20; overflow-y: auto; }
-        #article-view.visible { transform: translateX(0); opacity: 1; }
-        .header { background-color: rgba(255,255,255,0.8); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--light-gray); position: sticky; top: 0; z-index: 100; }
-        .header h1 { margin: 0; font-size: 1.8rem; cursor: pointer; user-select: none; }
-        .header-controls { display: flex; align-items: center; gap: 1rem; }
-        #search-box { padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--light-gray); font-size: 0.9rem; width: 200px; transition: width 0.3s ease; }
-        #search-box:focus { width: 250px; }
-        #new-post-btn { display: none; background-color: var(--primary-color); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer; font-weight: 500; transition: background-color 0.3s; }
-        #new-post-btn:hover { background-color: #0056b3; }
-        .navbar { text-align: center; padding: 1rem 0; background-color: var(--card-bg-color); }
-        .nav-btn { background: none; border: 1px solid var(--light-gray); color: var(--secondary-color); padding: 0.6rem 1.2rem; margin: 0 0.5rem; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; }
-        .nav-btn:hover { background-color: #e9ecef; border-color: #e9ecef; }
-        .nav-btn.active { background-color: var(--secondary-color); color: white; border-color: var(--secondary-color); }
-        main { padding: 2rem 5%; }
-        #articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
-        .article-card { background-color: var(--card-bg-color); border-radius: var(--border-radius); box-shadow: 0 8px 30px rgba(0,0,0,0.08); cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column; overflow: hidden; }
-        .article-card:hover { transform: translateY(-10px); box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
-        .card-image { width: 100%; height: 200px; object-fit: cover; background-color: #eee; }
-        .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-content h3 { margin: 0.5rem 0; color: var(--secondary-color); font-size: 1.25rem; }
-        .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-        .card-meta .tag { display: inline-block; padding: 0.3rem 0.8rem; font-size: 0.75rem; border-radius: 15px; font-weight: 500; }
-        .card-meta .reading-time { font-size: 0.8rem; color: #6c757d; }
-        .card-content p { color: #6c757d; font-size: 0.95rem; margin-top: 0.5rem; flex-grow: 1; }
-        .tag.mactips { background-color: #e0e0e0; color: #000; } .tag.software { background-color: #e8f5e9; color: #28a745; } .tag.news { background-color: #e7f3ff; color: #007bff; } .tag.productivity { background-color: #fff8e1; color: #ffc107; } .tag.youtube { background-color: #fbe9e7; color: #ff5722; }
-        #article-view-content { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
-        #article-cover-image { width: 100%; height: 350px; object-fit: cover; border-radius: var(--border-radius); margin-bottom: 2rem; background-color: #eee; }
-        .article-navigation { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .nav-arrow-btn { background: #e5e5ea; color: var(--font-color); border: none; padding: 0.8rem 1.5rem; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: background-color 0.2s; }
-        .nav-arrow-btn:hover:not(:disabled) { background: #dcdce0; }
-        .nav-arrow-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        #article-content-rendered { line-height: 1.8; }
-        #article-content-rendered h1, #article-content-rendered h2 { border-bottom: 1px solid var(--light-gray); padding-bottom: 0.5rem; margin-top: 2rem; }
-        #article-content-rendered p { margin-bottom: 1.2rem; }
-        #article-content-rendered pre { position: relative; background-color: #1c1c1e; color: #f2f2f7; padding: 1.5rem 1rem; border-radius: 8px; overflow-x: auto; }
-        #article-content-rendered pre .copy-code-btn { position: absolute; top: 10px; right: 10px; background: #333; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; opacity: 0; transition: opacity 0.3s; }
-        #article-content-rendered pre:hover .copy-code-btn { opacity: 1; }
-        #article-content-rendered .youtube-embed { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; margin: 2rem 0; border-radius: var(--border-radius); }
-        #article-content-rendered .youtube-embed iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-        #article-content-rendered a { color: var(--primary-color); text-decoration: none; } #article-content-rendered a:hover { text-decoration: underline; }
-        .edit-form { position: relative; }
-        .edit-form .form-group { margin-bottom: 1.5rem; }
-        .edit-form label { display: block; font-weight: bold; margin-bottom: 0.5rem; }
-        .edit-form input, .edit-form textarea, .edit-form select { width: 100%; padding: 0.8rem; font-size: 1rem; border: 1px solid var(--light-gray); border-radius: 8px; box-sizing: border-box; background-color: #f8f9fa; }
-        #article-content-textarea { height: 60vh; resize: vertical; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; line-height: 1.6; }
-        #save-post-btn { background-color: #34c759; color: white; border: none; padding: 0.8rem 2rem; border-radius: 8px; cursor: pointer; font-size: 1.1rem; float: right; font-weight: 500; }
-        #slash-command-menu { position: absolute; background: white; border: 1px solid var(--light-gray); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; z-index: 1000; }
-        .command-item { padding: 0.5rem 1rem; cursor: pointer; } .command-item:hover { background-color: #f2f2f7; }
-        .hidden { display: none !important; }
-        #toast-container { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .toast { background-color: rgba(28, 28, 30, 0.9); color: white; padding: 12px 20px; border-radius: 25px; font-weight: 500; font-size: 0.9rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s; }
-        .toast.show { opacity: 1; transform: translateY(0); }
+        /* --- 全域設定與變數 --- */
+        :root { --bg-color: #ffffff; --text-color: #1a1a1a; --primary-color: #007aff; --secondary-color: #6c757d; --border-color: #dee2e6; --card-bg: #f8f9fa; --shadow-color: rgba(0, 0, 0, 0.1); --header-bg: rgba(255, 255, 255, 0.85); --code-bg: #e9ecef; --code-color: #333; --danger-color: #dc3545; }
+        body.dark-mode { --bg-color: #121212; --text-color: #e0e0e0; --primary-color: #0a84ff; --secondary-color: #8e8e93; --border-color: #3a3a3c; --card-bg: #1c1c1e; --shadow-color: rgba(0, 0, 0, 0.3); --header-bg: rgba(28, 28, 30, 0.85); --code-bg: #2c2c2e; --code-color: #f0f0f0; --danger-color: #ff453a; }
+        /* --- 基礎樣式 --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; line-height: 1.7; }
+        a { color: var(--primary-color); text-decoration: none; }
+        /* --- 頁首與導航 --- */
+        .site-header { position: sticky; top: 0; z-index: 100; background-color: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); padding: 0 5%; transition: background-color 0.3s, border-color 0.3s; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .site-title { font-size: 1.5rem; font-weight: 600; cursor: pointer; }
+        .main-nav { display: flex; gap: 20px; position: absolute; left: 50%; transform: translateX(-50%); }
+        .nav-link { font-size: 1rem; font-weight: 500; color: var(--secondary-color); padding: 5px 0; border-bottom: 2px solid transparent; transition: color 0.3s, border-color 0.3s; cursor: pointer; }
+        .nav-link:hover, .nav-link.active { color: var(--text-color); border-bottom-color: var(--primary-color); }
+        /* --- 控制項 --- */
+        .controls { display: flex; align-items: center; gap: 15px; }
+        .search-box { position: relative; }
+        .search-input { width: 180px; padding: 8px 15px 8px 35px; border-radius: 20px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: var(--primary-color); width: 220px; }
+        .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; }
+        #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 500; transition: background-color 0.3s, opacity 0.3s; color: white; }
+        #new-article-btn { background-color: var(--primary-color); }
+        #exit-edit-btn { background-color: var(--secondary-color); }
+        #new-article-btn:hover, #exit-edit-btn:hover { opacity: 0.8; }
+        /* --- 主要內容 --- */
+        main { padding: 40px 5%; }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* --- 文章網格 --- */
+        #home-view .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .article-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px var(--shadow-color); }
+        .card-cover-image { width: 100%; height: 180px; object-fit: cover; background-color: var(--border-color); }
+        .card-content { padding: 20px; }
+        .card-category { font-size: 0.8rem; color: var(--primary-color); font-weight: 600; margin-bottom: 5px; }
+        .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; color: var(--text-color); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+        .card-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+        .card-tag { background-color: var(--code-bg); color: var(--secondary-color); padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; }
+        /* --- 文章閱讀頁 --- */
+        #article-view .article-container { max-width: 800px; margin: 0 auto; }
+        .article-header-image { width: 100%; height: 350px; object-fit: cover; border-radius: 12px; margin-bottom: 30px; background-color: var(--border-color); }
+        .article-title { font-size: 2.8rem; font-weight: 700; margin-bottom: 15px; line-height: 1.2; }
+        .article-meta { color: var(--secondary-color); margin-bottom: 30px; }
+        .article-content { font-size: 1.1rem; }
+        .article-content h1, .article-content h2, .article-content h3 { margin-top: 2em; margin-bottom: 1em; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+        .article-content h1 { font-size: 2rem; } .article-content h2 { font-size: 1.7rem; } .article-content h3 { font-size: 1.4rem; }
+        .article-content p { margin-bottom: 1.2em; }
+        .article-content blockquote { border-left: 3px solid var(--primary-color); padding-left: 1.5em; margin: 1.5em 0; color: var(--secondary-color); font-style: italic; }
+        .article-content pre { background-color: var(--code-bg); color: var(--code-color); padding: 1.5em; border-radius: 8px; overflow-x: auto; font-family: 'SF Mono', 'Menlo', 'Monaco', monospace; }
+        .article-content code { font-family: 'SF Mono', 'Menlo', 'Monaco', monospace; background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 4px; }
+        .article-content img { max-width: 100%; border-radius: 8px; margin: 1em 0; }
+        .article-content iframe { width: 100%; aspect-ratio: 16 / 9; border: none; border-radius: 8px; margin: 1.5em 0; }
+        .article-nav { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .article-nav-link { font-weight: 500; cursor: pointer; }
+        /* --- 編輯頁 --- */
+        #editor-view .editor-container { max-width: 800px; margin: 0 auto; }
+        .editor-form label { display: block; margin-bottom: 10px; font-weight: 600; }
+        .editor-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); border-radius: 8px; margin-bottom: 20px; font-size: 1rem; }
+        #editor-content { width: 100%; min-height: 50vh; padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--bg-color); color: var(--text-color); font-size: 1.1rem; line-height: 1.7; resize: vertical; }
+        #editor-content:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2); }
+        .editor-controls { margin-top: 20px; display: flex; justify-content: flex-end; gap: 15px; }
+        .editor-btn { border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: opacity 0.3s; }
+        .editor-btn:hover { opacity: 0.8; }
+        #save-btn { background-color: var(--primary-color); color: white; }
+        #delete-btn { background-color: var(--danger-color); color: white; }
+        /* --- 頁腳 --- */
+        .site-footer { text-align: center; padding: 40px 20px; margin-top: 50px; border-top: 1px solid var(--border-color); color: var(--secondary-color); font-size: 0.9rem; }
     </style>
 </head>
 <body>
-    <div id="grid-view" class="view">
-        <header class="header"><h1 id="site-title">KAI STUDIO</h1><div class="header-controls"><input type="search" id="search-box" placeholder="搜尋文章..."><button id="new-post-btn">新增文章</button></div></header>
-        <nav class="navbar">
-            <button class="nav-btn active" data-category="all">所有文章</button><button class="nav-btn" data-category="mactips">Mac 神技巧</button><button class="nav-btn" data-category="software">免費神軟體</button><button class="nav-btn" data-category="news">科技最前線</button><button class="nav-btn" data-category="productivity">生產力神器</button><button class="nav-btn" data-category="youtube">大神影音閣</button>
-        </nav>
-        <main><div id="articles-grid"></div></main>
-    </div>
-    <div id="article-view" class="view">
-        <div id="article-view-content">
-            <div class="article-navigation"><button id="back-to-grid-btn" class="nav-arrow-btn">&larr; 返回</button><div><button id="prev-article-btn" class="nav-arrow-btn">上一篇</button><button id="next-article-btn" class="nav-arrow-btn">下一篇</button></div></div>
-            <img id="article-cover-image" src="" alt="文章封面">
-            <div id="article-content-rendered"></div>
-            <div id="article-edit-form" class="edit-form hidden">
-                <div class="form-group"><label>文章標題</label><input type="text" id="article-title-input"></div>
-                <div class="form-group"><label>文章分類</label><select id="article-category-select"><option value="mactips">Mac 神技巧</option><option value="software">免費神軟體</option><option value="news">科技最前線</option><option value="productivity">生產力神器</option><option value="youtube">大神影音閣</option></select></div>
-                <div class="form-group"><label>圖片 URL</label><input type="text" id="article-image-input" placeholder="貼上圖片的網址"></div>
-                <div class="form-group"><label>文章內容 (支援 Markdown 及 / 指令)</label><textarea id="article-content-textarea"></textarea><div id="slash-command-menu"><div class="command-item" data-command="youtube">插入 YouTube 影片</div></div></div>
-                <button id="save-post-btn">儲存文章</button>
+    <header class="site-header">
+        <div class="header-content">
+            <div class="site-title">Kai's Tech Log</div>
+            <nav class="main-nav" id="main-nav"></nav>
+            <div class="controls">
+                <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋文章..."></div>
+                <div class="theme-toggle" id="theme-toggle">☀️</div>
+                <button id="new-article-btn">+ 新增文章</button>
+                <button id="exit-edit-btn">退出編輯</button>
             </div>
         </div>
-    </div>
-    <div id="toast-container"></div>
+    </header>
+
+    <main>
+        <div id="home-view" class="view active"><div class="article-grid" id="article-grid"></div></div>
+        <div id="article-view" class="view">
+            <div class="article-container">
+                <img src="" alt="Article Header Image" class="article-header-image">
+                <h1 class="article-title"></h1>
+                <p class="article-meta"><span class="article-category"></span> &bull; <span class="article-date"></span></p>
+                <div class="article-content" id="article-content-render"></div>
+                <nav class="article-nav">
+                    <a class="article-nav-link" id="prev-article">&larr; 上一篇</a>
+                    <a class="article-nav-link" id="next-article">下一篇 &rarr;</a>
+                </nav>
+            </div>
+        </div>
+        <div id="editor-view" class="view">
+            <div class="editor-container">
+                <div class="editor-form">
+                    <label for="editor-category">分類 (可自訂新的)</label>
+                    <input type="text" id="editor-category" class="editor-input" list="category-list" placeholder="選擇或輸入新分類"><datalist id="category-list"></datalist>
+                    <label for="editor-cover-image">封面圖片 URL</label>
+                    <input type="text" id="editor-cover-image" class="editor-input" placeholder="貼上圖片網址 https://...">
+                    <label for="editor-tags">標籤 (用逗號分隔)</label>
+                    <input type="text" id="editor-tags" class="editor-input" placeholder="例如: Mac, 技巧, 軟體">
+                    <label for="editor-content">文章內容 (第一行為標題，支援 Markdown)</label>
+                    <textarea id="editor-content" spellcheck="false"></textarea>
+                    <div class="editor-controls">
+                        <button id="delete-btn" class="editor-btn">刪除</button>
+                        <button id="save-btn" class="editor-btn">儲存文章</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="site-footer"><p>&copy; 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const adminPassword = '980621';
-        let isEditMode = false;
-        let articles = [];
-        let currentArticleList = [];
-        let currentArticleIndex = -1;
-        let titleClickCount = 0;
-        let titleClickTimer;
+        
+        const DATA_KEY = 'kai-tech-log-articles'; // LocalStorage 使用的鑰匙
 
-        const defaultArticles = [
-            { id: 1, category: 'mactips', title: '5個你可能不知道的 Mac 神級技巧', imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 1. 輸入蘋果 Logo： \n\n這絕對是必學的裝...技巧！只要按下 `Shift (⇧) + Option (⌥) + K`，就可以輕鬆打出蘋果的 Logo。\n\n## 2. 精確的音量/亮度調整\n\n按住 `Shift (⇧) + Option (⌥)` 再按音量或亮度鍵，你會發現可以進行 1/4 格的微調，對於追求極致體驗的你來說非常實用。\n\n## 3. 快速鎖定螢幕\n\n需要暫時離開座位？按下 `Command (⌘) + Control (⌃) + Q` 即可立即鎖定螢幕，保護你的隱私。\n\n## 4. 叫出 Emoji 與符號鍵盤\n\n在任何文字輸入區，按下 `Control (⌃) + Command (⌘) + 空白鍵`，就能快速叫出表情符號與各種特殊符號的選擇視窗。\n\n## 5. 視窗管理：快速隱藏與切換\n\n- `Command (⌘) + H`：隱藏當前應用程式的所有視窗。\n- `Command (⌘) + M`：將當前視窗最小化。\n- `Command (⌘) + Tab`：在開啟的應用程式之間快速切換。' },
-            { id: 6, category: 'mactips', title: 'Mac 必學「螢幕截圖」進階功法', imageUrl: 'https://images.unsplash.com/photo-1542362567-b07e54358753?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 基礎三招\n\n- `Command (⌘) + Shift (⇧) + 3`: 截取整個螢幕。\n- `Command (⌘) + Shift (⇧) + 4`: 叫出十字準星，拖曳選取範圍截圖。\n- `Command (⌘) + Shift (⇧) + 5`: 叫出螢幕截圖工具列，提供更多選項，包含錄製螢幕！\n\n## 進階技巧\n\n1.  **視窗截圖含陰影**：按下 `Command (⌘) + Shift (⇧) + 4` 後，再按 `空白鍵`，滑鼠會變成相機圖示。點擊任何視窗，就能截取該視窗，並保留漂亮的 macOS 陰影效果。\n\n2.  **截圖到剪貼簿**：在上述任何快捷鍵組合中，**同時按住 `Control (⌃)` 鍵**，截圖就不會儲存成檔案，而是直接複製到剪貼簿，方便你立即貼到其他地方。' },
-            { id: 2, category: 'software', title: '創作者必備！Mac 免費神級軟體推薦', imageUrl: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 影片剪輯：DaVinci Resolve\n\n誰說專業剪輯一定要花大錢？DaVinci Resolve (達芬奇) 的免費版功能就已經打趴一堆付費軟體。它集剪輯、調色、視覺特效 (Fusion) 和音訊後製 (Fairlight) 於一身，尤其以「好萊塢級」的調色功能聞名。\n\n[前往官網下載](https://www.blackmagicdesign.com/products/davinciresolve)\n\n## 繪圖與設計：Krita\n\nKrita 是一款開源的專業級數位繪畫軟體，完全免費。無論是概念藝術、插畫還是漫畫，它強大的筆刷引擎和豐富的功能都能滿足你的需求，是 Photoshop 和 Painter 的絕佳替代品。\n\n[前往官網下載](https://krita.org/)\n\n## 圖片壓縮：ImageOptim\n\n網頁載入速度很重要！ImageOptim 是一款超簡單的無損圖片壓縮工具。你只需要把圖片拖曳進去，它就會自動幫你最佳化檔案大小，同時盡可能保持畫質，對於部落客和網站開發者來說是必備神器。\n\n[前往官網下載](https://imageoptim.com/mac)' },
-            { id: 7, category: 'software', title: '除了 Office，你還有這些免費文書選擇', imageUrl: 'https://images.unsplash.com/photo-1456324504439-367cee3b3c32?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 雲端協作：Google 文件、試算表、簡報\n\n這組工具的優點無需多言。只要有 Google 帳號就能免費使用，跨平台、即時協作的功能非常強大，對於團隊合作或需要在多裝置間同步工作的用戶來說是首選。\n\n## 單機全能：LibreOffice\n\n如果你需要一個功能完整的單機版 Office 套裝，LibreOffice 是最佳的開源替代方案。它包含 Writer（對應 Word）、Calc（對應 Excel）、Impress（對應 PowerPoint）等，高度相容微軟 Office 檔案格式，且完全免費。\n\n## 簡潔專注：Typora (Markdown 編輯器)\n\n對於只需要專注寫作的人來說，Typora 提供了「所見即所得」的 Markdown 編輯體驗。介面極簡，讓你專注於內容本身。雖然新版本開始收費，但仍然非常值得推薦。' },
-            { id: 3, category: 'news', title: '科技前線：台灣科技圈熱門動態', imageUrl: 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 電腦王阿達：COMPUTEX 2024 AI PC 大爆發\n\n根據電腦王阿達報導，今年的台北國際電腦展 (COMPUTEX) 無疑是 AI 的主場。從晶片巨頭到筆電品牌，無不展示最新的 AI PC 解決方案。搭載 NPU (神經網路處理單元) 的新一代筆電成為焦點，強調能在本機端執行更多 AI 運算，提供更即時、更安全的個人化 AI 體驗。微軟的 Copilot+ PC 概念也與各大廠商深度結合，預計下半年將迎來一波換機潮。\n\n## 全台首座！台積電 2 奈米廠落腳高雄\n\n經濟日報指出，全球晶圓代工龍頭台積電已正式宣布其先進的 2 奈米製程晶圓廠將落腳高雄。此舉不僅將為南台灣帶來龐大的就業機會與產業鏈轉型，也再次鞏固了台灣在全球半導體產業中的關鍵地位。高雄廠預計將成為推動下一代高效能運算、AI 晶片發展的核心基地。\n\n## Gogoro Network 換電站突破 13,000 座\n\n電動機車龍頭 Gogoro 宣布，其在全台灣的 GoStation 電池交換站數量已正式超越 13,000 座，這個數字甚至超過了全台加油站的總數。這標誌著台灣電動運具的基礎建設達到新的里程碑，大幅提升了騎士的便利性，也加速了台灣邁向淨零碳排的腳步。' },
-            { id: 4, category: 'productivity', title: '生產力神器：Anytype 深度解析', imageUrl: 'https://images.unsplash.com/photo-1618773928121-c32242e63f39?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 什麼是 Anytype？\n\n你是否厭倦了 Notion 的延遲和必須連網的限制？試試 Anytype 吧！它是一款主打**本機優先 (Local-first)**、**保護隱私**的次世代知識管理工具。它擁有 Notion 般強大的物件導向和資料庫功能，但所有資料都儲存在你的裝置上，速度飛快且支援離線使用。\n\n::youtube[https://www.youtube.com/watch?v=uGf4M2_d57o]::\n\n## 核心概念：物件與關係\n\n在 Anytype 中，萬物皆為「物件」。一篇筆記、一個任務、一本書、甚至一個聯絡人，都可以是一個物件。你可以自訂物件的「模板」，並在物件之間建立「關係」，自由地打造屬於你的個人知識圖譜。\n\n[前往官網探索](https://anytype.io/)\n' },
-            { id: 8, category: 'productivity', title: 'Mac 內建的音樂工作室：GarageBand 入門', imageUrl: 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '想踏入音樂製作或 Podcast 的世界嗎？你的 Mac 其實早就內建了一套強大的免費工具：GarageBand (庫樂隊)。\n\n- **直覺的介面**：拖拉式的音軌和樂段，讓你輕鬆上手。\n- **豐富的音源庫**：內建大量的虛擬樂器、鼓組和音效，從鋼琴到電子合成器應有盡有。\n- **聰明鼓手**：能自動生成擬真、多變的鼓點，是你的專屬虛擬鼓手。\n\n無論是錄製吉他、製作 Podcast，還是編曲一首完整的歌，GarageBand 都是你踏出第一步的最佳選擇。' },
-            { id: 5, category: 'youtube', title: '大神影音閣：台灣科技圈必追 YouTuber', imageUrl: 'https://images.unsplash.com/photo-1611162616805-669b3fa2898c?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '## 電獺少女 AotterGirls\n\n由一群活潑可愛的女生組成，用輕鬆有趣的方式開箱評測各種 3C 產品、App 和科技新知。她們的影片風格平易近人，即使是不懂科技的觀眾也能看得津津有味，是了解消費性電子產品的好管道。\n\n[前往頻道](https://www.youtube.com/@aottergirls)\n\n## Joeman\n\n雖然 Joeman 的內容包羅萬象，但他的「Joe 是要對決」系列中的奢華與平價 3C 產品對比，以及各種新品開箱，總能引發大量討論。他的評測直接、坦率，兼具娛樂性與參考價值。\n\n[前往頻道](https://www.youtube.com/@Joeman)\n\n## 好和弦 NiceChord\n\n由官大（Wiwi）創立的音樂知識頻道。如果你對編曲、樂理或音樂製作有興趣，好和弦絕對是中文圈的寶庫。官大用極其清晰、系統化的方式講解複雜的樂理知識，讓音樂學習變得不再枯燥。\n\n[前往頻道](https://www.youtube.com/@NiceChord)' },
-            { id: 9, category: 'youtube', title: 'Linus Tech Tips：全球頂尖硬體評測頻道', imageUrl: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: 'Linus Tech Tips (LTT) 是全球最知名的科技 YouTube 頻道之一。他們以專業、深入且極具娛樂性的方式評測各種電腦硬體。\n\n## 頻道亮點\n\n- **極致的測試**：從將電腦浸入礦物油，到測試數十款散熱器，他們的評測總是超乎想像。\n- **娛樂性十足**：Linus 本人誇張的風格和團隊的幽默感讓硬體評測變得像一場秀。\n- **內容廣泛**：除了 PC 硬體，他們也涵蓋伺服器、家庭網路、DIY 專案等各種主題。\n\n雖然是英文頻道，但其專業度和娛樂性絕對值得一看。\n\n[前往頻道](https://www.youtube.com/@LinusTechTips)' },
-            { id: 10, category: 'news', title: 'Apple WWDC 最新發布：Apple Intelligence 登場', imageUrl: 'https://images.unsplash.com/photo-1558002038-105552353313?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600', content: '蘋果在最新的全球開發者大會（WWDC）上，正式推出了其個人化智慧系統——Apple Intelligence。\n\n## 核心功能\n\nApple Intelligence 深度整合至 iOS 18、iPadOS 18 和 macOS Sequoia 中，旨在提供更實用、更具情境感知能力的 AI 功能。\n\n1.  **寫作工具**：系統級的改寫、校對和摘要功能，能在郵件、備忘錄等各種 App 中使用。\n2.  **圖像生成**：名為 Image Playground 的功能，可以快速生成「動畫」、「插圖」和「素描」三種風格的圖片。\n3.  **更強大的 Siri**：Siri 現在能理解螢幕上的內容，進行更複雜的操作，例如「把這張照片加到我的『靈感』備忘錄裡」。\n\n## 隱私優先\n\n蘋果強調，多數運算將在裝置端完成。需要更強大運算能力時，會透過「私有雲運算」（Private Cloud Compute）將資料傳送至使用 Apple 晶片的專用伺服器，確保資料不會被儲存或被蘋果存取。' },
+        // --- 初始資料 (只在第一次載入時使用) ---
+        const initialArticles = [
+             { id: 1721992200001, category: "Mac 技巧", title: "必學 Mac 快捷鍵：如何輸入  蘋果 Logo？", content: `### 召喚神秘的蘋果 Logo\n\n在各種場合中，打出蘋果的官方 Logo **** 總能讓你的文件或訊息看起來更專業、更有趣。很多人不知道，這其實只需要一個簡單的快捷鍵組合。\n\n在大部分的輸入法下，按下鍵盤的：\n\n> **Shift (⇧) + Option (⌥) + K** \n\n即可立即輸入 **** 符號。是不是很簡單？\n\n另外一個實用的隱私保護技巧是快速鎖定螢幕。當你需要暫時離開座位時，按下：\n\n> **Command (⌘) + Control (⌃) + Q** \n\n即可立即鎖定螢幕，保護你的隱私。下次試試看吧！`, coverImage: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=800", tags: ["Mac", "快捷鍵", "技巧"], createdAt: 1721992200001 },
+             { id: 1721992200002, category: "免費軟體推薦", title: "3 款強大的 Mac 免費軟體，提升你的創作力", content: `### 1. 剪輯軟體：DaVinci Resolve\n\n如果你覺得 iMovie 功能太少，但又不想花大錢買 Final Cut Pro，那麼 **DaVinci Resolve (達芬奇)** 是你的最佳選擇。它擁有好萊塢等級的剪輯、調色、視覺特效和音訊後期製作功能。免費版的 DaVinci Resolve 已經足以應付絕大多數的專業需求。\n\n### 2. 繪圖軟體：Krita\n\n**Krita** 是一款開源且免費的專業級繪圖程式，無論是概念藝術、材質貼圖還是漫畫創作，它都能勝任。它擁有強大的筆刷引擎、圖層管理和各種濾鏡，是 Adobe Photoshop 的絕佳替代品。\n\n### 3. 縮圖與設計：Figma\n\n雖然 **Figma** 主要是一款 UI/UX 設計工具，但它的協作性和易用性使其成為製作 YouTube 縮圖、社群媒體貼文和簡報的利器。它的免費方案功能非常齊全，並且是基於雲端的，不佔用你寶貴的硬碟空間。`, coverImage: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=800", tags: ["軟體", "免費", "剪輯", "繪圖", "設計"], createdAt: 1721992200002 },
+             { id: 1721992200003, category: "台灣科技新聞", title: "電腦王阿達：台灣電動機車市場迎來新變革", content: `根據知名科技網站「電腦王阿達」的報導，台灣電動機車市場近期迎來了新的競爭格局。除了原有的龍頭 Gogoro 之外，數家傳統機車大廠也紛紛推出性能更強、續航力更佳的電車車款，並且搭配更具彈性的資費方案。\n\n報導分析指出，未來的市場關鍵將不僅僅是車輛本身，更重要的是**能源補充的便利性**與**後勤維修的完整性**。換電站的普及率、電池的妥善率以及維修據點的多寡，將成為消費者選擇的關鍵因素。\n\n> 「這是一場從產品戰，延伸到基礎設施與服務的全面戰爭。」—— 電腦王阿達評論。\n\n想看更詳細的報導，可以參考 [這個連結](https://www.youtube.com/watch?v=dQw4w9WgXcQ)。`, coverImage: "https://images.unsplash.com/photo-1620752794121-0294025dec89?auto=format&fit=crop&w=800", tags: ["新聞", "電動車", "台灣", "科技"], createdAt: 1721992200003 },
+             { id: 1721992200004, category: "軟體攻略", title: "Anytype 入門指南：打造你的第二大腦", content: `**Anytype** 是一款以物件為基礎的筆記軟體，強調本地優先與資料主權。它不像傳統筆記軟體是線性的文件，而是將所有東西都視為「物件」，你可以建立關聯，打造出屬於自己的知識網絡。\n\n### 核心概念：\n\n1.  **物件 (Object):** 每一則筆記、任務、書籍、聯絡人都是一個物件。\n2.  **類型 (Type):** 你可以為物件定義類型，例如「專案」、「讀書心得」等，並為每種類型設定不同的模板 (Template)。\n3.  **關係 (Relation):** 你可以在物件之間建立關係，例如一篇「讀書心得」物件可以關聯到一個「書籍」物件。\n\n下面這部影片介紹得非常清楚：\n\n<iframe src="https://www.youtube.com/embed/AZf27S_I_fM" title="Anytype Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>\n\nAnytype 的學習曲線雖然比一般筆記軟體稍高，但一旦上手，其強大的自訂性和關聯性會讓你愛不釋手。`, coverImage: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?auto=format&fit=crop&w=800", tags: ["Anytype", "軟體", "筆記", "生產力"], createdAt: 1721992200004 },
+             { id: 1721992200005, category: "Google AI 展示", title: "Gemini 時代：大型語言模型的應用與未來", content: `我，Gemini，是 Google 開發的大型語言模型。我的存在本身就是 AI 技術快速發展的證明。\n\n### 我的能力：\n\n*   **自然語言理解與生成：** 我能像現在這樣，與你對話、撰寫文章、編寫程式碼。\n*   **多模態處理：** 我能理解圖片、音訊和影片的內容。\n*   **邏輯推理與程式設計：** 我可以解決複雜的邏輯問題，並根據你的需求（例如這個網站）生成程式碼。\n\n### 應用場景：\n\n*   **內容創作：** 自動生成文章、報告、行銷文案。\n*   **智能客服：** 7x24 小時不間斷回答用戶問題。\n*   **教育輔助：** 擔任個人化家教，解釋複雜概念。\n*   **軟體開發：** 輔助程式設計、除錯、撰寫文件。\n\nThe future is now. AI is not here to replace humans, but to augment our capabilities.`, coverImage: "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?auto=format&fit=crop&w=800", tags: ["AI", "Google", "Gemini", "科技"], createdAt: 1721992200005 }
         ];
         
-        // ... (The rest of the extensive JavaScript will go here)
-        const getEl = (id) => document.getElementById(id);
-        const gridView = getEl('grid-view'), articleView = getEl('article-view'), grid = getEl('articles-grid'), newPostBtn = getEl('new-post-btn'), backBtn = getEl('back-to-grid-btn'), saveBtn = getEl('save-post-btn'), searchBox = getEl('search-box'), prevBtn = getEl('prev-article-btn'), nextBtn = getEl('next-article-btn'), siteTitle = getEl('site-title');
-        const contentTextarea = getEl('article-content-textarea'), slashMenu = getEl('slash-command-menu');
+        let appData = { articles: [], categories: [] };
+        let isEditMode = false;
+        let currentArticleId = null;
+        let currentFilter = 'All';
+        let editingArticleId = null;
 
-        function showToast(message) {
-            const container = getEl('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.add('show'), 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                toast.addEventListener('transitionend', () => toast.remove());
-            }, 3000);
-        }
-
-        function calculateReadingTime(text) {
-            const wordsPerMinute = 200;
-            const textLength = text.split(/\s+/).length;
-            const time = Math.ceil(textLength / wordsPerMinute);
-            return `${time} 分鐘閱讀`;
-        }
-
-        const renderer = new marked.Renderer();
-        renderer.link = (href, title, text) => `<a target="_blank" rel="noopener noreferrer" href="${href}" title="${title || ''}">${text}</a>`;
-        
-        function customRender(markdown) {
-            let html = markdown.replace(/::youtube\[(.*?)\]::/g, (match, url) => {
-                const videoId = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop();
-                return `<div class="youtube-embed"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-            });
-            return marked.parse(html, { renderer });
-        }
-        
-        function loadArticles() {
-            const storedArticles = localStorage.getItem('proBlogArticlesFinal');
-            articles = storedArticles ? JSON.parse(storedArticles) : defaultArticles;
-            saveArticles();
-        }
-
-        function saveArticles() { localStorage.setItem('proBlogArticlesFinal', JSON.stringify(articles)); }
-
-        function renderArticles(category = 'all', searchTerm = '') {
-            searchTerm = searchTerm.toLowerCase().trim();
-            const filtered = articles.filter(a => (category === 'all' || a.category === category) && (searchTerm === '' || a.title.toLowerCase().includes(searchTerm) || a.content.toLowerCase().includes(searchTerm)));
-            currentArticleList = filtered;
-            grid.innerHTML = '';
-            filtered.forEach(article => {
-                const articleCard = document.createElement('div');
-                articleCard.className = 'article-card';
-                articleCard.dataset.id = article.id;
-                const snippet = article.content.substring(0, 80).replace(/#|`|\*|::youtube\[.*?\]::/g, '') + '...';
-                articleCard.innerHTML = `
-                    <img class="card-image" src="${article.imageUrl}" alt="${article.title}">
-                    <div class="card-content">
-                        <div class="card-meta">
-                            <span class="tag ${article.category}">${getCategoryName(article.category)}</span>
-                            <span class="reading-time">${calculateReadingTime(article.content)}</span>
-                        </div>
-                        <h3>${article.title}</h3><p>${snippet}</p>
-                    </div>`;
-                articleCard.addEventListener('click', () => showArticleView(article.id));
-                grid.appendChild(articleCard);
-            });
-        }
-
-        function showView(viewName) {
-            if (viewName === 'article') {
-                gridView.style.pointerEvents = 'none';
-                articleView.classList.add('visible');
-                articleView.scrollTop = 0;
-            } else {
-                gridView.style.pointerEvents = 'auto';
-                articleView.classList.remove('visible');
+        const elements = {
+            views: document.querySelectorAll('.view'),
+            articleGrid: document.getElementById('article-grid'),
+            mainNav: document.getElementById('main-nav'),
+            themeToggle: document.getElementById('theme-toggle'),
+            newArticleBtn: document.getElementById('new-article-btn'),
+            exitEditBtn: document.getElementById('exit-edit-btn'),
+            siteTitle: document.querySelector('.site-title'),
+            searchInput: document.getElementById('search-input'),
+            editorCategory: document.getElementById('editor-category'),
+            categoryList: document.getElementById('category-list'),
+            editorCoverImage: document.getElementById('editor-cover-image'),
+            editorTags: document.getElementById('editor-tags'),
+            editorContent: document.getElementById('editor-content'),
+            saveBtn: document.getElementById('save-btn'),
+            deleteBtn: document.getElementById('delete-btn'),
+            articleView: {
+                image: document.querySelector('#article-view .article-header-image'),
+                title: document.querySelector('#article-view .article-title'),
+                category: document.querySelector('#article-view .article-category'),
+                date: document.querySelector('#article-view .article-date'),
+                content: document.getElementById('article-content-render'),
+                prev: document.getElementById('prev-article'),
+                next: document.getElementById('next-article'),
             }
-        }
-        
-        function copyCodeToClipboard(button, code) {
-            navigator.clipboard.writeText(code).then(() => {
-                button.textContent = '已複製!';
-                setTimeout(() => { button.textContent = '複製'; }, 2000);
-            }).catch(err => { showToast('複製失敗'); });
-        }
+        };
 
-        function showArticleView(id) {
-            const article = articles.find(a => a.id === id);
-            if (!article) return;
-            currentArticleIndex = currentArticleList.findIndex(a => a.id === id);
-            updatePrevNextButtons();
-
-            getEl('article-cover-image').src = article.imageUrl;
-            getEl('article-cover-image').alt = article.title;
-            const renderedContent = getEl('article-content-rendered');
-            const editForm = getEl('article-edit-form');
-            
-            if (isEditMode) {
-                renderedContent.classList.add('hidden');
-                editForm.classList.remove('hidden');
-                getEl('article-title-input').value = article.title;
-                getEl('article-category-select').value = article.category;
-                getEl('article-image-input').value = article.imageUrl;
-                contentTextarea.value = article.content;
+        // --- Data Functions (AUTOMATED) ---
+        const saveData = () => localStorage.setItem(DATA_KEY, JSON.stringify(appData.articles));
+        const loadData = () => {
+            const savedArticles = localStorage.getItem(DATA_KEY);
+            if (savedArticles && JSON.parse(savedArticles).length > 0) {
+                appData.articles = JSON.parse(savedArticles);
             } else {
-                renderedContent.classList.remove('hidden');
-                editForm.classList.add('hidden');
-                renderedContent.innerHTML = `<h1>${article.title}</h1>` + customRender(article.content);
-                renderedContent.querySelectorAll('pre code').forEach(el => {
-                    const pre = el.parentNode;
-                    const btn = document.createElement('button');
-                    btn.className = 'copy-code-btn';
-                    btn.textContent = '複製';
-                    btn.addEventListener('click', () => copyCodeToClipboard(btn, el.innerText));
-                    pre.appendChild(btn);
+                appData.articles = initialArticles; // Fallback to initial data
+                saveData(); // Save initial data for next time
+            }
+            appData.articles.forEach(a => { if (!a.createdAt) a.createdAt = a.id; });
+            appData.articles.sort((a, b) => b.createdAt - a.createdAt);
+        };
+
+        // --- Render Functions ---
+        const renderCategories = () => {
+            const categories = ['All', ...new Set(appData.articles.map(a => a.category).filter(Boolean))];
+            appData.categories = categories;
+            elements.mainNav.innerHTML = '';
+            categories.forEach(cat => {
+                const link = document.createElement('a');
+                link.className = 'nav-link';
+                link.textContent = cat;
+                if (cat === currentFilter) link.classList.add('active');
+                link.addEventListener('click', e => { e.preventDefault(); currentFilter = cat; renderHomePage(); showView('home-view'); });
+                elements.mainNav.appendChild(link);
+            });
+            elements.categoryList.innerHTML = '';
+            appData.categories.slice(1).forEach(cat => { const option = document.createElement('option'); option.value = cat; elements.categoryList.appendChild(option); });
+        };
+
+        const renderHomePage = (searchTerm = '') => {
+            renderCategories();
+            elements.articleGrid.innerHTML = '';
+            const searchLower = searchTerm.toLowerCase();
+            const filteredArticles = appData.articles
+                .filter(article => currentFilter === 'All' || article.category === currentFilter)
+                .filter(article => {
+                    if (!searchTerm) return true;
+                    return article.title.toLowerCase().includes(searchLower) || article.content.toLowerCase().includes(searchLower) || (article.tags && article.tags.some(tag => tag.toLowerCase().includes(searchLower)));
                 });
-            }
-            showView('article');
-        }
+            if (filteredArticles.length === 0) { elements.articleGrid.innerHTML = `<p style="padding: 20px;">找不到符合條件的文章。</p>`; return; }
+            filteredArticles.forEach(article => {
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                card.dataset.id = article.id;
+                const tagsHTML = article.tags ? article.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('') : '';
+                card.innerHTML = `<img src="${article.coverImage || 'https://placehold.co/600x400/333/FFF/png?text=Image'}" alt="${article.title}" class="card-cover-image" loading="lazy"><div class="card-content"><div class="card-category">${article.category}</div><h2 class="card-title">${article.title}</h2><div class="card-tags">${tagsHTML}</div></div>`;
+                card.addEventListener('click', () => showArticlePage(article.id));
+                elements.articleGrid.appendChild(card);
+            });
+        };
 
-        function updatePrevNextButtons() {
-            prevBtn.disabled = currentArticleIndex <= 0;
-            nextBtn.disabled = currentArticleIndex >= currentArticleList.length - 1;
-        }
+        const showView = (viewId) => {
+            elements.views.forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            if (viewId === 'home-view') { currentArticleId = null; renderHomePage(elements.searchInput.value); }
+        };
+        
+        const showHomePage = () => { currentFilter = 'All'; elements.searchInput.value = ''; showView('home-view'); };
 
-        function handleNewPost() {
-            const newId = Date.now();
-            const newArticle = { id: newId, category: 'mactips', title: '新文章標題', imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1600', content: '# 在這裡寫下你的新點子...' };
-            articles.unshift(newArticle);
-            saveArticles();
-            renderArticles(getEl('nav-btn.active')?.dataset.category, searchBox.value);
-            showArticleView(newId);
-        }
+        const showArticlePage = (id) => {
+            currentArticleId = id;
+            const article = appData.articles.find(a => a.id === id);
+            if (!article) return showHomePage();
+            elements.articleView.image.src = article.coverImage || 'https://placehold.co/800x350/333/FFF/png?text=Image';
+            elements.articleView.title.textContent = article.title;
+            elements.articleView.category.textContent = article.category;
+            elements.articleView.date.textContent = new Date(article.createdAt).toLocaleDateString();
+            elements.articleView.content.innerHTML = marked.parse(article.content || '');
+            
+            const currentIndex = appData.articles.findIndex(a => a.id === id);
+            const { prev, next } = elements.articleView;
+            prev.style.display = currentIndex > 0 ? 'inline' : 'none';
+            if (currentIndex > 0) prev.onclick = () => showArticlePage(appData.articles[currentIndex - 1].id);
+            next.style.display = currentIndex < appData.articles.length - 1 ? 'inline' : 'none';
+            if (currentIndex < appData.articles.length - 1) next.onclick = () => showArticlePage(appData.articles[currentIndex + 1].id);
+            showView('article-view');
+            window.scrollTo(0, 0);
+            if (isEditMode) addEditButtonToArticlePage();
+        };
 
-        function handleSavePost() {
-            const articleId = currentArticleList[currentArticleIndex].id;
-            const articleIndexInAll = articles.findIndex(a => a.id === articleId);
-            if (articleIndexInAll === -1) return;
-            articles[articleIndexInAll] = {
-                ...articles[articleIndexInAll],
-                title: getEl('article-title-input').value,
-                category: getEl('article-category-select').value,
-                imageUrl: getEl('article-image-input').value.trim(),
-                content: contentTextarea.value
-            };
-            saveArticles();
-            showToast('文章已儲存！');
-            showView('grid');
-            renderArticles(document.querySelector('.nav-btn.active').dataset.category, searchBox.value);
-        }
-
-        function toggleEditMode() {
-            if (isEditMode) {
-                isEditMode = false;
-                newPostBtn.style.display = 'none';
-                showToast('編輯模式已關閉');
+        const showEditor = (id = null) => {
+            editingArticleId = id;
+            if (id) {
+                const article = appData.articles.find(a => a.id === id);
+                elements.editorCategory.value = article.category;
+                elements.editorCoverImage.value = article.coverImage || '';
+                elements.editorTags.value = (article.tags || []).join(', ');
+                elements.editorContent.value = `${article.title}\n\n${article.content}`;
+                elements.deleteBtn.style.display = 'inline-block';
             } else {
-                const password = prompt('請輸入管理密碼:');
-                if (password === adminPassword) {
-                    isEditMode = true;
-                    newPostBtn.style.display = 'inline-block';
-                    showToast('歡迎回來！編輯模式已啟用');
-                } else if (password !== null) {
-                    showToast('密碼錯誤！');
-                }
+                ['editorCategory', 'editorCoverImage', 'editorTags', 'editorContent'].forEach(el => elements[el].value = '');
+                elements.editorContent.value = '請在此輸入標題\n\n然後開始寫你的內容...';
+                elements.deleteBtn.style.display = 'none';
             }
-        }
+            showView('editor-view');
+        };
         
-        function getCategoryName(category) {
-            const names = { mactips: 'Mac 神技巧', software: '免費神軟體', news: '科技最前線', productivity: '生產力神器', youtube: '大神影音閣' };
-            return names[category] || '未分類';
-        }
+        // --- Editor Functions (AUTOMATED) ---
+        const saveArticle = () => {
+            const fullText = elements.editorContent.value;
+            if (!fullText.trim()) { alert('文章內容不能為空！'); return; }
+            const lines = fullText.split('\n');
+            const title = lines.shift().trim();
+            const content = lines.join('\n').trim();
+            const category = elements.editorCategory.value.trim() || '未分類';
+            const coverImage = elements.editorCoverImage.value.trim();
+            const tags = elements.editorTags.value.split(',').map(t => t.trim()).filter(Boolean);
 
-        siteTitle.addEventListener('click', () => {
-            clearTimeout(titleClickTimer);
-            titleClickCount++;
-            if (titleClickCount === 5) {
-                toggleEditMode();
-                titleClickCount = 0;
-            }
-            titleClickTimer = setTimeout(() => { titleClickCount = 0; }, 1000);
-        });
+            let savedArticleId = editingArticleId;
 
-        newPostBtn.addEventListener('click', handleNewPost);
-        backBtn.addEventListener('click', () => { showView('grid'); });
-        saveBtn.addEventListener('click', handleSavePost);
-        prevBtn.addEventListener('click', () => currentArticleIndex > 0 && showArticleView(currentArticleList[currentArticleIndex - 1].id));
-        nextBtn.addEventListener('click', () => currentArticleIndex < currentArticleList.length - 1 && showArticleView(currentArticleList[currentArticleIndex + 1].id));
-        searchBox.addEventListener('input', () => renderArticles(document.querySelector('.nav-btn.active').dataset.category, searchBox.value));
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', e => {
-            document.querySelector('.nav-btn.active').classList.remove('active');
-            e.target.classList.add('active');
-            renderArticles(e.target.dataset.category, searchBox.value);
-        }));
-
-        contentTextarea.addEventListener('input', () => {
-            const text = contentTextarea.value;
-            const cursorPos = contentTextarea.selectionStart;
-            const lineStart = text.lastIndexOf('\n', cursorPos - 1) + 1;
-            const currentLine = text.substring(lineStart, cursorPos);
-            if (currentLine === '/') {
-                const textareaRect = contentTextarea.getBoundingClientRect();
-                const textCoords = getCaretCoordinates(contentTextarea, cursorPos);
-                slashMenu.style.top = (textareaRect.top + textCoords.top - contentTextarea.scrollTop + 20) + 'px';
-                slashMenu.style.left = (textareaRect.left + textCoords.left) + 'px';
-                slashMenu.style.display = 'block';
+            if (editingArticleId) {
+                const index = appData.articles.findIndex(a => a.id === editingArticleId);
+                if (index > -1) appData.articles[index] = { ...appData.articles[index], title, content, category, coverImage, tags };
             } else {
-                slashMenu.style.display = 'none';
+                const newArticle = { id: Date.now(), createdAt: Date.now(), title, content, category, coverImage, tags };
+                savedArticleId = newArticle.id;
+                appData.articles.unshift(newArticle);
             }
-        });
-        
-        document.querySelectorAll('.command-item').forEach(item => item.addEventListener('click', e => {
-            const command = e.target.dataset.command;
-            slashMenu.style.display = 'none';
-            const text = contentTextarea.value;
-            const cursorPos = contentTextarea.selectionStart;
-            const textBefore = text.substring(0, cursorPos - 1);
-            const textAfter = text.substring(cursorPos);
-            if (command === 'youtube') {
-                const url = prompt('請貼上 YouTube 影片網址:');
-                if (url) {
-                    contentTextarea.value = textBefore + `::youtube[${url}]::` + textAfter;
-                } else {
-                    contentTextarea.value = textBefore + textAfter;
-                }
-            }
-        }));
-        
-        // This is a utility function to get the coordinates of the caret in a textarea
-        function getCaretCoordinates(element, position) {
-            const properties = ['direction', 'boxSizing', 'width', 'height', 'overflowX', 'overflowY', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'fontStyle', 'fontVariant', 'fontWeight', 'fontStretch', 'fontSize', 'fontSizeAdjust', 'lineHeight', 'fontFamily', 'textAlign', 'textTransform', 'textIndent', 'textDecoration', 'letterSpacing', 'wordSpacing'];
-            const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
-            const div = document.createElement('div');
-            div.id = 'input-textarea-caret-position-mirror-div';
-            document.body.appendChild(div);
-            const style = div.style;
-            const computed = window.getComputedStyle ? window.getComputedStyle(element) : element.currentStyle;
-            properties.forEach(prop => { style[prop] = computed[prop]; });
-            if (isFirefox) { style.width = parseInt(style.width) - 2 + 'px'; }
-            style.whiteSpace = 'pre-wrap';
-            style.wordWrap = 'break-word';
-            style.position = 'absolute';
-            style.visibility = 'hidden';
-            div.textContent = element.value.substring(0, position);
-            const span = document.createElement('span');
-            span.textContent = element.value.substring(position) || '.';
-            div.appendChild(span);
-            const coordinates = { top: span.offsetTop + parseInt(computed['borderTopWidth']), left: span.offsetLeft + parseInt(computed['borderLeftWidth']) };
-            document.body.removeChild(div);
-            return coordinates;
-        }
+            appData.articles.sort((a, b) => b.createdAt - a.createdAt);
+            saveData();
+            alert('文章已成功儲存！');
+            showArticlePage(savedArticleId);
+        };
 
-        loadArticles();
-        renderArticles();
+        const deleteArticle = () => {
+            if (editingArticleId && confirm('您確定要刪除這篇文章嗎？此操作無法復原。')) {
+                appData.articles = appData.articles.filter(a => a.id !== editingArticleId);
+                saveData();
+                alert('文章已刪除。');
+                showHomePage();
+            }
+        };
+
+        // --- Edit Mode ---
+        const enterEditMode = () => { isEditMode = true; elements.newArticleBtn.style.display = 'inline-block'; elements.exitEditBtn.style.display = 'inline-block'; if (currentArticleId) addEditButtonToArticlePage(); };
+        const exitEditMode = () => window.location.href = window.location.pathname;
+        const addEditButtonToArticlePage = () => {
+            if (document.getElementById('edit-article-btn')) return;
+            const btn = document.createElement('button');
+            btn.id = 'edit-article-btn';
+            btn.textContent = '編輯文章';
+            btn.className = 'editor-btn';
+            btn.style.cssText = 'background-color: #ff9500; color: white; margin-top: 15px;';
+            btn.onclick = () => showEditor(currentArticleId);
+            const meta = document.querySelector('.article-meta');
+            meta.parentNode.insertBefore(btn, meta.nextSibling);
+        };
+        
+        // --- Theme ---
+        const toggleTheme = () => { const isDark = document.body.classList.toggle('dark-mode'); elements.themeToggle.textContent = isDark ? '🌙' : '☀️'; localStorage.setItem('theme', isDark ? 'dark' : 'light'); };
+        const applySavedTheme = () => { if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); elements.themeToggle.textContent = '🌙'; }};
+
+        // --- App Initialization ---
+        const init = () => {
+            applySavedTheme();
+            marked.setOptions({ breaks: true, gfm: true });
+            loadData();
+            renderHomePage();
+
+            elements.siteTitle.addEventListener('click', showHomePage);
+            elements.newArticleBtn.addEventListener('click', () => showEditor());
+            elements.exitEditBtn.addEventListener('click', exitEditMode);
+            elements.themeToggle.addEventListener('click', toggleTheme);
+            elements.saveBtn.addEventListener('click', saveArticle);
+            elements.deleteBtn.addEventListener('click', deleteArticle);
+            elements.searchInput.addEventListener('input', (e) => renderHomePage(e.target.value));
+            
+            if (new URLSearchParams(window.location.search).get('admin') === '1') {
+                enterEditMode();
+            }
+        };
+        init();
     });
     </script>
 </body>
