@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI STUDIO</title>
+    <title>KAI's Tech Log - GitHub Pages Edition</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <!-- 引入 highlight.js 用於程式碼語法高亮 -->
@@ -15,55 +15,55 @@
             --bg-color: #f0f2f5; --text-color: #1a1a1a; --primary-color: #007aff; 
             --secondary-color: #555; --border-color: #d1d1d6; --card-bg: #ffffff;
             --shadow-color: rgba(0, 0, 0, 0.08); --code-bg: #e9ecef; --code-color: #333;
-            --danger-color: #dc3545; --apple-radius-large: 18px; --apple-radius-medium: 12px;
-            --apple-radius-small: 8px; 
+            --danger-color: #dc3545; 
+            /* [升級] 更明顯的圓角 */
+            --apple-radius-large: 22px; 
+            --apple-radius-medium: 16px;
+            --apple-radius-small: 10px; 
             
             /* [升級] 精緻化液態玻璃變數 */
-            --glass-blur: 12px; /* 降低模糊度，讓背景更清晰一點 */
-            --glass-light-bg-color: 250, 250, 252; /* 基底色，使用 RGB 值以利漸變 */
-            --glass-light-opacity: 0.85; /* 提高不透明度，增強可讀性 */
+            --glass-blur: 16px; /* 提升模糊度以增強層次感 */
+            --glass-light-bg-color: 250, 250, 252; 
+            --glass-light-opacity: 0.8; 
         }
         body.dark-mode {
             --bg-color: #000000; --text-color: #e0e0e0; --primary-color: #0a84ff;
             --secondary-color: #aaa; --border-color: #3a3a3c; --card-bg: #1c1c1e;
-            --shadow-color: rgba(0, 0, 0, 0.3); --code-bg: #2c2c2e; --code-color: #f0f0f0;
+            --shadow-color: rgba(0, 0, 0, 0.35); --code-bg: #2c2c2e; --code-color: #f0f0f0;
             
             /* [升級] 深色模式的玻璃變數 */
             --glass-dark-bg-color: 38, 38, 40;
-            --glass-dark-opacity: 0.8;
+            --glass-dark-opacity: 0.75;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; line-height: 1.7; }
         
-        /* [升級] 定義通用的玻璃質感 class */
+        /* [升級] 定義通用、更光滑的玻璃質感 class */
         .glassmorphism {
-             backdrop-filter: blur(var(--glass-blur));
+            backdrop-filter: blur(var(--glass-blur));
             -webkit-backdrop-filter: blur(var(--glass-blur));
-
             /* 淺色模式下的玻璃背景與光澤 */
             background: linear-gradient(135deg, 
-                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) + 0.1)), /* 左上角更亮一點 */
-                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) - 0.05))  /* 右下角稍微暗一點 */
+                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) + 0.15)), 
+                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) - 0.1))
             );
-            /* 使用陰影模擬頂部高光和底部邊緣 */
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 2px 10px var(--shadow-color);
-            border: 1px solid rgba(var(--glass-light-bg-color), 0.9);
+            /* 使用更細膩的陰影模擬光澤 */
+            box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.7), 0 4px 15px var(--shadow-color);
+            border: 1px solid rgba(var(--glass-light-bg-color), 0.8);
         }
-
         body.dark-mode .glassmorphism {
             /* 深色模式下的玻璃背景與光澤 */
             background: linear-gradient(135deg, 
-                rgba(var(--glass-dark-bg-color), calc(var(--glass-dark-opacity) + 0.1)), 
+                rgba(var(--glass-dark-bg-color), calc(var(--glass-dark-opacity) + 0.15)), 
                 rgba(var(--glass-dark-bg-color), var(--glass-dark-opacity))
             );
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 2px 10px var(--shadow-color);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 20px var(--shadow-color);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .site-header { 
-            /* [升級] 將 header 套用 glassmorphism 效果 */
             position: sticky; top: 0; z-index: 100;
             padding: 0 5%;
             transition: background 0.3s, box-shadow 0.3s;
@@ -72,19 +72,20 @@
         .header-content { display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 10px 0; flex-wrap: wrap; }
         .site-title { font-size: 1.4rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
         .controls { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
-        .category-selector { position: relative; }
-        .category-display-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--apple-radius-medium); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
+        .control-group { position: relative; } /* 用於包裹按鈕和下拉選單 */
         
-        /* [升級] 下拉選單也套用玻璃效果 */
-        .category-dropdown { 
+        /* [修改] 按鈕與下拉選單的通用樣式 */
+        .control-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--apple-radius-medium); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
+        .control-dropdown { 
             display: none; position: absolute; top: 110%; right: 0; min-width: 200px; 
             border-radius: var(--apple-radius-large);
             z-index: 110; padding: 8px; max-height: 300px; overflow-y: auto;
         }
-        .category-dropdown.active { display: block; }
+        .control-dropdown.active { display: block; }
         .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: var(--apple-radius-small); transition: background-color 0.2s; }
-        .dropdown-item:hover { background-color: rgba(128, 128, 128, 0.2); }
+        .dropdown-item:hover, .dropdown-item.active { background-color: rgba(128, 128, 128, 0.2); }
         .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
+        
         .search-box { position: relative; }
         .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
         .search-input { width: 150px; padding: 8px 15px 8px 35px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
@@ -97,6 +98,12 @@
         .view.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
+        /* [新增] 載入進度條樣式 */
+        .loader { width: 100%; max-width: 500px; margin: 40px auto; text-align: center; }
+        .progress-bar { height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden; }
+        .progress-bar-inner { width: 0%; height: 100%; background-color: var(--primary-color); transition: width 0.5s ease; }
+        .loader p { margin-top: 15px; color: var(--secondary-color); }
+
         .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
         .article-card { background-color: var(--card-bg); border-radius: var(--apple-radius-large); overflow: hidden; box-shadow: 0 4px 20px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
         .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px var(--shadow-color); }
@@ -107,30 +114,43 @@
         .article-container { max-width: 800px; margin: 0 auto; }
         .article-header-image { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--apple-radius-large); margin-bottom: 30px; background-color: var(--border-color); }
         .article-title { font-size: 2.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 15px; }
-        .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 0 10px; }
+        .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 0 10px; align-items: center; }
         .article-meta span { display: inline-flex; align-items: center;}
 
-        /* 文章內容與程式碼高亮樣式 */
+        /* [修復] 文章內容與程式碼高亮樣式，增加間距 */
         .article-content { font-size: 1.1rem; line-height: 1.8; }
-        .article-content pre { background-color: #282c34; color: #abb2bf; padding: 1.5em; border-radius: var(--apple-radius-medium); overflow-x: auto; margin-bottom: 1.5em;}
+        .article-content > * + * { margin-top: 1.2em; } /* 為所有頂層元素增加垂直間距 */
+        .article-content pre { background-color: #282c34; color: #abb2bf; padding: 1.5em; border-radius: var(--apple-radius-medium); overflow-x: auto; margin: 1.5em 0;}
         .article-content code { font-family: "SF Mono", "Fira Code", monospace; font-size: 0.9em; }
         .article-content :not(pre) > code { background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 6px; }
-        .article-content blockquote { border-left: 4px solid var(--border-color); padding-left: 1em; margin-left: 0; color: var(--secondary-color); }
+        .article-content blockquote { border-left: 4px solid var(--border-color); padding-left: 1.5em; margin: 1.5em 0; color: var(--secondary-color); }
+        
+        /* [新增] 文章導覽按鈕樣式 */
+        .article-navigation { margin-top: 50px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .nav-btn {
+            padding: 12px 25px;
+            border-radius: var(--apple-radius-medium);
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .nav-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
 
         #editor-overlay, #cat-mgmt-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); 
-            /* [升級] Modal 的背景和模糊與 header 分開，給予其獨立的 backdrop */
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; 
         }
         #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; }
         
-        /* [升級] 將 Modal 套用 glassmorphism 效果 */
         .modal { 
             width: 95%; max-width: 900px; 
             border-radius: var(--apple-radius-large); 
             display: flex; flex-direction: column; 
-            /* 注意：Modal 不直接繼承 backdrop-filter，因為它在 overlay 之上 */
         }
         .editor-modal { height: 90vh; }
         .cat-mgmt-modal { max-height: 80vh; max-width: 500px; }
@@ -169,18 +189,24 @@
             .search-input { width: 120px; }
             .modal { width: 100%; height: 100%; border-radius: 0; }
             .editor-modal, .cat-mgmt-modal { height: 100vh; max-height: 100vh; }
+            .article-navigation { flex-direction: column; align-items: stretch; }
+            .nav-btn { text-align: center; }
         }
     </style>
 </head>
 <body>
-    <!-- [升級] 為會套用效果的元素加上 class -->
     <header class="site-header glassmorphism">
         <div class="header-content">
-            <div id="site-title" class="site-title">KAI STUDIO</div>
+            <div id="site-title" class="site-title">Kai's Tech Log</div>
             <div class="controls">
-                <div class="category-selector">
-                    <button id="category-display-btn" class="category-display-btn">分類 ▼</button>
-                    <div id="category-dropdown" class="category-dropdown glassmorphism"></div>
+                <!-- [新增] 排序功能 -->
+                <div class="control-group">
+                    <button id="sort-display-btn" class="control-btn">排序 ▼</button>
+                    <div id="sort-dropdown" class="control-dropdown glassmorphism"></div>
+                </div>
+                <div class="control-group">
+                    <button id="category-display-btn" class="control-btn">分類 ▼</button>
+                    <div id="category-dropdown" class="control-dropdown glassmorphism"></div>
                 </div>
                 <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
                 <div class="theme-toggle" id="theme-toggle">☀️</div>
@@ -192,7 +218,14 @@
 
     <main>
         <div id="home-view" class="view active">
-            <div class="article-grid" id="article-grid"><p style="padding: 20px;">正在從雲端載入資料...</p></div>
+             <!-- [修改] 替換為進度條 -->
+            <div id="loader" class="loader">
+                <div class="progress-bar">
+                    <div id="progress-bar-inner" class="progress-bar-inner"></div>
+                </div>
+                <p id="loader-text">正在從雲端載入資料...</p>
+            </div>
+            <div class="article-grid" id="article-grid"></div>
         </div>
         <div id="article-view" class="view"></div>
     </main>
@@ -200,7 +233,7 @@
     <!-- 編輯器 Modal -->
     <div id="editor-overlay">
         <div class="modal editor-modal glassmorphism">
-            <div class="modal-header">
+             <div class="modal-header">
                 <div class="editor-modal-header">
                     <input type="text" id="editor-id" disabled placeholder="文章 ID">
                     <input type="date" id="editor-date">
@@ -244,10 +277,10 @@
     <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
 
     <script type="module">
-        // *** 程式碼已修復 ***
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
+        // *** 安全提示：在真實專案中，不應將 API 金鑰直接寫在前端程式碼中 ***
         const firebaseConfig = { 
             apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
             authDomain: "blog-63ad2.firebaseapp.com", 
@@ -257,8 +290,16 @@
             appId: "1:265914768921:web:e4c752780e604d0be69488", 
             databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
         };
-
-        let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All' };
+        
+        // [修改] 增加排序狀態
+        let appState = { 
+            articles: {}, 
+            allCategories: [], 
+            isEditMode: false, 
+            currentFilter: 'All',
+            currentSort: 'newest', // 'newest' or 'oldest'
+            sortedArticleIds: []
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -266,9 +307,14 @@
         const categoriesRef = ref(db, 'blogData/categories');
 
         const ui = {
+            loader: document.getElementById('loader'),
+            loaderText: document.getElementById('loader-text'),
+            progressBarInner: document.getElementById('progress-bar-inner'),
             homeView: document.getElementById('home-view'),
             articleView: document.getElementById('article-view'),
             articleGrid: document.getElementById('article-grid'),
+            sortDisplayBtn: document.getElementById('sort-display-btn'),
+            sortDropdown: document.getElementById('sort-dropdown'),
             catDisplayBtn: document.getElementById('category-display-btn'),
             catDropdown: document.getElementById('category-dropdown'),
             siteTitle: document.getElementById('site-title'),
@@ -287,26 +333,33 @@
             addCatInput: document.getElementById('add-cat-input'),
         };
         
-        // [修復] 使用 async/await 進行一次性資料讀取，取代 onValue 的持續監聽
         async function loadInitialData() {
             try {
-                // 使用 Promise.all 同時獲取文章和分類資料
+                ui.progressBarInner.style.width = '30%'; // 開始載入
                 const [articlesSnapshot, categoriesSnapshot] = await Promise.all([
                     get(articlesRef),
                     get(categoriesRef)
                 ]);
+                ui.progressBarInner.style.width = '70%'; // 資料獲取成功
 
-                // 處理獲取到的資料
                 appState.articles = articlesSnapshot.val() || {};
                 appState.allCategories = categoriesSnapshot.val() || [];
+                
+                ui.loaderText.textContent = '✅ 資料取得成功，正在渲染畫面...';
+                ui.progressBarInner.style.width = '100%';
 
-                // 確保所有資料都載入後，才渲染畫面
-                render.articles();
-                render.categories();
+                setTimeout(() => {
+                    ui.loader.style.display = 'none';
+                    render.articles();
+                    render.categories();
+                    render.sortOptions();
+                }, 500); // 延遲一下讓使用者看到成功訊息
                 
             } catch (error) {
                 console.error("從 Firebase 載入初始資料時發生錯誤:", error);
-                ui.articleGrid.innerHTML = `<p style="padding: 20px; color: var(--danger-color);">資料載入失敗，請檢查網路連線或稍後再試。</p>`;
+                ui.progressBarInner.style.width = '100%';
+                ui.progressBarInner.style.backgroundColor = 'var(--danger-color)';
+                ui.loaderText.innerHTML = `❌ 資料載入失敗，請檢查網路連線或稍後再試。`;
             }
         }
 
@@ -321,13 +374,35 @@
         };
 
         const render = {
+             // [新增] 渲染排序選項
+            sortOptions: () => {
+                const sortOrders = { newest: '由新到舊', oldest: '由舊到新' };
+                ui.sortDisplayBtn.textContent = `排序：${sortOrders[appState.currentSort]} ▼`;
+                ui.sortDropdown.innerHTML = '';
+                Object.entries(sortOrders).forEach(([key, value]) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'dropdown-item';
+                    if (key === appState.currentSort) btn.classList.add('active');
+                    btn.textContent = value;
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        appState.currentSort = key;
+                        actions.showHomePage();
+                        render.sortOptions();
+                        ui.sortDropdown.classList.remove('active');
+                    };
+                    ui.sortDropdown.appendChild(btn);
+                });
+            },
             categories: () => {
                 const allCats = ['All', ...appState.allCategories];
                 ui.catDisplayBtn.textContent = `分類：${appState.currentFilter} ▼`;
                 ui.catDropdown.innerHTML = '';
                 allCats.forEach(cat => {
                     const btn = document.createElement('button');
-                    btn.className = 'dropdown-item'; btn.textContent = cat;
+                    btn.className = 'dropdown-item';
+                    if (cat === appState.currentFilter) btn.classList.add('active');
+                    btn.textContent = cat;
                     btn.onclick = (e) => {
                         e.stopPropagation();
                         appState.currentFilter = cat;
@@ -360,7 +435,15 @@
                             (article.tags && article.tags.toLowerCase().includes(searchTerm.toLowerCase())) : true;
                         return matchesCategory && matchesSearch;
                     })
-                    .sort(([, a], [, b]) => new Date(b.date) - new Date(a.date));
+                    // [修改] 根據當前排序狀態進行排序
+                    .sort(([, a], [, b]) => {
+                        const dateA = new Date(a.date);
+                        const dateB = new Date(b.date);
+                        return appState.currentSort === 'newest' ? dateB - dateA : dateA - dateB;
+                    });
+                
+                // [新增] 更新排序後的 ID 列表，用於上下篇導覽
+                appState.sortedArticleIds = filteredArticles.map(([id]) => id);
 
                 if (filteredArticles.length === 0) {
                     ui.articleGrid.innerHTML = `<p style="padding: 20px;">找不到文章。</p>`;
@@ -375,7 +458,7 @@
                         <img class="card-cover-image" src="${article.coverImage || 'https://via.placeholder.com/400x250/e9ecef/6c757d?text=No+Image'}" alt="Cover Image for ${article.title}">
                         <div class="card-content">
                             <h3 class="card-title">${article.title || '無標題文章'}</h3>
-                            <p style="color: var(--secondary-color); font-size: 0.9rem;">${article.date || ''}</p>
+                            <p style="color: var(--secondary-color); font-size: 0.9rem;">${new Date(article.date).toLocaleDateString()}</p>
                         </div>`;
                     ui.articleGrid.appendChild(card);
                 });
@@ -385,6 +468,12 @@
                 if (!article) {
                     actions.showHomePage(); return;
                 }
+
+                // [新增] 尋找上一篇與下一篇文章的 ID
+                const currentIndex = appState.sortedArticleIds.indexOf(id);
+                const prevId = currentIndex > 0 ? appState.sortedArticleIds[currentIndex - 1] : null;
+                const nextId = currentIndex < appState.sortedArticleIds.length - 1 ? appState.sortedArticleIds[currentIndex + 1] : null;
+
                 const readingTime = calculateReadingTime(article.content);
                 const contentWithoutTitle = article.content.substring(article.content.indexOf('\n') + 1);
                 const htmlContent = marked.parse(contentWithoutTitle || '');
@@ -394,17 +483,30 @@
                         ${article.coverImage ? `<img src="${article.coverImage}" alt="Cover Image for ${article.title}" class="article-header-image">` : ''}
                         <h1 class="article-title">${article.title}</h1>
                         <div class="article-meta">
-                            <span>📅 ${article.date}</span>
+                            <span>📅 ${new Date(article.date).toLocaleDateString()}</span>
                             <span>🏷️ ${article.category}</span>
                             <span>⏱️ 約 ${readingTime} 分鐘</span>
                             ${appState.isEditMode ? `<span><button class="btn-edit" data-id="${id}" style="background:none; border:none; cursor:pointer; color:var(--primary-color); font-size: 1rem;">✏️ 編輯</button></span>` : ''}
                         </div>
                         <div class="article-content">${htmlContent}</div>
+
+                        <!-- [新增] 文章導覽按鈕 -->
+                        <div class="article-navigation">
+                            <a href="#" id="prev-article-btn" class="nav-btn glassmorphism ${!prevId ? 'disabled' : ''}" data-id="${prevId}">‹ 上一篇</a>
+                            <a href="#" id="back-to-home-btn" class="nav-btn glassmorphism">返回列表</a>
+                            <a href="#" id="next-article-btn" class="nav-btn glassmorphism ${!nextId ? 'disabled' : ''}" data-id="${nextId}">下一篇 ›</a>
+                        </div>
                     </div>`;
 
                 if (appState.isEditMode) {
                     ui.articleView.querySelector('.btn-edit').onclick = () => actions.openEditor(id);
                 }
+                
+                // [新增] 為導覽按鈕綁定事件
+                ui.articleView.querySelector('#back-to-home-btn').onclick = (e) => { e.preventDefault(); actions.showHomePage(); };
+                if (prevId) ui.articleView.querySelector('#prev-article-btn').onclick = (e) => { e.preventDefault(); actions.showArticlePage(prevId); };
+                if (nextId) ui.articleView.querySelector('#next-article-btn').onclick = (e) => { e.preventDefault(); actions.showArticlePage(nextId); };
+
                 document.querySelectorAll('.article-content pre code').forEach(block => hljs.highlightElement(block));
             },
             theme: () => {
@@ -443,9 +545,11 @@
             showHomePage: () => {
                 ui.homeView.classList.add('active');
                 ui.articleView.classList.remove('active');
-                render.articles();
+                ui.articleView.innerHTML = ''; // 清空文章頁，避免殘留
+                render.articles(ui.searchInput.value); // 重新渲染文章以應用排序和過濾
             },
             showArticlePage: (id) => {
+                if (!id) return;
                 ui.homeView.classList.remove('active');
                 ui.articleView.classList.add('active');
                 render.articleDetail(id);
@@ -456,9 +560,13 @@
                 localStorage.setItem('theme', currentTheme === 'dark' ? 'light' : 'dark');
                 render.theme();
             },
-            toggleCategoryDropdown: (event) => {
-                event.stopPropagation();
-                ui.catDropdown.classList.toggle('active');
+            toggleDropdown: (e, dropdownElement) => {
+                e.stopPropagation();
+                // 關閉其他已開啟的下拉選單
+                document.querySelectorAll('.control-dropdown.active').forEach(dd => {
+                    if (dd !== dropdownElement) dd.classList.remove('active');
+                });
+                dropdownElement.classList.toggle('active');
             },
             openEditor: (id = null) => {
                 const article = appState.articles[id];
@@ -468,7 +576,10 @@
                     ui.editorCategory.value = article.category;
                     ui.editorCoverImage.value = article.coverImage || '';
                     ui.editorTags.value = article.tags || '';
-                    ui.editorContent.value = `${article.title}\n\n${article.content.substring(article.content.indexOf('\n') + 2)}`;
+                    // 確保標題和內容分開
+                    const contentStartIndex = article.content.indexOf('\n');
+                    const contentBody = contentStartIndex !== -1 ? article.content.substring(contentStartIndex + 1).trim() : '';
+                    ui.editorContent.value = `${article.title}\n\n${contentBody}`;
                     ui.deleteBtn.style.display = 'block';
                 } else {
                     ui.editorId.value = `article_${Date.now()}`;
@@ -486,11 +597,11 @@
                 const title = content.substring(0, content.indexOf('\n')).trim();
                 const articleData = {
                     date: ui.editorDate.value,
-                    category: ui.editorCategory.value.trim(),
+                    category: ui.editorCategory.value.trim() || '未分類',
                     coverImage: ui.editorCoverImage.value.trim(),
                     tags: ui.editorTags.value.trim(),
                     title: title,
-                    content: content,
+                    content: content, // 儲存包含標題的完整內容
                 };
                 if (!id || !articleData.date || !articleData.category || !title) {
                     alert('ID、日期、分類和標題為必填項目！'); return;
@@ -498,7 +609,7 @@
                 try {
                     await set(ref(db, `blogData/articles/${id}`), articleData);
                     appState.articles[id] = articleData;
-                    if (!appState.allCategories.includes(articleData.category)) {
+                    if (!appState.allCategories.includes(articleData.category) && articleData.category !== '未分類') {
                         appState.allCategories.push(articleData.category);
                         await set(ref(db, 'blogData/categories'), appState.allCategories);
                     }
@@ -538,69 +649,66 @@
             },
             renameCategory: async (oldName) => {
                 const newName = prompt(`請輸入新的分類名稱取代 "${oldName}":`, oldName);
-                if (newName && newName.trim() !== oldName) {
-                    const updatedCategories = appState.allCategories.map(c => c === oldName ? newName.trim() : c);
-                    const updates = {};
-                    Object.entries(appState.articles).forEach(([id, article]) => {
+                if (newName && newName.trim() && newName.trim() !== oldName) {
+                    const trimmedNewName = newName.trim();
+                    appState.allCategories = appState.allCategories.map(c => c === oldName ? trimmedNewName : c);
+                    
+                    const articleUpdates = {};
+                     Object.entries(appState.articles).forEach(([id, article]) => {
                         if (article.category === oldName) {
-                            updates[`blogData/articles/${id}/category`] = newName.trim();
+                            articleUpdates[`blogData/articles/${id}/category`] = trimmedNewName;
+                            // 本地狀態也更新
+                            appState.articles[id].category = trimmedNewName;
                         }
                     });
-                    updates['blogData/categories'] = updatedCategories;
-                    
-                    try {
-                        await set(ref(db, 'blogData/categories'), updatedCategories);
-                        for (const key in updates) {
-                            if (key !== 'blogData/categories') await set(ref(db, key), updates[key]);
-                        }
-                        
-                        appState.allCategories = updatedCategories;
-                        Object.keys(appState.articles).forEach(id => {
-                            if (appState.articles[id].category === oldName) {
-                               appState.articles[id].category = newName.trim();
-                            }
-                        });
 
+                    try {
+                        await set(ref(db, 'blogData/categories'), appState.allCategories);
+                        for (const path in articleUpdates) {
+                            await set(ref(db, path), articleUpdates[path]);
+                        }
                         render.categoryManager();
                         render.categories();
-
+                        if (appState.currentFilter === oldName) {
+                            appState.currentFilter = trimmedNewName;
+                        }
+                        actions.showHomePage(); // 重新整理主頁顯示
                     } catch (error) { console.error("重命名分類失敗: ", error); alert('重命名分類失敗！'); }
                 }
             },
             deleteCategory: async (catName) => {
-                if (confirm(`確定要刪除分類 "${catName}" 嗎？所有屬於此分類的文章將會失去分類。`)) {
-                    const updatedCategories = appState.allCategories.filter(c => c !== catName);
-                    const updates = {};
-                     Object.entries(appState.articles).forEach(([id, article]) => {
+                if (confirm(`確定要刪除分類 "${catName}" 嗎？所有屬於此分類的文章將會被移至「未分類」。`)) {
+                    appState.allCategories = appState.allCategories.filter(c => c !== catName);
+                    
+                    const articleUpdates = {};
+                    Object.entries(appState.articles).forEach(([id, article]) => {
                         if (article.category === catName) {
-                            updates[`blogData/articles/${id}/category`] = '未分類';
+                            articleUpdates[`blogData/articles/${id}/category`] = '未分類';
+                             // 本地狀態也更新
+                            appState.articles[id].category = '未分類';
                         }
                     });
-                    updates['blogData/categories'] = updatedCategories;
+                     
                     try {
-                        await set(ref(db, 'blogData/categories'), updatedCategories);
-                         for (const key in updates) {
-                            if (key !== 'blogData/categories') await set(ref(db, key), updates[key]);
+                        await set(ref(db, 'blogData/categories'), appState.allCategories);
+                        for (const path in articleUpdates) {
+                            await set(ref(db, path), articleUpdates[path]);
                         }
-
-                        appState.allCategories = updatedCategories;
-                         Object.keys(appState.articles).forEach(id => {
-                            if (appState.articles[id].category === catName) {
-                               appState.articles[id].category = '未分類';
-                            }
-                        });
-
                         render.categoryManager();
                         render.categories();
+                        if(appState.currentFilter === catName) {
+                            appState.currentFilter = 'All';
+                        }
+                        actions.showHomePage(); // 重新整理主頁顯示
                     } catch(error) { console.error("刪除分類失敗:", error); alert('刪除分類失敗！');}
                 }
             },
             handleAdminLogin: () => {
                  const password = prompt('請輸入管理密碼:');
-                 if (password === '980621') { // 密碼應儲存在安全的後端環境變數中
+                 if (password === '980621') { // 在真實專案中，密碼驗證應在後端進行
                     appState.isEditMode = true;
                     alert('已進入管理模式。');
-                 } else {
+                 } else if (password) { // 僅在使用者輸入了內容時提示錯誤
                     appState.isEditMode = false;
                     alert('密碼錯誤。');
                  }
@@ -610,17 +718,23 @@
 
        // --- 初始化 ---
         render.theme();
-        // [修復] 直接呼叫，不包在 listener 裡面
         loadInitialData();
 
         // --- Event Listeners ---
-        
         ui.themeToggle.onclick = actions.toggleTheme;
         ui.siteTitle.onclick = actions.showHomePage;
         ui.searchInput.oninput = (e) => render.articles(e.target.value);
-        ui.catDisplayBtn.onclick = actions.toggleCategoryDropdown;
-        document.body.onclick = () => ui.catDropdown.classList.remove('active');
+        
+        ui.sortDisplayBtn.onclick = (e) => actions.toggleDropdown(e, ui.sortDropdown);
+        ui.catDisplayBtn.onclick = (e) => actions.toggleDropdown(e, ui.catDropdown);
+
+        document.body.onclick = () => {
+            ui.catDropdown.classList.remove('active');
+            ui.sortDropdown.classList.remove('active');
+        };
+        ui.sortDropdown.onclick = (e) => e.stopPropagation();
         ui.catDropdown.onclick = (e) => e.stopPropagation();
+
 
         ui.newArticleBtn.onclick = () => actions.openEditor();
         ui.exitEditBtn.onclick = () => { appState.isEditMode = false; render.editMode(); };
@@ -634,20 +748,21 @@
         let pressCount = 0;
         let pressTimeout;
         ui.siteTitle.addEventListener('click', (e) => {
-            pressCount++;
-            clearTimeout(pressTimeout);
-            if (pressCount >= 5) {
-                actions.handleAdminLogin();
-                pressCount = 0;
+             // 避免與 home page 點擊衝突
+            if (e.detail === 1) { // 確保是單次點擊
+                pressCount++;
+                clearTimeout(pressTimeout);
+                if (pressCount >= 5) {
+                    actions.handleAdminLogin();
+                    pressCount = 0;
+                } else {
+                    pressTimeout = setTimeout(() => { pressCount = 0; }, 1000);
+                }
             } else {
-                pressTimeout = setTimeout(() => { pressCount = 0; }, 1000);
+                 pressCount = 0; // 如果是雙擊等，重置計數
             }
         });
-    // --- 檢查 URL Query 是否啟用編輯模式 ---
-              const params = new URLSearchParams(window.location.search);
-              if (params.get("edit") === "true") {
-                  editor.toggleEditor();  // 啟用編輯模式
-            }
+
     </script>
 </body>
 </html>
