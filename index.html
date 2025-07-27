@@ -244,9 +244,9 @@
     <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
 
     <script type="module">
-        // JavaScript 程式碼與上一版完全相同，未做任何修改
+        // *** 程式碼已修復 ***
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
@@ -287,6 +287,29 @@
             addCatInput: document.getElementById('add-cat-input'),
         };
         
+        // [修復] 使用 async/await 進行一次性資料讀取，取代 onValue 的持續監聽
+        async function loadInitialData() {
+            try {
+                // 使用 Promise.all 同時獲取文章和分類資料
+                const [articlesSnapshot, categoriesSnapshot] = await Promise.all([
+                    get(articlesRef),
+                    get(categoriesRef)
+                ]);
+
+                // 處理獲取到的資料
+                appState.articles = articlesSnapshot.val() || {};
+                appState.allCategories = categoriesSnapshot.val() || [];
+
+                // 確保所有資料都載入後，才渲染畫面
+                render.articles();
+                render.categories();
+                
+            } catch (error) {
+                console.error("從 Firebase 載入初始資料時發生錯誤:", error);
+                ui.articleGrid.innerHTML = `<p style="padding: 20px; color: var(--danger-color);">資料載入失敗，請檢查網路連線或稍後再試。</p>`;
+            }
+        }
+
         const calculateReadingTime = (text) => {
             if (!text) return '1';
             const westernWords = (text.match(/[\w'-]+/g) || []).length;
@@ -308,21 +331,4 @@
                     btn.onclick = (e) => {
                         e.stopPropagation();
                         appState.currentFilter = cat;
-                        actions.showHomePage();
-                        ui.catDropdown.classList.remove('active');
-                    };
-                    ui.catDropdown.appendChild(btn);
-                });
-                
-                if (appState.isEditMode) {
-                    ui.catDropdown.appendChild(document.createElement('div')).className = 'dropdown-divider';
-                    const manageBtn = document.createElement('button');
-                    manageBtn.className = 'dropdown-item'; manageBtn.textContent = '🔧 管理分類...';
-                    manageBtn.onclick = (e) => { 
-                        e.stopPropagation(); 
-                        actions.openCategoryManager(); 
-                        ui.catDropdown.classList.remove('active');
-                    };
-                    ui.catDropdown.appendChild(manageBtn);
-                }
-                ui.categoryDataList
+                        actions.showHomePage
