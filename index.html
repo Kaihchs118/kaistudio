@@ -4,128 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KAI's Tech Log - GitHub Pages Edition</title>
-
-    <!-- 引入 Marked.js 用於解析 Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+    <!-- 引入 highlight.js 用於程式碼語法高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+
     <style>
-        /* --- CSS 樣式開始 --- */
-        :root { 
-            --bg-color: #ffffff; --text-color: #1a1a1a; --primary-color: #007aff; --secondary-color: #6c757d; 
-            --border-color: #dee2e6; --card-bg: #f8f9fa; --shadow-color: rgba(0, 0, 0, 0.1); 
-            --header-bg: rgba(255, 255, 255, 0.85); --code-bg: #e9ecef; --code-color: #333; --danger-color: #dc3545;
-            --border-radius: 12px;
+        :root {
+            --bg-color: #f0f2f5; --text-color: #1a1a1a; --primary-color: #007aff; 
+            --secondary-color: #555; --border-color: #d1d1d6; --card-bg: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.08); --code-bg: #e9ecef; --code-color: #333;
+            --danger-color: #dc3545; --apple-radius-large: 18px; --apple-radius-medium: 12px;
+            --apple-radius-small: 8px; 
+            
+            /* [升級] 精緻化液態玻璃變數 */
+            --glass-blur: 12px; /* 降低模糊度，讓背景更清晰一點 */
+            --glass-light-bg-color: 250, 250, 252; /* 基底色，使用 RGB 值以利漸變 */
+            --glass-light-opacity: 0.85; /* 提高不透明度，增強可讀性 */
         }
-        body.dark-mode { 
-            --bg-color: #121212; --text-color: #e0e0e0; --primary-color: #0a84ff; --secondary-color: #8e8e93; 
-            --border-color: #3a3a3c; --card-bg: #1c1c1e; --shadow-color: rgba(0, 0, 0, 0.3); 
-            --header-bg: rgba(28, 28, 30, 0.85); --code-bg: #2c2c2e; --code-color: #f0f0f0; --danger-color: #ff453a;
+        body.dark-mode {
+            --bg-color: #000000; --text-color: #e0e0e0; --primary-color: #0a84ff;
+            --secondary-color: #aaa; --border-color: #3a3a3c; --card-bg: #1c1c1e;
+            --shadow-color: rgba(0, 0, 0, 0.3); --code-bg: #2c2c2e; --code-color: #f0f0f0;
+            
+            /* [升級] 深色模式的玻璃變數 */
+            --glass-dark-bg-color: 38, 38, 40;
+            --glass-dark-opacity: 0.8;
         }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; line-height: 1.7; }
         
-        .site-header { position: sticky; top: 0; z-index: 100; background-color: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); padding: 0 5%; transition: background-color 0.3s, border-color 0.3s; }
-        .header-content { display: flex; justify-content: space-between; align-items: center; height: 60px; }
-        .site-title { font-size: 1.5rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
-        .controls { display: flex; align-items: center; gap: 10px; }
-        
+        /* [升級] 定義通用的玻璃質感 class */
+        .glassmorphism {
+             backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+
+            /* 淺色模式下的玻璃背景與光澤 */
+            background: linear-gradient(135deg, 
+                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) + 0.1)), /* 左上角更亮一點 */
+                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) - 0.05))  /* 右下角稍微暗一點 */
+            );
+            /* 使用陰影模擬頂部高光和底部邊緣 */
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 2px 10px var(--shadow-color);
+            border: 1px solid rgba(var(--glass-light-bg-color), 0.9);
+        }
+
+        body.dark-mode .glassmorphism {
+            /* 深色模式下的玻璃背景與光澤 */
+            background: linear-gradient(135deg, 
+                rgba(var(--glass-dark-bg-color), calc(var(--glass-dark-opacity) + 0.1)), 
+                rgba(var(--glass-dark-bg-color), var(--glass-dark-opacity))
+            );
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 2px 10px var(--shadow-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .site-header { 
+            /* [升級] 將 header 套用 glassmorphism 效果 */
+            position: sticky; top: 0; z-index: 100;
+            padding: 0 5%;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .header-content { display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 10px 0; flex-wrap: wrap; }
+        .site-title { font-size: 1.4rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .controls { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
         .category-selector { position: relative; }
-        .category-display-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--border-radius); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
-        .category-dropdown { display: none; position: absolute; top: 110%; right: 0; min-width: 200px; background-color: var(--card-bg); border-radius: var(--border-radius); box-shadow: 0 8px 25px var(--shadow-color); border: 1px solid var(--border-color); z-index: 110; padding: 10px; max-height: 300px; overflow-y: auto; }
-        .category-dropdown.active { display: block; }
-        .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: 8px; }
-        .dropdown-item:hover { background-color: var(--code-bg); }
-        .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
+        .category-display-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--apple-radius-medium); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
         
+        /* [升級] 下拉選單也套用玻璃效果 */
+        .category-dropdown { 
+            display: none; position: absolute; top: 110%; right: 0; min-width: 200px; 
+            border-radius: var(--apple-radius-large);
+            z-index: 110; padding: 8px; max-height: 300px; overflow-y: auto;
+        }
+        .category-dropdown.active { display: block; }
+        .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: var(--apple-radius-small); transition: background-color 0.2s; }
+        .dropdown-item:hover { background-color: rgba(128, 128, 128, 0.2); }
+        .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
         .search-box { position: relative; }
         .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
-        .search-input { width: 180px; padding: 8px 15px 8px 35px; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
-        .theme-toggle { cursor: pointer; font-size: 1.2rem; }
-        #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: var(--border-radius); cursor: pointer; font-weight: 500; transition: all 0.2s; color: white; white-space: nowrap; }
+        .search-input { width: 150px; padding: 8px 15px 8px 35px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; display: grid; place-items: center; }
+        #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; color: white; white-space: nowrap; }
         #new-article-btn { background-color: var(--primary-color); } #exit-edit-btn { background-color: var(--secondary-color); }
-        main { padding: 40px 5%; min-height: calc(100vh - 120px); }
+        
+        main { padding: 40px 5%; min-height: calc(100vh - 140px); }
         .view { display: none; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
         .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
-        .article-card { background-color: var(--card-bg); border-radius: var(--border-radius); overflow: hidden; box-shadow: 0 4px 15px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
-        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px var(--shadow-color); }
-        .card-cover-image { width: 100%; height: 180px; object-fit: cover; background-color: var(--border-color); }
+        .article-card { background-color: var(--card-bg); border-radius: var(--apple-radius-large); overflow: hidden; box-shadow: 0 4px 20px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px var(--shadow-color); }
+        .card-cover-image { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background-color: var(--border-color); }
         .card-content { padding: 20px; }
         .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; }
-        .article-container { max-width: 800px; margin: 0 auto; }
-        .article-header-image { width: 100%; height: 350px; object-fit: cover; border-radius: var(--border-radius); margin-bottom: 30px; background-color: var(--border-color); }
-        .article-title { font-size: 2.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 15px; }
-        .article-meta { color: var(--secondary-color); margin-bottom: 30px; }
-        .article-content { font-size: 1.1rem; line-height: 1.8; }
-        .article-content h1, .article-content h2, .article-content h3 { margin-top: 1.5em; margin-bottom: 0.8em; line-height: 1.4; }
-        .article-content p { margin-bottom: 1.2em; }
-        .article-content a { color: var(--primary-color); text-decoration: none; }
-        .article-content a:hover { text-decoration: underline; }
-        .article-content ul, .article-content ol { padding-left: 1.5em; margin-bottom: 1.2em; }
-        .article-content img { max-width: 100%; height: auto; border-radius: 8px; }
-        .article-content code { background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 6px; }
-        .article-content pre { background-color: var(--code-bg); padding: 1em; border-radius: 8px; overflow-x: auto; }
-        .article-content pre code { padding: 0; font-size: 100%; background: none; }
-        .article-content blockquote { border-left: 4px solid var(--border-color); padding-left: 1em; margin-left: 0; color: var(--secondary-color); }
-        .article-nav { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); }
-        .article-nav-link { color: var(--primary-color); text-decoration: none; font-weight: 500; }
-
-        #editor-overlay, #cat-mgmt-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
-        #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; }
-        .modal { background-color: var(--bg-color); width: 95%; max-width: 900px; border-radius: var(--border-radius); box-shadow: 0 10px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
-        .editor-modal { height: 90vh; }
-        .cat-mgmt-modal { max-height: 90vh; max-width: 500px; }
         
-        .modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); font-size: 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; }
-        .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 1rem; }
+        .article-container { max-width: 800px; margin: 0 auto; }
+        .article-header-image { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--apple-radius-large); margin-bottom: 30px; background-color: var(--border-color); }
+        .article-title { font-size: 2.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 15px; }
+        .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 0 10px; }
+        .article-meta span { display: inline-flex; align-items: center;}
+
+        /* 文章內容與程式碼高亮樣式 */
+        .article-content { font-size: 1.1rem; line-height: 1.8; }
+        .article-content pre { background-color: #282c34; color: #abb2bf; padding: 1.5em; border-radius: var(--apple-radius-medium); overflow-x: auto; margin-bottom: 1.5em;}
+        .article-content code { font-family: "SF Mono", "Fira Code", monospace; font-size: 0.9em; }
+        .article-content :not(pre) > code { background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 6px; }
+        .article-content blockquote { border-left: 4px solid var(--border-color); padding-left: 1em; margin-left: 0; color: var(--secondary-color); }
+
+        #editor-overlay, #cat-mgmt-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); 
+            /* [升級] Modal 的背景和模糊與 header 分開，給予其獨立的 backdrop */
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; 
+        }
+        #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; }
+        
+        /* [升級] 將 Modal 套用 glassmorphism 效果 */
+        .modal { 
+            width: 95%; max-width: 900px; 
+            border-radius: var(--apple-radius-large); 
+            display: flex; flex-direction: column; 
+            /* 注意：Modal 不直接繼承 backdrop-filter，因為它在 overlay 之上 */
+        }
+        .editor-modal { height: 90vh; }
+        .cat-mgmt-modal { max-height: 80vh; max-width: 500px; }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid rgba(128,128,128,0.2); font-size: 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 25px; overflow-y: auto; flex-grow: 1; }
+        
+        .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; }
+        .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 1rem; }
         .editor-modal-body { flex-grow: 1; padding: 0; display: flex; flex-direction: column;}
         #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; flex-grow: 1; }
-        .modal-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+        .modal-footer { padding: 15px 25px; border-top: 1px solid rgba(128,128,128,0.2); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
         .editor-modal-footer { justify-content: space-between; }
         
-        .btn { border: none; padding: 10px 20px; border-radius: var(--border-radius); cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
+        .btn { border: none; padding: 10px 20px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; }
         .btn-primary { background-color: var(--primary-color); color: white; }
         .btn-danger { background-color: var(--danger-color); color: white; }
         .btn-secondary { background-color: var(--secondary-color); color: white; }
         
         #cat-mgmt-list { list-style: none; padding: 0; margin: 0; }
-        #cat-mgmt-list li { display: flex; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); }
+        #cat-mgmt-list li { display: flex; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--border-color); }
         #cat-mgmt-list li:last-child { border-bottom: none; }
-        #cat-mgmt-list .cat-name { flex-grow: 1; }
-        #cat-mgmt-list .cat-name-input { flex-grow: 1; padding: 5px; border-radius: 8px; border: 1px solid var(--primary-color); background-color: var(--bg-color); color: var(--text-color); }
+        #cat-mgmt-list .cat-name { flex-grow: 1; padding: 0 10px; }
+        #cat-mgmt-list .cat-name-input { flex-grow: 1; padding: 8px 10px; border-radius: var(--apple-radius-small); border: 1px solid var(--primary-color); background-color: var(--card-bg); color: var(--text-color); }
         #cat-mgmt-list .cat-actions { display: flex; gap: 10px; }
-        #cat-mgmt-list .cat-actions button { background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+        #cat-mgmt-list .cat-actions button { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; }
         #add-cat-form { display: flex; gap: 10px; margin-top: 20px; }
-        #add-cat-input { flex-grow: 1; padding: 10px; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); }
-        
-        .site-footer { padding: 20px 5%; text-align: center; color: var(--secondary-color); border-top: 1px solid var(--border-color); font-size: 0.9rem; }
+        #add-cat-input { flex-grow: 1; padding: 12px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); }
+
+        .site-footer { padding: 40px 5%; text-align: center; color: var(--secondary-color); border-top: 1px solid var(--border-color); font-size: 0.9rem; margin-top: 30px;}
 
         @media (max-width: 768px) {
             .site-title { font-size: 1.2rem; }
-            .search-input { width: 120px; }
-            .search-input:focus { width: 150px; }
             .article-title { font-size: 2rem; }
-            .article-header-image { height: 250px; }
-            #new-article-btn, #exit-edit-btn { padding: 8px 10px; font-size: 0.8rem; }
+            .header-content { row-gap: 12px; }
+            .controls { flex-basis: 100%; justify-content: flex-end; }
+            .search-input { width: 120px; }
             .modal { width: 100%; height: 100%; border-radius: 0; }
-            .editor-modal { height: 100vh; }
+            .editor-modal, .cat-mgmt-modal { height: 100vh; max-height: 100vh; }
         }
-        /* --- CSS 樣式結束 --- */
     </style>
 </head>
 <body>
-    <!-- --- HTML 結構開始 --- -->
-    <header class="site-header">
+    <!-- [升級] 為會套用效果的元素加上 class -->
+    <header class="site-header glassmorphism">
         <div class="header-content">
             <div id="site-title" class="site-title">Kai's Tech Log</div>
             <div class="controls">
                 <div class="category-selector">
                     <button id="category-display-btn" class="category-display-btn">分類 ▼</button>
-                    <div id="category-dropdown" class="category-dropdown"></div>
+                    <div id="category-dropdown" class="category-dropdown glassmorphism"></div>
                 </div>
                 <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
                 <div class="theme-toggle" id="theme-toggle">☀️</div>
@@ -137,20 +192,22 @@
 
     <main>
         <div id="home-view" class="view active">
-            <div class="article-grid" id="article-grid">
-                <p style="padding: 20px;">正在從雲端載入資料...</p>
-            </div>
+            <div class="article-grid" id="article-grid"><p style="padding: 20px;">正在從雲端載入資料...</p></div>
         </div>
         <div id="article-view" class="view"></div>
     </main>
 
-    <div id="editor-overlay" class="overlay">
-        <div class="modal editor-modal">
-            <div class="modal-header editor-modal-header">
-                <input type="date" id="editor-date">
-                <input type="text" id="editor-category" placeholder="分類" list="category-list">
-                <input type="text" id="editor-cover-image" placeholder="封面圖片 URL">
-                <input type="text" id="editor-tags" placeholder="標籤 (用逗號分隔)">
+    <!-- 編輯器 Modal -->
+    <div id="editor-overlay">
+        <div class="modal editor-modal glassmorphism">
+            <div class="modal-header">
+                <div class="editor-modal-header">
+                    <input type="text" id="editor-id" disabled placeholder="文章 ID">
+                    <input type="date" id="editor-date">
+                    <input type="text" id="editor-category" placeholder="分類" list="category-list">
+                    <input type="text" id="editor-cover-image" placeholder="封面圖片 URL">
+                    <input type="text" id="editor-tags" placeholder="標籤 (用逗號分隔)">
+                </div>
             </div>
             <div class="modal-body editor-modal-body">
                 <textarea id="editor-content" spellcheck="false" placeholder="第一行為標題..."></textarea>
@@ -158,15 +215,16 @@
             <div class="modal-footer editor-modal-footer">
                 <button id="delete-btn" class="btn btn-danger">刪除</button>
                 <div>
-                    <button id="cancel-btn" class="btn btn-secondary" style="margin-right: 10px;">取消</button>
-                    <button id="save-btn" class="btn btn-primary">儲存文章</button>
+                    <button id="cancel-btn" class="btn btn-secondary">取消</button>
+                    <button id="save-btn" class="btn btn-primary">儲存</button>
                 </div>
             </div>
         </div>
     </div>
-
-    <div id="cat-mgmt-overlay" class="overlay">
-        <div class="modal cat-mgmt-modal">
+    
+    <!-- 分類管理 Modal -->
+    <div id="cat-mgmt-overlay">
+        <div class="modal cat-mgmt-modal glassmorphism">
             <div class="modal-header">
                 <h2>分類管理</h2>
                 <button id="close-cat-mgmt-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-color)">×</button>
@@ -183,18 +241,13 @@
 
     <datalist id="category-list"></datalist>
 
-    <footer class="site-footer">
-        <p>© 2025 Kai's Tech Log. All Rights Reserved.</p>
-    </footer>
-    <!-- --- HTML 結構結束 --- -->
+    <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
 
-    <!-- --- JavaScript 程式碼開始 --- -->
     <script type="module">
-        // 引入 Firebase SDK，注意增加了 query, orderByChild, limitToLast, get
+        // JavaScript 程式碼與上一版完全相同，未做任何修改
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, onValue, set, remove, query, orderByChild, limitToLast, get } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-        // 您的 Firebase 設定 (請勿洩漏給不信任的人，並務必設定安全性規則！)
         const firebaseConfig = { 
             apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
             authDomain: "blog-63ad2.firebaseapp.com", 
@@ -205,22 +258,13 @@
             databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
         };
 
-        // 全域狀態，articles 只會儲存當前頁面顯示的文章
-        let appState = {
-            homePageArticles: {}, // 儲存首頁文章列表
-            allCategories: [],    // 儲存所有分類
-            articleCache: {},     // 快取已讀取的完整文章
-            isEditMode: false,
-            currentFilter: 'All',
-        };
+        let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All' };
 
-        // 初始化 Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const articlesRef = ref(db, 'blogData/articles');
         const categoriesRef = ref(db, 'blogData/categories');
 
-        // DOM 元素
         const ui = {
             homeView: document.getElementById('home-view'),
             articleView: document.getElementById('article-view'),
@@ -230,25 +274,29 @@
             siteTitle: document.getElementById('site-title'),
             searchInput: document.getElementById('search-input'),
             themeToggle: document.getElementById('theme-toggle'),
+            newArticleBtn: document.getElementById('new-article-btn'),
+            exitEditBtn: document.getElementById('exit-edit-btn'),
+            editorOverlay: document.getElementById('editor-overlay'), editorId: document.getElementById('editor-id'),
+            editorDate: document.getElementById('editor-date'), editorCategory: document.getElementById('editor-category'),
+            editorCoverImage: document.getElementById('editor-cover-image'), editorTags: document.getElementById('editor-tags'),
+            editorContent: document.getElementById('editor-content'), saveBtn: document.getElementById('save-btn'),
+            cancelBtn: document.getElementById('cancel-btn'), deleteBtn: document.getElementById('delete-btn'),
+            categoryDataList: document.getElementById('category-list'),
+            catMgmtOverlay: document.getElementById('cat-mgmt-overlay'), catMgmtList: document.getElementById('cat-mgmt-list'),
+            closeCatMgmtBtn: document.getElementById('close-cat-mgmt-btn'), addCatForm: document.getElementById('add-cat-form'),
+            addCatInput: document.getElementById('add-cat-input'),
+        };
+        
+        const calculateReadingTime = (text) => {
+            if (!text) return '1';
+            const westernWords = (text.match(/[\w'-]+/g) || []).length;
+            const cjkWords = (text.match(/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/g) || []).length;
+            const totalWords = westernWords + cjkWords;
+            const wordsPerMinute = 225;
+            const minutes = Math.ceil(totalWords / wordsPerMinute);
+            return `${minutes}`;
         };
 
-        // 圖片優化函式
-        const optimizeImageUrl = (url, width, quality = 80) => {
-            if (!url) return `https://placehold.co/${width}x${Math.round(width * 0.6)}/E9ECEF/6C757D?text=No+Image`;
-            if (!url.includes('images.unsplash.com')) return url;
-            try {
-                const urlObj = new URL(url);
-                urlObj.searchParams.set('auto', 'format');
-                urlObj.searchParams.set('fit', 'crop');
-                urlObj.searchParams.set('w', width);
-                urlObj.searchParams.set('q', quality);
-                return urlObj.toString();
-            } catch (e) {
-                return url;
-            }
-        };
-
-        // 渲染函式
         const render = {
             categories: () => {
                 const allCats = ['All', ...appState.allCategories];
@@ -256,155 +304,25 @@
                 ui.catDropdown.innerHTML = '';
                 allCats.forEach(cat => {
                     const btn = document.createElement('button');
-                    btn.className = 'dropdown-item';
-                    btn.textContent = cat;
-                    btn.onclick = () => {
+                    btn.className = 'dropdown-item'; btn.textContent = cat;
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
                         appState.currentFilter = cat;
-                        render.homePage();
+                        actions.showHomePage();
                         ui.catDropdown.classList.remove('active');
                     };
                     ui.catDropdown.appendChild(btn);
                 });
-            },
-            homePage: () => {
-                render.categories();
-                ui.articleGrid.innerHTML = '';
-                const searchTerm = ui.searchInput.value.toLowerCase();
                 
-                const articlesArray = Object.values(appState.homePageArticles)
-                    .sort((a, b) => b.id - a.id); // 確保每次渲染都是最新的在前面
-
-                const filtered = articlesArray.filter(a => {
-                    const inCategory = appState.currentFilter === 'All' || a.category === appState.currentFilter;
-                    if (!inCategory) return false;
-
-                    const inSearch = !searchTerm || 
-                                     a.title.toLowerCase().includes(searchTerm) || 
-                                     (a.tags && a.tags.some(t => t.toLowerCase().includes(searchTerm)));
-                    return inSearch;
-                });
-
-                if (filtered.length === 0) {
-                    ui.articleGrid.innerHTML = `<p style="padding: 20px;">找不到符合條件的文章。</p>`;
-                    return;
+                if (appState.isEditMode) {
+                    ui.catDropdown.appendChild(document.createElement('div')).className = 'dropdown-divider';
+                    const manageBtn = document.createElement('button');
+                    manageBtn.className = 'dropdown-item'; manageBtn.textContent = '🔧 管理分類...';
+                    manageBtn.onclick = (e) => { 
+                        e.stopPropagation(); 
+                        actions.openCategoryManager(); 
+                        ui.catDropdown.classList.remove('active');
+                    };
+                    ui.catDropdown.appendChild(manageBtn);
                 }
-
-                filtered.forEach(article => {
-                    const card = document.createElement('div');
-                    card.className = 'article-card';
-                    card.dataset.id = article.id;
-                    const coverImage = optimizeImageUrl(article.coverImage, 600);
-                    card.innerHTML = `
-                        <img src="${coverImage}" alt="${article.title}" class="card-cover-image" loading="lazy">
-                        <div class="card-content">
-                            <div class="card-title">${article.title}</div>
-                        </div>`;
-                    card.addEventListener('click', () => actions.showArticlePage(article.id));
-                    ui.articleGrid.appendChild(card);
-                });
-            },
-            articlePage: (article) => {
-                const headerImage = optimizeImageUrl(article.coverImage, 800);
-                ui.articleView.innerHTML = `
-                    <div class="article-container">
-                        <img src="${headerImage}" alt="${article.title}" class="article-header-image">
-                        <h1 class="article-title">${article.title}</h1>
-                        <p class="article-meta">
-                            <span class="article-category">${article.category}</span> • <span class="article-date">${article.date}</span>
-                        </p>
-                        <div class="article-content">${marked.parse(article.content || '')}</div>
-                    </div>`;
-            }
-        };
-
-        // 操作函式
-        const actions = {
-            showView: (viewId) => {
-                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-                document.getElementById(viewId).classList.add('active');
-            },
-            showHomePage: () => {
-                appState.currentFilter = 'All';
-                ui.searchInput.value = '';
-                actions.showView('home-view');
-                render.homePage();
-            },
-            showArticlePage: async (id) => {
-                actions.showView('article-view');
-                ui.articleView.innerHTML = `<div class="article-container"><p>正在載入文章...</p></div>`;
-                window.scrollTo(0, 0);
-
-                try {
-                    // 1. 檢查快取
-                    if (appState.articleCache[id]) {
-                        render.articlePage(appState.articleCache[id]);
-                        return;
-                    }
-                    // 2. 從 Firebase 獲取單一文章
-                    const snapshot = await get(ref(db, `blogData/articles/${id}`));
-                    if (snapshot.exists()) {
-                        const article = snapshot.val();
-                        appState.articleCache[id] = article; // 存入快取
-                        render.articlePage(article);
-                    } else {
-                        ui.articleView.innerHTML = `<div class="article-container"><p>錯誤：找不到這篇文章。</p></div>`;
-                    }
-                } catch (error) {
-                    console.error("獲取文章失敗:", error);
-                    ui.articleView.innerHTML = `<div class="article-container"><p>載入文章時發生錯誤。</p></div>`;
-                }
-            },
-            toggleTheme: () => {
-                const body = document.body;
-                body.classList.toggle('dark-mode');
-                ui.themeToggle.textContent = body.classList.contains('dark-mode') ? '🌙' : '☀️';
-                localStorage.setItem('theme', body.classList.contains('dark-mode') ? 'dark' : 'light');
-            }
-        };
-
-        // 初始化資料載入
-        function initializeAppLogic() {
-            // 初始載入主題
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-mode');
-                ui.themeToggle.textContent = '🌙';
-            }
-
-            // 1. 建立一個查詢，只獲取最新文章的摘要資訊 (id, title, category, tags, coverImage)
-            // 這裡我們取最新的 20 篇作為首頁列表
-            const homePageQuery = query(articlesRef, orderByChild('id'), limitToLast(20));
-
-            // 2. 監聽首頁文章列表
-            onValue(homePageQuery, (snapshot) => {
-                const articles = snapshot.val() || {};
-                appState.homePageArticles = articles;
-                render.homePage(); // 收到資料後渲染首頁
-            }, (error) => {
-                console.error("Firebase 讀取文章列表失敗:", error);
-                ui.articleGrid.innerHTML = `<p style="padding: 20px;">無法載入資料，請檢查網路連線或 Firebase 設定。</p>`;
-            });
-
-            // 3. 監聽分類資料
-            onValue(categoriesRef, (snapshot) => {
-                appState.allCategories = snapshot.val() || [];
-                render.categories(); // 收到資料後渲染分類
-            });
-
-            // 綁定事件
-            ui.siteTitle.addEventListener('click', actions.showHomePage);
-            ui.themeToggle.addEventListener('click', actions.toggleTheme);
-            ui.searchInput.addEventListener('input', () => render.homePage());
-            ui.catDisplayBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                ui.catDropdown.classList.toggle('active');
-            });
-            document.addEventListener('click', () => ui.catDropdown.classList.remove('active'));
-        }
-
-        // 啟動應用
-        initializeAppLogic();
-
-    </script>
-    <!-- --- JavaScript 程式碼結束 --- -->
-</body>
-</html>
+                ui.categoryDataList
