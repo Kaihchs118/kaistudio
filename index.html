@@ -25,11 +25,21 @@
         .header-top-row { display: flex; justify-content: space-between; align-items: center; height: 60px; }
         .site-title { font-size: 1.5rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
         .controls { display: flex; align-items: center; gap: 15px; }
-        .main-nav { display: flex; gap: 10px; overflow-x: auto; padding: 5px 0 10px 0; border-top: 1px solid var(--border-color); -ms-overflow-style: none; scrollbar-width: none; }
+        .main-nav-container { border-top: 1px solid var(--border-color); display: flex; align-items: center; }
+        .main-nav { flex-grow: 1; display: flex; gap: 10px; overflow-x: auto; padding: 5px 0 10px 0; -ms-overflow-style: none; scrollbar-width: none; }
         .main-nav::-webkit-scrollbar { display: none; }
         .nav-link { font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); padding: 5px 12px; border-bottom: 2px solid transparent; transition: all 0.2s; cursor: pointer; white-space: nowrap; border-radius: var(--border-radius); }
         .nav-link:hover { background-color: var(--code-bg); color: var(--text-color); }
         .nav-link.active { color: var(--primary-color); font-weight: 600; }
+        
+        /* NEW: Dropdown Menu */
+        .more-cats-container { position: relative; }
+        .more-cats-btn { font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); padding: 5px 12px; cursor: pointer; border-radius: var(--border-radius); white-space: nowrap; margin-left: 10px; border: 1px solid var(--border-color); }
+        .category-dropdown { display: none; position: absolute; top: 100%; right: 0; background-color: var(--card-bg); border-radius: var(--border-radius); box-shadow: 0 8px 25px var(--shadow-color); border: 1px solid var(--border-color); z-index: 110; padding: 10px; max-height: 300px; overflow-y: auto; margin-top: 5px; }
+        .category-dropdown.active { display: block; }
+        .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: 8px; }
+        .dropdown-item:hover { background-color: var(--code-bg); }
+        
         .search-box { position: relative; }
         .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
         .search-input { width: 180px; padding: 8px 15px 8px 35px; border-radius: var(--border-radius); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
@@ -91,7 +101,13 @@
                 <button id="exit-edit-btn">退出</button>
             </div>
         </div>
-        <nav class="main-nav" id="main-nav"></nav>
+        <div class="main-nav-container">
+            <nav class="main-nav" id="main-nav"></nav>
+            <div class="more-cats-container">
+                <button class="more-cats-btn" id="more-cats-btn">所有分類 ▼</button>
+                <div class="category-dropdown" id="category-dropdown"></div>
+            </div>
+        </div>
     </header>
     <main><div id="home-view" class="view active"><div class="article-grid" id="article-grid"><p style="padding: 20px;">正在從雲端載入資料...</p></div></div><div id="article-view" class="view"><div class="article-container"><img src="" alt="Article Header Image" class="article-header-image"><h1 class="article-title"></h1><p class="article-meta"><span class="article-category"></span> • <span class="article-date"></span></p><div class="article-content" id="article-content-render"></div><nav class="article-nav"><a class="article-nav-link" id="prev-article">← 上一篇</a><a class="article-nav-link" id="next-article">下一篇 →</a></nav></div></div></main>
     <div id="editor-overlay"><div class="editor-modal"><div class="editor-modal-header"><input type="text" id="editor-category" placeholder="分類 (e.g., Mac 技巧)" list="category-list"><input type="text" id="editor-cover-image" placeholder="封面圖片 URL"><input type="text" id="editor-tags" placeholder="標籤 (用逗號分隔)"></div><div class="editor-modal-body"><textarea id="editor-content" spellcheck="false" placeholder="第一行為標題..."></textarea></div><div class="editor-modal-footer"><button id="delete-btn" class="editor-btn" style="background-color: var(--danger-color); color: white;">刪除</button><div><button id="cancel-btn" class="editor-btn" style="background-color: var(--secondary-color); color: white; margin-right: 10px;">取消</button><button id="save-btn" class="editor-btn" style="background-color: var(--primary-color); color: white;">儲存文章</button></div></div></div></div><datalist id="category-list"></datalist>
@@ -135,13 +151,44 @@
         let appState = { data: { articles: {}, categories: [] }, isEditMode: false, currentArticleId: null, currentFilter: 'All', editingArticleId: null };
         const app = initializeApp(firebaseConfig), db = getDatabase(app), dbRef = ref(db, 'blogData');
         const dbApi = { saveArticle: (a) => set(ref(db, `blogData/articles/${a.id}`), a), deleteArticle: (id) => remove(ref(db, `blogData/articles/${id}`)), saveCategories: (c) => set(ref(db, 'blogData/categories'), c) };
-        const ui = { articleGrid: document.getElementById('article-grid'), mainNav: document.getElementById('main-nav'), themeToggle: document.getElementById('theme-toggle'), newArticleBtn: document.getElementById('new-article-btn'), exitEditBtn: document.getElementById('exit-edit-btn'), siteTitle: document.querySelector('.site-title'), searchInput: document.getElementById('search-input'), editorOverlay: document.getElementById('editor-overlay'), editor: { category: document.getElementById('editor-category'), list: document.getElementById('category-list'), cover: document.getElementById('editor-cover-image'), tags: document.getElementById('editor-tags'), content: document.getElementById('editor-content') }, saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'), cancelBtn: document.getElementById('cancel-btn'), articleView: { image: document.querySelector('#article-view .article-header-image'), title: document.querySelector('#article-view .article-title'), category: document.querySelector('#article-view .article-category'), date: document.querySelector('#article-view .article-date'), content: document.getElementById('article-content-render'), prev: document.getElementById('prev-article'), next: document.getElementById('next-article'),} };
+        const ui = { articleGrid: document.getElementById('article-grid'), mainNav: document.getElementById('main-nav'), moreCatsBtn: document.getElementById('more-cats-btn'), catDropdown: document.getElementById('category-dropdown'), themeToggle: document.getElementById('theme-toggle'), newArticleBtn: document.getElementById('new-article-btn'), exitEditBtn: document.getElementById('exit-edit-btn'), siteTitle: document.querySelector('.site-title'), searchInput: document.getElementById('search-input'), editorOverlay: document.getElementById('editor-overlay'), editor: { category: document.getElementById('editor-category'), list: document.getElementById('category-list'), cover: document.getElementById('editor-cover-image'), tags: document.getElementById('editor-tags'), content: document.getElementById('editor-content') }, saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'), cancelBtn: document.getElementById('cancel-btn'), articleView: { image: document.querySelector('#article-view .article-header-image'), title: document.querySelector('#article-view .article-title'), category: document.querySelector('#article-view .article-category'), date: document.querySelector('#article-view .article-date'), content: document.getElementById('article-content-render'), prev: document.getElementById('prev-article'), next: document.getElementById('next-article'),} };
 
         const render = {
-            categories: () => { const cats = ['All', ...(appState.data.categories || [])]; ui.mainNav.innerHTML = ''; cats.forEach(c => { const a = document.createElement('a'); a.className = 'nav-link'; a.textContent = c; if (c === appState.currentFilter) a.classList.add('active'); a.onclick = e => { e.preventDefault(); appState.currentFilter = c; render.homePage(); }; ui.mainNav.appendChild(a); }); ui.editor.list.innerHTML = ''; (appState.data.categories || []).forEach(c => { const o = document.createElement('option'); o.value = c; ui.editor.list.appendChild(o); }); },
+            categories: () => { 
+                const allCats = ['All', ...(appState.data.categories || [])];
+                const visibleCats = allCats.slice(0, 5); // Show first 5 categories in scroll view
+                const dropdownCats = allCats;
+                
+                ui.mainNav.innerHTML = '';
+                visibleCats.forEach(c => ui.mainNav.appendChild(actions.createCatLink(c)));
+                
+                ui.catDropdown.innerHTML = '';
+                dropdownCats.forEach(c => {
+                    const btn = document.createElement('button');
+                    btn.className = 'dropdown-item';
+                    btn.textContent = c;
+                    btn.onclick = () => {
+                        appState.currentFilter = c;
+                        render.homePage();
+                        ui.catDropdown.classList.remove('active');
+                    };
+                    ui.catDropdown.appendChild(btn);
+                });
+
+                ui.editor.list.innerHTML = '';
+                (appState.data.categories || []).forEach(c => { const o = document.createElement('option'); o.value = c; ui.editor.list.appendChild(o); }); 
+            },
             homePage: (term = '') => { render.categories(); ui.articleGrid.innerHTML = ''; const s = term.toLowerCase(); const articlesArray = Object.values(appState.data.articles || {}).sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); const f = articlesArray.filter(a => appState.currentFilter === 'All' || a.category === appState.currentFilter).filter(a => !term || a.title.toLowerCase().includes(s) || (a.content && a.content.toLowerCase().includes(s)) || (a.tags && a.tags.some(t => t.toLowerCase().includes(s)))); if (f.length === 0) { ui.articleGrid.innerHTML = `<p style="padding: 20px;">找不到符合條件的文章。</p>`; return; } f.forEach(a => { const c = document.createElement('div'); c.className = 'article-card'; c.dataset.id = a.id; const t = a.tags ? a.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('') : ''; c.innerHTML = `<img src="${a.coverImage || 'https://placehold.co/600x400'}" alt="${a.title}" class="card-cover-image" loading="lazy"><div class="card-content"><div class="card-category">${a.category}</div><h2 class="card-title">${a.title}</h2><div class="card-tags">${t}</div></div>`; c.addEventListener('click', () => actions.showArticlePage(a.id)); ui.articleGrid.appendChild(c); }); },
         };
         const actions = {
+            createCatLink: (catName) => {
+                const link = document.createElement('a');
+                link.className = 'nav-link';
+                link.textContent = catName;
+                if (catName === appState.currentFilter) link.classList.add('active');
+                link.onclick = e => { e.preventDefault(); appState.currentFilter = catName; render.homePage(); };
+                return link;
+            },
             showView: (v) => { document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(v).classList.add('active'); if (v === 'home-view') { appState.currentArticleId = null; render.homePage(ui.searchInput.value); }},
             showHomePage: () => { appState.currentFilter = 'All'; ui.searchInput.value = ''; actions.showView('home-view'); },
             showArticlePage: (id) => { appState.currentArticleId = id; const a = (appState.data.articles || {})[id]; if (!a) return actions.showHomePage(); const v = ui.articleView; v.image.src = a.coverImage || 'https://placehold.co/800x350'; v.title.textContent = a.title; v.category.textContent = a.category; v.date.textContent = new Date(a.createdAt).toLocaleDateString(); v.content.innerHTML = marked.parse(a.content || ''); const articlesArray = Object.values(appState.data.articles || {}).sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); const i = articlesArray.findIndex(art => art.id === id); v.prev.style.display = i > 0 ? 'inline' : 'none'; if (i > 0) v.prev.onclick = () => actions.showArticlePage(articlesArray[i - 1].id); v.next.style.display = i < articlesArray.length - 1 ? 'inline' : 'none'; if (i < articlesArray.length - 1) v.next.onclick = () => actions.showArticlePage(articlesArray[i + 1].id); actions.showView('article-view'); window.scrollTo(0, 0); if (appState.isEditMode) actions.addEditButtonToArticlePage(); },
@@ -156,23 +203,26 @@
             init: () => {
                 actions.applySavedTheme();
                 marked.setOptions({ breaks: true, gfm: true });
+                
                 onValue(dbRef, (snapshot) => {
                     const data = snapshot.val();
-                    if (!data || !data.articles) {
-                        set(dbRef, initialData);
-                        return; // Important: Stop here. The 'set' will trigger this listener again.
+                    if (data && data.articles && Object.keys(data.articles).length > 0) {
+                        appState.data = data;
+                        render.homePage();
+                    } else {
+                        set(dbRef, initialData); 
                     }
-                    appState.data = data;
-                    render.homePage(ui.searchInput.value);
-                }, (error) => {
-                    console.error("Firebase connection error:", error);
-                    ui.articleGrid.innerHTML = `<p style="padding: 20px;">無法連接至雲端資料庫，請檢查 Firebase 設定或網路狀態。</p>`;
-                });
-                
+                }, { onlyOnce: false });
+
                 ui.siteTitle.onclick = actions.showHomePage; ui.newArticleBtn.onclick = () => actions.showEditor(); ui.exitEditBtn.onclick = actions.exitEditMode;
                 ui.themeToggle.onclick = actions.toggleTheme; ui.saveBtn.onclick = actions.saveArticle; ui.deleteBtn.onclick = actions.deleteArticle;
                 ui.cancelBtn.onclick = () => ui.editorOverlay.classList.remove('active'); ui.searchInput.oninput = e => render.homePage(e.target.value);
-                
+                ui.moreCatsBtn.onclick = () => ui.catDropdown.classList.toggle('active');
+                document.addEventListener('click', (e) => {
+                    if (!ui.moreCatsBtn.contains(e.target) && !ui.catDropdown.contains(e.target)) {
+                        ui.catDropdown.classList.remove('active');
+                    }
+                });
                 if (new URLSearchParams(window.location.search).get('admin') === 'kai') {
                     actions.enterEditMode();
                 }
