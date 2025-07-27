@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAI's Tech Log - GitHub Pages Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- 引入 highlight.js 用於程式碼語法高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+
+    <style>
+        :root {
+            --bg-color: #f0f2f5; --text-color: #1a1a1a; --primary-color: #007aff; 
+            --secondary-color: #555; --border-color: #d1d1d6; --card-bg: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.08); --code-bg: #e9ecef; --code-color: #333;
+            --danger-color: #dc3545; --apple-radius-large: 18px; --apple-radius-medium: 12px;
+            --apple-radius-small: 8px; 
+            
+            /* [升級] 精緻化液態玻璃變數 */
+            --glass-blur: 12px; /* 降低模糊度，讓背景更清晰一點 */
+            --glass-light-bg-color: 250, 250, 252; /* 基底色，使用 RGB 值以利漸變 */
+            --glass-light-opacity: 0.85; /* 提高不透明度，增強可讀性 */
+        }
+        body.dark-mode {
+            --bg-color: #000000; --text-color: #e0e0e0; --primary-color: #0a84ff;
+            --secondary-color: #aaa; --border-color: #3a3a3c; --card-bg: #1c1c1e;
+            --shadow-color: rgba(0, 0, 0, 0.3); --code-bg: #2c2c2e; --code-color: #f0f0f0;
+            
+            /* [升級] 深色模式的玻璃變數 */
+            --glass-dark-bg-color: 38, 38, 40;
+            --glass-dark-opacity: 0.8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; line-height: 1.7; }
+        
+        /* [升級] 定義通用的玻璃質感 class */
+        .glassmorphism {
+             backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+
+            /* 淺色模式下的玻璃背景與光澤 */
+            background: linear-gradient(135deg, 
+                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) + 0.1)), /* 左上角更亮一點 */
+                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) - 0.05))  /* 右下角稍微暗一點 */
+            );
+            /* 使用陰影模擬頂部高光和底部邊緣 */
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6), 0 2px 10px var(--shadow-color);
+            border: 1px solid rgba(var(--glass-light-bg-color), 0.9);
+        }
+
+        body.dark-mode .glassmorphism {
+            /* 深色模式下的玻璃背景與光澤 */
+            background: linear-gradient(135deg, 
+                rgba(var(--glass-dark-bg-color), calc(var(--glass-dark-opacity) + 0.1)), 
+                rgba(var(--glass-dark-bg-color), var(--glass-dark-opacity))
+            );
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 2px 10px var(--shadow-color);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .site-header { 
+            /* [升級] 將 header 套用 glassmorphism 效果 */
+            position: sticky; top: 0; z-index: 100;
+            padding: 0 5%;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .header-content { display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 10px 0; flex-wrap: wrap; }
+        .site-title { font-size: 1.4rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .controls { display: flex; align-items: center; gap: 10px; justify-content: flex-end; }
+        .category-selector { position: relative; }
+        .category-display-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--apple-radius-medium); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
+        
+        /* [升級] 下拉選單也套用玻璃效果 */
+        .category-dropdown { 
+            display: none; position: absolute; top: 110%; right: 0; min-width: 200px; 
+            border-radius: var(--apple-radius-large);
+            z-index: 110; padding: 8px; max-height: 300px; overflow-y: auto;
+        }
+        .category-dropdown.active { display: block; }
+        .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: var(--apple-radius-small); transition: background-color 0.2s; }
+        .dropdown-item:hover { background-color: rgba(128, 128, 128, 0.2); }
+        .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
+        .search-box { position: relative; }
+        .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
+        .search-input { width: 150px; padding: 8px 15px 8px 35px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; display: grid; place-items: center; }
+        #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; color: white; white-space: nowrap; }
+        #new-article-btn { background-color: var(--primary-color); } #exit-edit-btn { background-color: var(--secondary-color); }
+        
+        main { padding: 40px 5%; min-height: calc(100vh - 140px); }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .article-card { background-color: var(--card-bg); border-radius: var(--apple-radius-large); overflow: hidden; box-shadow: 0 4px 20px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px var(--shadow-color); }
+        .card-cover-image { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background-color: var(--border-color); }
+        .card-content { padding: 20px; }
+        .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; }
+        
+        .article-container { max-width: 800px; margin: 0 auto; }
+        .article-header-image { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--apple-radius-large); margin-bottom: 30px; background-color: var(--border-color); }
+        .article-title { font-size: 2.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 15px; }
+        .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 0 10px; }
+        .article-meta span { display: inline-flex; align-items: center;}
+
+        /* 文章內容與程式碼高亮樣式 */
+        .article-content { font-size: 1.1rem; line-height: 1.8; }
+        .article-content pre { background-color: #282c34; color: #abb2bf; padding: 1.5em; border-radius: var(--apple-radius-medium); overflow-x: auto; margin-bottom: 1.5em;}
+        .article-content code { font-family: "SF Mono", "Fira Code", monospace; font-size: 0.9em; }
+        .article-content :not(pre) > code { background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 6px; }
+        .article-content blockquote { border-left: 4px solid var(--border-color); padding-left: 1em; margin-left: 0; color: var(--secondary-color); }
+
+        #editor-overlay, #cat-mgmt-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); 
+            /* [升級] Modal 的背景和模糊與 header 分開，給予其獨立的 backdrop */
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; 
+        }
+        #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; }
+        
+        /* [升級] 將 Modal 套用 glassmorphism 效果 */
+        .modal { 
+            width: 95%; max-width: 900px; 
+            border-radius: var(--apple-radius-large); 
+            display: flex; flex-direction: column; 
+            /* 注意：Modal 不直接繼承 backdrop-filter，因為它在 overlay 之上 */
+        }
+        .editor-modal { height: 90vh; }
+        .cat-mgmt-modal { max-height: 80vh; max-width: 500px; }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid rgba(128,128,128,0.2); font-size: 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 25px; overflow-y: auto; flex-grow: 1; }
+        
+        .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; }
+        .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 1rem; }
+        .editor-modal-body { flex-grow: 1; padding: 0; display: flex; flex-direction: column;}
+        #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; flex-grow: 1; }
+        .modal-footer { padding: 15px 25px; border-top: 1px solid rgba(128,128,128,0.2); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+        .editor-modal-footer { justify-content: space-between; }
+        
+        .btn { border: none; padding: 10px 20px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        
+        #cat-mgmt-list { list-style: none; padding: 0; margin: 0; }
+        #cat-mgmt-list li { display: flex; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--border-color); }
+        #cat-mgmt-list li:last-child { border-bottom: none; }
+        #cat-mgmt-list .cat-name { flex-grow: 1; padding: 0 10px; }
+        #cat-mgmt-list .cat-name-input { flex-grow: 1; padding: 8px 10px; border-radius: var(--apple-radius-small); border: 1px solid var(--primary-color); background-color: var(--card-bg); color: var(--text-color); }
+        #cat-mgmt-list .cat-actions { display: flex; gap: 10px; }
+        #cat-mgmt-list .cat-actions button { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; }
+        #add-cat-form { display: flex; gap: 10px; margin-top: 20px; }
+        #add-cat-input { flex-grow: 1; padding: 12px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); }
+
+        .site-footer { padding: 40px 5%; text-align: center; color: var(--secondary-color); border-top: 1px solid var(--border-color); font-size: 0.9rem; margin-top: 30px;}
+
+        @media (max-width: 768px) {
+            .site-title { font-size: 1.2rem; }
+            .article-title { font-size: 2rem; }
+            .header-content { row-gap: 12px; }
+            .controls { flex-basis: 100%; justify-content: flex-end; }
+            .search-input { width: 120px; }
+            .modal { width: 100%; height: 100%; border-radius: 0; }
+            .editor-modal, .cat-mgmt-modal { height: 100vh; max-height: 100vh; }
+        }
+    </style>
+</head>
+<body>
+    <!-- [升級] 為會套用效果的元素加上 class -->
+    <header class="site-header glassmorphism">
+        <div class="header-content">
+            <div id="site-title" class="site-title">Kai's Tech Log</div>
+            <div class="controls">
+                <div class="category-selector">
+                    <button id="category-display-btn" class="category-display-btn">分類 ▼</button>
+                    <div id="category-dropdown" class="category-dropdown glassmorphism"></div>
+                </div>
+                <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
+                <div class="theme-toggle" id="theme-toggle">☀️</div>
+                <button id="new-article-btn">+ 新增</button>
+                <button id="exit-edit-btn">退出</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="home-view" class="view active">
+            <div class="article-grid" id="article-grid"><p style="padding: 20px;">正在從雲端載入資料...</p></div>
+        </div>
+        <div id="article-view" class="view"></div>
+    </main>
+
+    <!-- 編輯器 Modal -->
+    <div id="editor-overlay">
+        <div class="modal editor-modal glassmorphism">
+            <div class="modal-header">
+                <div class="editor-modal-header">
+                    <input type="text" id="editor-id" disabled placeholder="文章 ID">
+                    <input type="date" id="editor-date">
+                    <input type="text" id="editor-category" placeholder="分類" list="category-list">
+                    <input type="text" id="editor-cover-image" placeholder="封面圖片 URL">
+                    <input type="text" id="editor-tags" placeholder="標籤 (用逗號分隔)">
+                </div>
+            </div>
+            <div class="modal-body editor-modal-body">
+                <textarea id="editor-content" spellcheck="false" placeholder="第一行為標題..."></textarea>
+            </div>
+            <div class="modal-footer editor-modal-footer">
+                <button id="delete-btn" class="btn btn-danger">刪除</button>
+                <div>
+                    <button id="cancel-btn" class="btn btn-secondary">取消</button>
+                    <button id="save-btn" class="btn btn-primary">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 分類管理 Modal -->
+    <div id="cat-mgmt-overlay">
+        <div class="modal cat-mgmt-modal glassmorphism">
+            <div class="modal-header">
+                <h2>分類管理</h2>
+                <button id="close-cat-mgmt-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-color)">×</button>
+            </div>
+            <div class="modal-body">
+                <ul id="cat-mgmt-list"></ul>
+                <form id="add-cat-form">
+                    <input id="add-cat-input" placeholder="輸入新分類名稱..." required>
+                    <button type="submit" class="btn btn-primary">新增</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <datalist id="category-list"></datalist>
+
+    <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
+
+    <script type="module">
+        // *** 程式碼已修復 ***
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
+            authDomain: "blog-63ad2.firebaseapp.com", 
+            projectId: "blog-63ad2", 
+            storageBucket: "blog-63ad2.appspot.com", 
+            messagingSenderId: "265914768921", 
+            appId: "1:265914768921:web:e4c752780e604d0be69488", 
+            databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
+        };
+
+        let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All' };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const articlesRef = ref(db, 'blogData/articles');
+        const categoriesRef = ref(db, 'blogData/categories');
+
+        const ui = {
+            homeView: document.getElementById('home-view'),
+            articleView: document.getElementById('article-view'),
+            articleGrid: document.getElementById('article-grid'),
+            catDisplayBtn: document.getElementById('category-display-btn'),
+            catDropdown: document.getElementById('category-dropdown'),
+            siteTitle: document.getElementById('site-title'),
+            searchInput: document.getElementById('search-input'),
+            themeToggle: document.getElementById('theme-toggle'),
+            newArticleBtn: document.getElementById('new-article-btn'),
+            exitEditBtn: document.getElementById('exit-edit-btn'),
+            editorOverlay: document.getElementById('editor-overlay'), editorId: document.getElementById('editor-id'),
+            editorDate: document.getElementById('editor-date'), editorCategory: document.getElementById('editor-category'),
+            editorCoverImage: document.getElementById('editor-cover-image'), editorTags: document.getElementById('editor-tags'),
+            editorContent: document.getElementById('editor-content'), saveBtn: document.getElementById('save-btn'),
+            cancelBtn: document.getElementById('cancel-btn'), deleteBtn: document.getElementById('delete-btn'),
+            categoryDataList: document.getElementById('category-list'),
+            catMgmtOverlay: document.getElementById('cat-mgmt-overlay'), catMgmtList: document.getElementById('cat-mgmt-list'),
+            closeCatMgmtBtn: document.getElementById('close-cat-mgmt-btn'), addCatForm: document.getElementById('add-cat-form'),
+            addCatInput: document.getElementById('add-cat-input'),
+        };
+        
+        // [修復] 使用 async/await 進行一次性資料讀取，取代 onValue 的持續監聽
+        async function loadInitialData() {
+            try {
+                // 使用 Promise.all 同時獲取文章和分類資料
+                const [articlesSnapshot, categoriesSnapshot] = await Promise.all([
+                    get(articlesRef),
+                    get(categoriesRef)
+                ]);
+
+                // 處理獲取到的資料
+                appState.articles = articlesSnapshot.val() || {};
+                appState.allCategories = categoriesSnapshot.val() || [];
+
+                // 確保所有資料都載入後，才渲染畫面
+                render.articles();
+                render.categories();
+                
+            } catch (error) {
+                console.error("從 Firebase 載入初始資料時發生錯誤:", error);
+                ui.articleGrid.innerHTML = `<p style="padding: 20px; color: var(--danger-color);">資料載入失敗，請檢查網路連線或稍後再試。</p>`;
+            }
+        }
+
+        const calculateReadingTime = (text) => {
+            if (!text) return '1';
+            const westernWords = (text.match(/[\w'-]+/g) || []).length;
+            const cjkWords = (text.match(/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/g) || []).length;
+            const totalWords = westernWords + cjkWords;
+            const wordsPerMinute = 225;
+            const minutes = Math.ceil(totalWords / wordsPerMinute);
+            return `${minutes}`;
+        };
+
+        const render = {
+            categories: () => {
+                const allCats = ['All', ...appState.allCategories];
+                ui.catDisplayBtn.textContent = `分類：${appState.currentFilter} ▼`;
+                ui.catDropdown.innerHTML = '';
+                allCats.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'dropdown-item'; btn.textContent = cat;
+                    btn.onclick = (e) => {
+                        e.stopPropagation();
+                        appState.currentFilter = cat;
+                        actions.showHomePage();
+                        ui.catDropdown.classList.remove('active');
+                    };
+                    ui.catDropdown.appendChild(btn);
+                });
+                
+                if (appState.isEditMode) {
+                    ui.catDropdown.appendChild(document.createElement('div')).className = 'dropdown-divider';
+                    const manageBtn = document.createElement('button');
+                    manageBtn.className = 'dropdown-item'; manageBtn.textContent = '🔧 管理分類...';
+                    manageBtn.onclick = (e) => { 
+                        e.stopPropagation(); 
+                        actions.openCategoryManager(); 
+                        ui.catDropdown.classList.remove('active');
+                    };
+                    ui.catDropdown.appendChild(manageBtn);
+                }
+                ui.categoryDataList.innerHTML = appState.allCategories.map(cat => `<option value="${cat}"></option>`).join('');
+            },
+            articles: (searchTerm = '') => {
+                ui.articleGrid.innerHTML = '';
+                const filteredArticles = Object.entries(appState.articles)
+                    .filter(([id, article]) => {
+                        const matchesCategory = appState.currentFilter === 'All' || article.category === appState.currentFilter;
+                        const matchesSearch = searchTerm ? 
+                            (article.title && article.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                            (article.tags && article.tags.toLowerCase().includes(searchTerm.toLowerCase())) : true;
+                        return matchesCategory && matchesSearch;
+                    })
+                    .sort(([, a], [, b]) => new Date(b.date) - new Date(a.date));
+
+                if (filteredArticles.length === 0) {
+                    ui.articleGrid.innerHTML = `<p style="padding: 20px;">找不到文章。</p>`;
+                    return;
+                }
+
+                filteredArticles.forEach(([id, article]) => {
+                    const card = document.createElement('div');
+                    card.className = 'article-card';
+                    card.onclick = () => actions.showArticlePage(id);
+                    card.innerHTML = `
+                        <img class="card-cover-image" src="${article.coverImage || 'https://via.placeholder.com/400x250/e9ecef/6c757d?text=No+Image'}" alt="Cover Image for ${article.title}">
+                        <div class="card-content">
+                            <h3 class="card-title">${article.title || '無標題文章'}</h3>
+                            <p style="color: var(--secondary-color); font-size: 0.9rem;">${article.date || ''}</p>
+                        </div>`;
+                    ui.articleGrid.appendChild(card);
+                });
+            },
+            articleDetail: (id) => {
+                const article = appState.articles[id];
+                if (!article) {
+                    actions.showHomePage(); return;
+                }
+                const readingTime = calculateReadingTime(article.content);
+                const contentWithoutTitle = article.content.substring(article.content.indexOf('\n') + 1);
+                const htmlContent = marked.parse(contentWithoutTitle || '');
+                
+                ui.articleView.innerHTML = `
+                    <div class="article-container">
+                        ${article.coverImage ? `<img src="${article.coverImage}" alt="Cover Image for ${article.title}" class="article-header-image">` : ''}
+                        <h1 class="article-title">${article.title}</h1>
+                        <div class="article-meta">
+                            <span>📅 ${article.date}</span>
+                            <span>🏷️ ${article.category}</span>
+                            <span>⏱️ 約 ${readingTime} 分鐘</span>
+                            ${appState.isEditMode ? `<span><button class="btn-edit" data-id="${id}" style="background:none; border:none; cursor:pointer; color:var(--primary-color); font-size: 1rem;">✏️ 編輯</button></span>` : ''}
+                        </div>
+                        <div class="article-content">${htmlContent}</div>
+                    </div>`;
+
+                if (appState.isEditMode) {
+                    ui.articleView.querySelector('.btn-edit').onclick = () => actions.openEditor(id);
+                }
+                document.querySelectorAll('.article-content pre code').forEach(block => hljs.highlightElement(block));
+            },
+            theme: () => {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    ui.themeToggle.textContent = '🌙';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    ui.themeToggle.textContent = '☀️';
+                }
+            },
+            editMode: () => {
+                ui.newArticleBtn.style.display = appState.isEditMode ? 'block' : 'none';
+                ui.exitEditBtn.style.display = appState.isEditMode ? 'block' : 'none';
+                render.categories();
+                actions.showHomePage();
+            },
+            categoryManager: () => {
+                ui.catMgmtList.innerHTML = '';
+                appState.allCategories.forEach(cat => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span class="cat-name">${cat}</span>
+                        <div class="cat-actions">
+                            <button data-cat="${cat}" class="rename-cat-btn">✏️</button>
+                            <button data-cat="${cat}" class="delete-cat-btn">🗑️</button>
+                        </div>`;
+                    ui.catMgmtList.appendChild(li);
+                });
+                ui.catMgmtList.querySelectorAll('.rename-cat-btn').forEach(btn => btn.onclick = () => actions.renameCategory(btn.dataset.cat));
+                ui.catMgmtList.querySelectorAll('.delete-cat-btn').forEach(btn => btn.onclick = () => actions.deleteCategory(btn.dataset.cat));
+            }
+        };
+
+        const actions = {
+            showHomePage: () => {
+                ui.homeView.classList.add('active');
+                ui.articleView.classList.remove('active');
+                render.articles();
+            },
+            showArticlePage: (id) => {
+                ui.homeView.classList.remove('active');
+                ui.articleView.classList.add('active');
+                render.articleDetail(id);
+                window.scrollTo(0, 0);
+            },
+            toggleTheme: () => {
+                const currentTheme = localStorage.getItem('theme');
+                localStorage.setItem('theme', currentTheme === 'dark' ? 'light' : 'dark');
+                render.theme();
+            },
+            toggleCategoryDropdown: (event) => {
+                event.stopPropagation();
+                ui.catDropdown.classList.toggle('active');
+            },
+            openEditor: (id = null) => {
+                const article = appState.articles[id];
+                if (id && article) {
+                    ui.editorId.value = id;
+                    ui.editorDate.value = article.date;
+                    ui.editorCategory.value = article.category;
+                    ui.editorCoverImage.value = article.coverImage || '';
+                    ui.editorTags.value = article.tags || '';
+                    ui.editorContent.value = `${article.title}\n\n${article.content.substring(article.content.indexOf('\n') + 2)}`;
+                    ui.deleteBtn.style.display = 'block';
+                } else {
+                    ui.editorId.value = `article_${Date.now()}`;
+                    ui.editorDate.value = new Date().toISOString().split('T')[0];
+                    ui.editorCategory.value = ''; ui.editorCoverImage.value = ''; ui.editorTags.value = '';
+                    ui.editorContent.value = '請在此輸入標題...\n\n';
+                    ui.deleteBtn.style.display = 'none';
+                }
+                ui.editorOverlay.classList.add('active');
+            },
+            closeEditor: () => ui.editorOverlay.classList.remove('active'),
+            saveArticle: async () => {
+                const id = ui.editorId.value;
+                const content = ui.editorContent.value;
+                const title = content.substring(0, content.indexOf('\n')).trim();
+                const articleData = {
+                    date: ui.editorDate.value,
+                    category: ui.editorCategory.value.trim(),
+                    coverImage: ui.editorCoverImage.value.trim(),
+                    tags: ui.editorTags.value.trim(),
+                    title: title,
+                    content: content,
+                };
+                if (!id || !articleData.date || !articleData.category || !title) {
+                    alert('ID、日期、分類和標題為必填項目！'); return;
+                }
+                try {
+                    await set(ref(db, `blogData/articles/${id}`), articleData);
+                    appState.articles[id] = articleData;
+                    if (!appState.allCategories.includes(articleData.category)) {
+                        appState.allCategories.push(articleData.category);
+                        await set(ref(db, 'blogData/categories'), appState.allCategories);
+                    }
+                    actions.closeEditor();
+                    actions.showHomePage();
+                    render.categories();
+                } catch (error) { console.error("儲存失敗: ", error); alert('儲存失敗！'); }
+            },
+            deleteArticle: async () => {
+                const id = ui.editorId.value;
+                if (confirm(`確定要刪除文章 "${appState.articles[id].title}" 嗎？`)) {
+                    try {
+                        await remove(ref(db, `blogData/articles/${id}`));
+                        delete appState.articles[id];
+                        actions.closeEditor();
+                        actions.showHomePage();
+                    } catch (error) { console.error("刪除失敗: ", error); alert('刪除失敗！'); }
+                }
+            },
+            openCategoryManager: () => {
+                render.categoryManager();
+                ui.catMgmtOverlay.classList.add('active');
+            },
+            closeCategoryManager: () => ui.catMgmtOverlay.classList.remove('active'),
+            addCategory: async (event) => {
+                event.preventDefault();
+                const newCat = ui.addCatInput.value.trim();
+                if (newCat && !appState.allCategories.includes(newCat)) {
+                    appState.allCategories.push(newCat);
+                    try {
+                        await set(ref(db, 'blogData/categories'), appState.allCategories);
+                        render.categoryManager();
+                        render.categories();
+                        ui.addCatInput.value = '';
+                    } catch (error) { console.error("新增分類失敗: ", error); alert('新增分類失敗！'); }
+                }
+            },
+            renameCategory: async (oldName) => {
+                const newName = prompt(`請輸入新的分類名稱取代 "${oldName}":`, oldName);
+                if (newName && newName.trim() !== oldName) {
+                    const updatedCategories = appState.allCategories.map(c => c === oldName ? newName.trim() : c);
+                    const updates = {};
+                    Object.entries(appState.articles).forEach(([id, article]) => {
+                        if (article.category === oldName) {
+                            updates[`blogData/articles/${id}/category`] = newName.trim();
+                        }
+                    });
+                    updates['blogData/categories'] = updatedCategories;
+                    
+                    try {
+                        await set(ref(db, 'blogData/categories'), updatedCategories);
+                        for (const key in updates) {
+                            if (key !== 'blogData/categories') await set(ref(db, key), updates[key]);
+                        }
+                        
+                        appState.allCategories = updatedCategories;
+                        Object.keys(appState.articles).forEach(id => {
+                            if (appState.articles[id].category === oldName) {
+                               appState.articles[id].category = newName.trim();
+                            }
+                        });
+
+                        render.categoryManager();
+                        render.categories();
+
+                    } catch (error) { console.error("重命名分類失敗: ", error); alert('重命名分類失敗！'); }
+                }
+            },
+            deleteCategory: async (catName) => {
+                if (confirm(`確定要刪除分類 "${catName}" 嗎？所有屬於此分類的文章將會失去分類。`)) {
+                    const updatedCategories = appState.allCategories.filter(c => c !== catName);
+                    const updates = {};
+                     Object.entries(appState.articles).forEach(([id, article]) => {
+                        if (article.category === catName) {
+                            updates[`blogData/articles/${id}/category`] = '未分類';
+                        }
+                    });
+                    updates['blogData/categories'] = updatedCategories;
+                    try {
+                        await set(ref(db, 'blogData/categories'), updatedCategories);
+                         for (const key in updates) {
+                            if (key !== 'blogData/categories') await set(ref(db, key), updates[key]);
+                        }
+
+                        appState.allCategories = updatedCategories;
+                         Object.keys(appState.articles).forEach(id => {
+                            if (appState.articles[id].category === catName) {
+                               appState.articles[id].category = '未分類';
+                            }
+                        });
+
+                        render.categoryManager();
+                        render.categories();
+                    } catch(error) { console.error("刪除分類失敗:", error); alert('刪除分類失敗！');}
+                }
+            },
+            handleAdminLogin: () => {
+                 const password = prompt('請輸入管理密碼:');
+                 if (password === '980621') { // 密碼應儲存在安全的後端環境變數中
+                    appState.isEditMode = true;
+                    alert('已進入管理模式。');
+                 } else {
+                    appState.isEditMode = false;
+                    alert('密碼錯誤。');
+                 }
+                 render.editMode();
+            }
+        };
+
+       // --- 初始化 ---
+        render.theme();
+        // [修復] 直接呼叫，不包在 listener 裡面
+        loadInitialData();
+
+        // --- Event Listeners ---
+        
+        ui.themeToggle.onclick = actions.toggleTheme;
+        ui.siteTitle.onclick = actions.showHomePage;
+        ui.searchInput.oninput = (e) => render.articles(e.target.value);
+        ui.catDisplayBtn.onclick = actions.toggleCategoryDropdown;
+        document.body.onclick = () => ui.catDropdown.classList.remove('active');
+        ui.catDropdown.onclick = (e) => e.stopPropagation();
+
+        ui.newArticleBtn.onclick = () => actions.openEditor();
+        ui.exitEditBtn.onclick = () => { appState.isEditMode = false; render.editMode(); };
+        ui.saveBtn.onclick = actions.saveArticle;
+        ui.cancelBtn.onclick = actions.closeEditor;
+        ui.deleteBtn.onclick = actions.deleteArticle;
+        
+        ui.closeCatMgmtBtn.onclick = actions.closeCategoryManager;
+        ui.addCatForm.onsubmit = actions.addCategory;
+        
+        let pressCount = 0;
+        let pressTimeout;
+        ui.siteTitle.addEventListener('click', (e) => {
+            pressCount++;
+            clearTimeout(pressTimeout);
+            if (pressCount >= 5) {
+                actions.handleAdminLogin();
+                pressCount = 0;
+            } else {
+                pressTimeout = setTimeout(() => { pressCount = 0; }, 1000);
+            }
+        });
+    // --- 檢查 URL Query 是否啟用編輯模式 ---
+              const params = new URLSearchParams(window.location.search);
+              if (params.get("edit") === "true") {
+                  editor.toggleEditor();  // 啟用編輯模式
+            }
+    </script>
+</body>
+</html>
