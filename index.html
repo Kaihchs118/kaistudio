@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAI's Tech Log - Realtime Cloud Blog</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root { --bg-color: #ffffff; --text-color: #1a1a1a; --primary-color: #007aff; --secondary-color: #6c757d; --border-color: #dee2e6; --card-bg: #f8f9fa; --shadow-color: rgba(0, 0, 0, 0.1); --header-bg: rgba(255, 255, 255, 0.85); --code-bg: #e9ecef; --code-color: #333; --danger-color: #dc3545; }
+        body.dark-mode { --bg-color: #121212; --text-color: #e0e0e0; --primary-color: #0a84ff; --secondary-color: #8e8e93; --border-color: #3a3a3c; --card-bg: #1c1c1e; --shadow-color: rgba(0, 0, 0, 0.3); --header-bg: rgba(28, 28, 30, 0.85); --code-bg: #2c2c2e; --code-color: #f0f0f0; --danger-color: #ff453a; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; line-height: 1.7; }
+        .site-header { position: sticky; top: 0; z-index: 100; background-color: var(--header-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); padding: 0 5%; transition: background-color 0.3s, border-color 0.3s; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .site-title { font-size: 1.5rem; font-weight: 600; cursor: pointer; }
+        .main-nav { display: flex; gap: 20px; position: absolute; left: 50%; transform: translateX(-50%); overflow-x: auto; padding-bottom: 5px; }
+        .nav-link { font-size: 1rem; font-weight: 500; color: var(--secondary-color); padding: 5px 0; border-bottom: 2px solid transparent; transition: color 0.3s, border-color 0.3s; cursor: pointer; white-space: nowrap; }
+        .nav-link:hover, .nav-link.active { color: var(--text-color); border-bottom-color: var(--primary-color); }
+        .controls { display: flex; align-items: center; gap: 15px; }
+        .search-box { position: relative; }
+        .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
+        .search-input { width: 180px; padding: 8px 15px 8px 35px; border-radius: 20px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: var(--primary-color); width: 220px; }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; }
+        #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: 500; transition: background-color 0.3s, opacity 0.3s; color: white; }
+        #new-article-btn { background-color: var(--primary-color); } #exit-edit-btn { background-color: var(--secondary-color); }
+        main { padding: 40px 5%; }
+        .view { display: none; } .view.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .article-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px var(--shadow-color); }
+        .card-cover-image { width: 100%; height: 180px; object-fit: cover; background-color: var(--border-color); }
+        .card-content { padding: 20px; } .card-category { font-size: 0.8rem; color: var(--primary-color); font-weight: 600; margin-bottom: 5px; }
+        .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; color: var(--text-color); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
+        .card-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 15px; }
+        .card-tag { background-color: var(--code-bg); color: var(--secondary-color); padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; }
+        .article-container { max-width: 800px; margin: 0 auto; }
+        .article-header-image { width: 100%; height: 350px; object-fit: cover; border-radius: 12px; margin-bottom: 30px; background-color: var(--border-color); }
+        .article-title { font-size: 2.8rem; font-weight: 700; margin-bottom: 15px; line-height: 1.2; }
+        .article-meta { color: var(--secondary-color); margin-bottom: 30px; }
+        .article-content h1, .article-content h2, .article-content h3 { margin-top: 2em; margin-bottom: 1em; font-weight: 600; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+        .article-content p, .article-content ul, .article-content ol { margin-bottom: 1.2em; }
+        .article-content blockquote { border-left: 3px solid var(--primary-color); padding-left: 1.5em; margin: 1.5em 0; color: var(--secondary-color); font-style: italic; }
+        .article-content pre { background-color: var(--code-bg); color: var(--code-color); padding: 1.5em; border-radius: 8px; overflow-x: auto; font-family: 'SF Mono', 'Menlo', 'Monaco', monospace; }
+        .article-content code { font-family: 'SF Mono', 'Menlo', 'Monaco', monospace; background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 4px; }
+        .article-content img, .article-content iframe { max-width: 100%; border-radius: 8px; margin: 1em 0; }
+        .article-nav { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .article-nav-link { font-weight: 500; cursor: pointer; }
+        #editor-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; }
+        #editor-overlay.active { display: flex; }
+        .editor-modal { background-color: var(--bg-color); width: 95%; max-width: 900px; height: 90vh; border-radius: 12px; box-shadow: 0 10px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; }
+        .editor-modal-header { padding: 15px 25px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; }
+        .editor-modal-header input { flex-grow: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 1rem; }
+        .editor-modal-body { flex-grow: 1; padding: 0; }
+        #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; }
+        #editor-content:focus { outline: none; }
+        .editor-modal-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .editor-btn { border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: opacity 0.3s; }
+        .site-footer { text-align: center; padding: 40px 20px; margin-top: 50px; border-top: 1px solid var(--border-color); color: var(--secondary-color); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <header class="site-header"><div class="header-content"><div class="site-title">Kai's Tech Log</div><nav class="main-nav" id="main-nav"></nav><div class="controls"><div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋文章..."></div><div class="theme-toggle" id="theme-toggle">☀️</div><button id="new-article-btn">+ 新增文章</button><button id="exit-edit-btn">退出編輯</button></div></div></header>
+    <main><div id="home-view" class="view active"><div class="article-grid" id="article-grid"><p style="padding: 20px;">正在從雲端載入資料...</p></div></div><div id="article-view" class="view"><div class="article-container"><img src="" alt="Article Header Image" class="article-header-image"><h1 class="article-title"></h1><p class="article-meta"><span class="article-category"></span> • <span class="article-date"></span></p><div class="article-content" id="article-content-render"></div><nav class="article-nav"><a class="article-nav-link" id="prev-article">← 上一篇</a><a class="article-nav-link" id="next-article">下一篇 →</a></nav></div></div></main>
+    <div id="editor-overlay"><div class="editor-modal"><div class="editor-modal-header"><input type="text" id="editor-category" placeholder="分類 (e.g., Mac 技巧)" list="category-list"><input type="text" id="editor-cover-image" placeholder="封面圖片 URL"><input type="text" id="editor-tags" placeholder="標籤 (用逗號分隔)"></div><div class="editor-modal-body"><textarea id="editor-content" spellcheck="false" placeholder="第一行為標題..."></textarea></div><div class="editor-modal-footer"><button id="delete-btn" class="editor-btn" style="background-color: var(--danger-color); color: white;">刪除</button><div><button id="cancel-btn" class="editor-btn" style="background-color: var(--secondary-color); color: white; margin-right: 10px;">取消</button><button id="save-btn" class="editor-btn" style="background-color: var(--primary-color); color: white;">儲存文章</button></div></div></div></div><datalist id="category-list"></datalist>
+    <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y",
+            authDomain: "blog-63ad2.firebaseapp.com",
+            projectId: "blog-63ad2",
+            storageBucket: "blog-63ad2.appspot.com",
+            messagingSenderId: "265914768921",
+            appId: "1:265914768921:web:e4c752780e604d0be69488",
+            databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com",
+        };
+        
+        const initialData = {
+            articles: [
+                 { id: 1722000001, category: "Mac 技巧", title: "必學 Mac 快捷鍵：如何輸入  蘋果 Logo？", content: "在各種場合中，打出蘋果的官方 Logo **** 總能讓你的文件或訊息看起來更專業、更有趣。很多人不知道，這其實只需要一個簡單的快捷鍵組合。\n\n在大部分的輸入法下，按下鍵盤的：\n\n> **Shift (⇧) + Option (⌥) + K** \n\n即可立即輸入 **** 符號。是不是很簡單？\n\n另外一個實用的隱私保護技巧是快速鎖定螢幕。當你需要暫時離開座位時，按下：\n\n> **Command (⌘) + Control (⌃) + Q** \n\n即可立即鎖定螢幕，保護你的隱私。下次試試看吧！", coverImage: "https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=800", tags: ["Mac", "快捷鍵", "技巧"], createdAt: 1722000001 },
+                 { id: 1722000002, category: "免費軟體推薦", title: "3 款強大的 Mac 免費軟體，提升你的創作力", content: "### 1. 剪輯軟體：DaVinci Resolve\n\n如果你覺得 iMovie 功能太少，但又不想花大錢買 Final Cut Pro，那麼 **DaVinci Resolve (達芬奇)** 是你的最佳選擇。它擁有好萊塢等級的剪輯、調色、視覺特效和音訊後期製作功能。免費版的 DaVinci Resolve 已經足以應付絕大多數的專業需求。\n\n### 2. 繪圖軟體：Krita\n\n**Krita** 是一款開源且免費的專業級繪圖程式，無論是概念藝術、材質貼圖還是漫畫創作，它都能勝任。它擁有強大的筆刷引擎、圖層管理和各種濾鏡，是 Adobe Photoshop 的絕佳替代品。\n\n### 3. 縮圖與設計：Figma\n\n雖然 **Figma** 主要是一款 UI/UX 設計工具，但它的協作性和易用性使其成為製作 YouTube 縮圖、社群媒體貼文和簡報的利器。它的免費方案功能非常齊全，並且是基於雲端的，不佔用你寶貴的硬碟空間。", coverImage: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=800", tags: ["軟體", "免費", "創作"], createdAt: 1722000002 },
+                 { id: 1722000003, category: "台灣科技新聞", title: "電腦王阿達：台灣電動機車市場迎來新變革", content: "根據知名科技網站「電腦王阿達」的報導，台灣電動機車市場近期迎來了新的競爭格局。除了原有的龍頭 Gogoro 之外，數家傳統機車大廠也紛紛推出性能更強、續航力更佳的電車車款，並且搭配更具彈性的資費方案。\n\n> 「這是一場從產品戰，延伸到基礎設施與服務的全面戰爭。」—— 電腦王阿達評論。\n\n想看更詳細的報導，可以參考 [這個連結](https://www.youtube.com/watch?v=dQw4w9WgXcQ)。", coverImage: "https://images.unsplash.com/photo-1620752794121-0294025dec89?auto=format&fit=crop&w=800", tags: ["新聞", "電動車", "台灣"], createdAt: 1722000003 },
+                 { id: 1722000004, category: "軟體攻略", title: "Anytype 入門指南：打造你的第二大腦", content: "**Anytype** 是一款以物件為基礎的筆記軟體，強調本地優先與資料主權。它不像傳統筆記軟體是線性的文件，而是將所有東西都視為「物件」，你可以建立關聯，打造出屬於自己的知識網絡。\n\n<iframe src=\"https://www.youtube.com/embed/AZf27S_I_fM\" title=\"Anytype Tutorial\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>\n\nAnytype 的學習曲線雖然比一般筆記軟體稍高，但一旦上手，其強大的自訂性和關聯性會讓你愛不釋手。", coverImage: "https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?auto=format&fit=crop&w=800", tags: ["Anytype", "軟體", "筆記"], createdAt: 1722000004 },
+                 { id: 1722000005, category: "Google AI 展示", title: "Gemini 時代：大型語言模型的應用與未來", content: "我，Gemini，是 Google 開發的大型語言模型。我的存在本身就是 AI 技術快速發展的證明。\n\n### 我的能力：\n\n*   **自然語言理解與生成：** 我能像現在這樣，與你對話、撰寫文章、編寫程式碼。\n*   **多模態處理：** 我能理解圖片、音訊和影片的內容。\n*   **邏輯推理與程式設計：** 我可以解決複雜的邏輯問題，並根據你的需求（例如這個網站）生成程式碼。", coverImage: "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?auto=format&fit=crop&w=800", tags: ["AI", "Google", "Gemini"], createdAt: 1722000005 },
+                 { id: 1722000006, category: "硬體評測", title: "Apple Vision Pro 2 值得期待嗎？", content: "第一代 Vision Pro 以其驚人的顯示效果和互動方式震撼了市場，但高昂的價格和重量也讓許多人望而卻步。根據業界傳聞，Vision Pro 2 將致力於**輕量化**和**降低成本**。\n\n預期改進：\n-   更輕的機身材質\n-   更高效的 R2 晶片\n-   可能推出無 EyeSight 顯示的平價版本\n\n對於開發者和早期使用者來說，第一代產品仍是體驗空間運算的絕佳平台。", coverImage: "https://images.unsplash.com/photo-1707331892358-586356ba63c5?auto=format&fit=crop&w=800", tags: ["Apple", "Vision Pro", "硬體"], createdAt: 1722000006 },
+                 { id: 1722000007, category: "AI 新聞", title: "GPT-5 何時到來？可能比你想像的更強大", content: "OpenAI 的下一代旗艦模型 GPT-5 備受期待。雖然官方尚未公布具體時程，但執行長 Sam Altman 多次暗示其能力將有「飛躍式」的提升。\n\n可能的突破：\n1.  **更強的推理能力**：在數學、科學和邏輯問題上超越 GPT-4。\n2.  **自主代理 (Agent) 能力**：能夠獨立完成複雜的多步驟任務。\n3.  **真正的多模態**：不僅是理解，更能生成影片和音訊內容。\n\n整個科技界都在屏息以待。", coverImage: "https://images.unsplash.com/photo-1678483787071-33e157a46595?auto=format&fit=crop&w=800", tags: ["AI", "OpenAI", "GPT-5"], createdAt: 1722000007 },
+                 { id: 1722000008, category: "雲端技術", title: "Serverless 到底是什麼？開發者的福音還是魔咒？", content: "**Serverless (無伺服器)** 架構並不代表真的沒有伺服器，而是指開發者**不需要管理**伺服器。\n\n你只需要撰寫你的應用程式邏輯（稱為函式 Function），然後上傳到雲端平台（如 AWS Lambda, Google Cloud Functions）。平台會在你需要時自動運行這些函式，並根據用量收費。\n\n### 優點：\n-   **極低的維運成本**\n-   **自動擴展**\n-   **按需付費**", coverImage: "https://images.unsplash.com/photo-1544197150-b2c4c64e9ade?auto=format&fit=crop&w=800", tags: ["Serverless", "雲端", "架構"], createdAt: 1722000008 },
+                 { id: 1722000009, category: "台灣科技新聞", title: "台灣 AI 基礎設施的挑戰與機遇", content: "在 AI 浪潮下，台灣擁有晶片製造的巨大優勢，但在**資料中心**與**軟體生態系**方面仍面臨挑戰。\n\n政府和企業正在積極投資建設本土的 AI 超級電腦與資料中心，希望能減少對國外雲端巨頭的依賴。這不僅是技術問題，更是國安層級的戰略佈局。\n\n未來，如何吸引更多軟體人才、建立開源社群，將是台灣能否成為真正 AI 強國的關鍵。", coverImage: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800", tags: ["台灣", "AI", "基礎設施"], createdAt: 1722000009 },
+                 { id: 1722000010, category: "免費軟體推薦", title: "密碼管理器 Bitwarden：免費且開源的安全選擇", content: "還在用紙筆或腦袋記密碼嗎？是時候使用密碼管理器了！\n\n**Bitwarden** 是一款廣受推薦的密碼管理器，它的最大優點是：\n-   **完全免費**：個人方案提供了無限組密碼儲存、跨裝置同步等核心功能。\n-   **開源**：程式碼公開接受全世界專家的檢驗，安全性更透明。\n-   **跨平台**：支援所有主流作業系統和瀏覽器。", coverImage: "https://images.unsplash.com/photo-1555949963-ff98c672ea46?auto=format&fit=crop&w=800", tags: ["軟體", "安全", "免費"], createdAt: 1722000010 },
+                 { id: 1722000011, category: "生產力工具", title: "Notion AI vs. Gemini：我該選擇哪一個？", content: "Notion AI 深度整合在筆記工作流中，適合整理思緒、生成草稿。Gemini 則更像一個獨立的、能力更全面的對話式 AI，適合進行開放式研究和解決複雜問題。\n\n- **如果你是重度 Notion 使用者**，需要 AI 輔助你現有的文件，選擇 Notion AI。\n- **如果你需要最強大的創意和分析夥伴**，不在乎是否整合在特定軟體中，選擇 Gemini。", coverImage: "https://images.unsplash.com/photo-1695942393358-e48f76634a34?auto=format&fit=crop&w=800", tags: ["Notion", "Gemini", "AI", "比較"], createdAt: 1722000011 },
+                 { id: 1722000012, category: "Mac 技巧", title: "一鍵整理桌面：macOS 的堆疊 (Stacks) 功能", content: "桌面檔案太多亂七八糟？macOS 內建的「堆疊」功能是你的救星。\n\n在桌面上點擊右鍵，選擇「**使用堆疊**」。\n\n瞬間，所有檔案會根據類型（圖片、文件、螢幕截圖等）自動分類成整齊的堆疊。點擊堆疊即可展開，再次點擊即可收合。這是一個非常簡單卻極其有效的桌面整理技巧。", coverImage: "https://images.unsplash.com/photo-1593642702821-c8da6771f0c6?auto=format&fit=crop&w=800", tags: ["Mac", "macOS", "技巧", "生產力"], createdAt: 1722000012 }
+            ].reduce((acc, article) => { acc[article.id] = article; return acc; }, {}),
+            categories: ["Mac 技巧", "免費軟體推薦", "台灣科技新聞", "軟體攻略", "Google AI 展示", "硬體評測", "AI 新聞", "雲端技術", "生產力工具"]
+        };
+        
+        // --- App State & Elements ---
+        let appData = { articles: {}, categories: [] };
+        let isEditMode = false, currentArticleId = null, currentFilter = 'All', editingArticleId = null;
+        const app = initializeApp(firebaseConfig), db = getDatabase(app), dbRef = ref(db, 'blogData');
+        const dbApi = { saveArticle: (a) => set(ref(db, `blogData/articles/${a.id}`), a), deleteArticle: (id) => remove(ref(db, `blogData/articles/${id}`)), saveCategories: (c) => set(ref(db, 'blogData/categories'), c) };
+        const elements = { articleGrid: document.getElementById('article-grid'), mainNav: document.getElementById('main-nav'), themeToggle: document.getElementById('theme-toggle'), newArticleBtn: document.getElementById('new-article-btn'), exitEditBtn: document.getElementById('exit-edit-btn'), siteTitle: document.querySelector('.site-title'), searchInput: document.getElementById('search-input'), editorOverlay: document.getElementById('editor-overlay'), editor: { category: document.getElementById('editor-category'), list: document.getElementById('category-list'), cover: document.getElementById('editor-cover-image'), tags: document.getElementById('editor-tags'), content: document.getElementById('editor-content') }, saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'), cancelBtn: document.getElementById('cancel-btn'), articleView: { image: document.querySelector('#article-view .article-header-image'), title: document.querySelector('#article-view .article-title'), category: document.querySelector('#article-view .article-category'), date: document.querySelector('#article-view .article-date'), content: document.getElementById('article-content-render'), prev: document.getElementById('prev-article'), next: document.getElementById('next-article'),} };
+
+        // --- Render Functions ---
+        const renderCategories = () => { const cats = ['All', ...(appData.categories || [])]; elements.mainNav.innerHTML = ''; cats.forEach(c => { const a = document.createElement('a'); a.className = 'nav-link'; a.textContent = c; if (c === currentFilter) a.classList.add('active'); a.onclick = e => { e.preventDefault(); currentFilter = c; renderHomePage(); }; elements.mainNav.appendChild(a); }); elements.editor.list.innerHTML = ''; (appData.categories || []).forEach(c => { const o = document.createElement('option'); o.value = c; elements.editor.list.appendChild(o); }); };
+        const renderHomePage = (term = '') => { renderCategories(); elements.articleGrid.innerHTML = ''; const s = term.toLowerCase(); const articlesArray = Object.values(appData.articles || {}).sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); const f = articlesArray.filter(a => currentFilter === 'All' || a.category === currentFilter).filter(a => !term || a.title.toLowerCase().includes(s) || (a.content && a.content.toLowerCase().includes(s)) || (a.tags && a.tags.some(t => t.toLowerCase().includes(s)))); if (f.length === 0) { elements.articleGrid.innerHTML = `<p style="padding: 20px;">找不到符合條件的文章。</p>`; return; } f.forEach(a => { const c = document.createElement('div'); c.className = 'article-card'; c.dataset.id = a.id; const t = a.tags ? a.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('') : ''; c.innerHTML = `<img src="${a.coverImage || 'https://placehold.co/600x400'}" alt="${a.title}" class="card-cover-image" loading="lazy"><div class="card-content"><div class="card-category">${a.category}</div><h2 class="card-title">${a.title}</h2><div class="card-tags">${t}</div></div>`; c.addEventListener('click', () => showArticlePage(a.id)); elements.articleGrid.appendChild(c); }); };
+        const showView = (v) => { document.querySelectorAll('.view').forEach(el => el.classList.remove('active')); document.getElementById(v).classList.add('active'); if (v === 'home-view') { currentArticleId = null; renderHomePage(elements.searchInput.value); }};
+        const showHomePage = () => { currentFilter = 'All'; elements.searchInput.value = ''; showView('home-view'); };
+        const showArticlePage = (id) => { currentArticleId = id; const a = (appData.articles || {})[id]; if (!a) return showHomePage(); const v = elements.articleView; v.image.src = a.coverImage || 'https://placehold.co/800x350'; v.title.textContent = a.title; v.category.textContent = a.category; v.date.textContent = new Date(a.createdAt).toLocaleDateString(); v.content.innerHTML = marked.parse(a.content || ''); const articlesArray = Object.values(appData.articles || {}).sort((a,b) => (b.createdAt||0) - (a.createdAt||0)); const i = articlesArray.findIndex(art => art.id === id); v.prev.style.display = i > 0 ? 'inline' : 'none'; if (i > 0) v.prev.onclick = () => showArticlePage(articlesArray[i - 1].id); v.next.style.display = i < articlesArray.length - 1 ? 'inline' : 'none'; if (i < articlesArray.length - 1) v.next.onclick = () => showArticlePage(articlesArray[i + 1].id); showView('article-view'); window.scrollTo(0, 0); if (isEditMode) addEditButtonToArticlePage(); };
+        const showEditor = (id = null) => { editingArticleId = id; if (id) { const a = appData.articles[id]; elements.editor.category.value = a.category; elements.editor.cover.value = a.coverImage || ''; elements.editor.tags.value = (a.tags || []).join(', '); elements.editor.content.value = `${a.title}\n\n${a.content}`; elements.deleteBtn.style.display = 'inline-block'; } else { ['category','cover','tags','content'].forEach(k => elements.editor[k].value = ''); elements.editor.content.placeholder = '第一行為標題...'; elements.deleteBtn.style.display = 'none'; } elements.editorOverlay.classList.add('active'); };
+        
+        // --- Core Actions ---
+        const saveArticle = () => { const txt = elements.editor.content.value; if (!txt.trim()) { alert('文章內容不能為空！'); return; } const [title, ...contentParts] = txt.split('\n\n'); const content = contentParts.join('\n\n').trim(); const category = elements.editor.category.value.trim() || '未分類'; const cover = elements.editor.cover.value.trim(); const tags = elements.editor.tags.value.split(',').map(t => t.trim()).filter(Boolean); let articleToSave; if (editingArticleId) { articleToSave = { ...appData.articles[editingArticleId], title, content, category, coverImage: cover, tags }; } else { const newId = Date.now(); articleToSave = { id: newId, createdAt: newId, title, content, category, coverImage: cover, tags }; } dbApi.saveArticle(articleToSave); if (!appData.categories.includes(category)) { const newCats = [...new Set([...appData.categories, category])]; dbApi.saveCategories(newCats); } alert('文章已成功儲存至雲端！'); elements.editorOverlay.classList.remove('active'); showArticlePage(articleToSave.id); };
+        const deleteArticle = () => { if (editingArticleId && confirm('您確定要刪除這篇文章嗎？此操作將永久從雲端移除。')) { dbApi.deleteArticle(editingArticleId); alert('文章已從雲端刪除。'); elements.editorOverlay.classList.remove('active'); showHomePage(); }};
+        const enterEditMode = () => { isEditMode = true; elements.newArticleBtn.style.display = 'inline-block'; elements.exitEditBtn.style.display = 'inline-block'; if (currentArticleId) addEditButtonToArticlePage(); };
+        const exitEditMode = () => window.location.href = window.location.pathname;
+        const addEditButtonToArticlePage = () => { if (document.getElementById('edit-article-btn')) return; const btn = document.createElement('button'); btn.id = 'edit-article-btn'; btn.textContent = '編輯此文'; btn.className = 'editor-btn'; btn.style.cssText = 'background-color: #ff9500; color: white; margin-top: 15px; margin-left: 10px;'; btn.onclick = () => showEditor(currentArticleId); const meta = document.querySelector('.article-meta'); meta.parentNode.insertBefore(btn, meta.nextSibling); };
+        const toggleTheme = () => { const d = document.body.classList.toggle('dark-mode'); elements.themeToggle.textContent = d ? '🌙' : '☀️'; localStorage.setItem('theme', d ? 'dark' : 'light'); };
+        const applySavedTheme = () => { if (localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); elements.themeToggle.textContent = '🌙'; }};
+        
+        // --- App Initialization (Robust Version) ---
+        const init = () => {
+            applySavedTheme();
+            marked.setOptions({ breaks: true, gfm: true });
+            onValue(dbRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.articles && data.categories) {
+                    appData = data;
+                } else {
+                    // Database is empty or malformed, set initial data.
+                    set(dbRef, initialData);
+                    // We don't need to wait, use initialData immediately for the first render.
+                    appData = {
+                        articles: initialData.articles,
+                        categories: initialData.categories
+                    };
+                }
+                showHomePage(); // Render with whatever data we have now.
+            }, { onlyOnce: false }); // Persistent listener
+            
+            // Simplified event listeners
+            elements.siteTitle.onclick = showHomePage;
+            elements.newArticleBtn.onclick = () => showEditor();
+            elements.exitEditBtn.onclick = exitEditMode;
+            elements.themeToggle.onclick = toggleTheme;
+            elements.saveBtn.onclick = saveArticle;
+            elements.deleteBtn.onclick = deleteArticle;
+            elements.cancelBtn.onclick = () => elements.editorOverlay.classList.remove('active');
+            elements.searchInput.oninput = e => renderHomePage(e.target.value);
+            
+            if (new URLSearchParams(window.location.search).get('admin') === 'kai') {
+                enterEditMode();
+            }
+        };
+        init();
+    </script>
+</body>
+</html>
