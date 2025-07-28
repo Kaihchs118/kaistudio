@@ -60,24 +60,17 @@
             transition: background 0.3s, box-shadow 0.3s;
         }
 
-        .header-content { display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 10px 0; flex-wrap: wrap; }
-        .site-title { font-size: 1.4rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 10px 0; flex-wrap: wrap; row-gap: 10px; }
+        .site-title { font-size: 1.3rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
         
-        /* [修正] 為手機版增加 flex-wrap，讓控制項可以自動換行 */
-        .controls { 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            justify-content: flex-end; 
-            flex-wrap: wrap; /* <--- 關鍵修正！ */
-        }
+        .header-top-controls { display: flex; align-items: center; gap: 15px; }
+        .controls { display: flex; align-items: center; gap: 10px; justify-content: flex-end; flex-wrap: wrap; flex-basis: 100%; }
 
         .control-group { position: relative; }
         .control-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--apple-radius-medium); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
         .control-dropdown { 
             display: none; position: absolute; top: 110%; right: 0; min-width: 200px; 
-            border-radius: var(--apple-radius-large);
-            z-index: 110; padding: 8px; max-height: 300px; overflow-y: auto;
+            border-radius: var(--apple-radius-large); z-index: 110; padding: 8px; max-height: 300px; overflow-y: auto;
         }
         .control-dropdown.active { display: block; }
         .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: var(--apple-radius-small); transition: background-color 0.2s; }
@@ -108,7 +101,7 @@
         .card-content { padding: 20px; }
         .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; }
         
-        .article-container { max-width: 800px; margin: 0 auto; }
+        .article-container { max-width: 800px; margin: 0 auto; padding-bottom: 100px; /* 為底部導航列預留空間 */ }
         .article-header-image { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--apple-radius-large); margin-bottom: 30px; background-color: var(--border-color); }
         .article-title { font-size: 2.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 15px; }
         .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 0 10px; align-items: center; }
@@ -121,64 +114,68 @@
         .article-content :not(pre) > code { background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 6px; }
         .article-content blockquote { border-left: 4px solid var(--border-color); padding-left: 1.5em; margin: 1.5em 0; color: var(--secondary-color); }
         
-        .article-navigation { margin-top: 50px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        /* [新增] 底部懸浮導航列樣式 */
+        .article-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: none; /* 預設隱藏 */
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            z-index: 200;
+        }
         .nav-btn {
-            padding: 12px 25px;
+            padding: 10px 20px;
             border-radius: var(--apple-radius-medium);
             text-decoration: none;
             color: var(--text-color);
             font-weight: 500;
             transition: all 0.3s;
+            border: none;
+            background-color: transparent; /* 讓玻璃效果決定背景 */
+            font-size: 0.9rem;
         }
-        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+        .nav-btn.disabled { opacity: 0.4; pointer-events: none; }
+        .nav-btn.back-btn { flex-grow: 1; text-align: center; }
 
         #editor-overlay, #cat-mgmt-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); 
             backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; 
         }
-        #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; }
-        
         .modal { width: 95%; max-width: 900px; border-radius: var(--apple-radius-large); display: flex; flex-direction: column; }
+        /* ... 其他 modal 樣式 ... */
         .editor-modal { height: 90vh; }
         .cat-mgmt-modal { max-height: 80vh; max-width: 500px; }
         .modal-header { padding: 20px 25px; border-bottom: 1px solid rgba(128,128,128,0.2); font-size: 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 25px; overflow-y: auto; flex-grow: 1; }
-        
         .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; }
         .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 1rem; }
         .editor-modal-body { flex-grow: 1; padding: 0; display: flex; flex-direction: column;}
         #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; flex-grow: 1; }
         .modal-footer { padding: 15px 25px; border-top: 1px solid rgba(128,128,128,0.2); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
         .editor-modal-footer { justify-content: space-between; }
-        
         .btn { border: none; padding: 10px 20px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; }
         .btn-primary { background-color: var(--primary-color); color: white; }
         .btn-danger { background-color: var(--danger-color); color: white; }
         .btn-secondary { background-color: var(--secondary-color); color: white; }
-        
         #cat-mgmt-list { list-style: none; padding: 0; margin: 0; }
         #cat-mgmt-list li { display: flex; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--border-color); }
         #cat-mgmt-list li:last-child { border-bottom: none; }
         #cat-mgmt-list .cat-name { flex-grow: 1; padding: 0 10px; }
-        #cat-mgmt-list .cat-name-input { flex-grow: 1; padding: 8px 10px; border-radius: var(--apple-radius-small); border: 1px solid var(--primary-color); background-color: var(--card-bg); color: var(--text-color); }
-        #cat-mgmt-list .cat-actions { display: flex; gap: 10px; }
-        #cat-mgmt-list .cat-actions button { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; }
-        #add-cat-form { display: flex; gap: 10px; margin-top: 20px; }
-        #add-cat-input { flex-grow: 1; padding: 12px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); }
-
         .site-footer { padding: 40px 5%; text-align: center; color: var(--secondary-color); border-top: 1px solid var(--border-color); font-size: 0.9rem; margin-top: 30px;}
+        /* [修改] 頁尾文字的互動樣式 */
+        .site-footer p { cursor: pointer; display: inline-block; transition: color 0.2s; }
+        .site-footer p:hover { color: var(--primary-color); text-decoration: underline; }
 
         @media (max-width: 768px) {
             .site-title { font-size: 1.2rem; }
             .article-title { font-size: 2rem; }
-            .header-content { row-gap: 12px; }
-            .controls { justify-content: flex-start; } /* 在手機上可以從左邊開始換行 */
-            .search-input { width: 120px; }
+            .search-input { width: 100px; }
             .modal { width: 100%; height: 100%; border-radius: 0; }
             .editor-modal, .cat-mgmt-modal { height: 100vh; max-height: 100vh; }
-            .article-navigation { flex-direction: column; align-items: stretch; }
-            .nav-btn { text-align: center; }
         }
     </style>
 </head>
@@ -186,6 +183,10 @@
     <header class="site-header glassmorphism">
         <div class="header-content">
             <div id="site-title" class="site-title">Kai's Tech Log</div>
+            <div class="header-top-controls">
+                <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
+                <div class="theme-toggle" id="theme-toggle">☀️</div>
+            </div>
             <div class="controls">
                 <div class="control-group">
                     <button id="sort-display-btn" class="control-btn">排序 ▼</button>
@@ -195,8 +196,6 @@
                     <button id="category-display-btn" class="control-btn">分類 ▼</button>
                     <div id="category-dropdown" class="control-dropdown glassmorphism"></div>
                 </div>
-                <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
-                <div class="theme-toggle" id="theme-toggle">☀️</div>
                 <button id="new-article-btn">+ 新增</button>
                 <button id="exit-edit-btn">退出</button>
             </div>
@@ -216,10 +215,13 @@
         <div id="article-view" class="view"></div>
     </main>
 
-    <!-- Modals and other HTML elements remain the same -->
+    <!-- [新增] 底部懸浮導覽列 -->
+    <nav id="article-bottom-nav" class="article-bottom-nav glassmorphism"></nav>
+
+    <!-- Modals and Datalist... -->
     <div id="editor-overlay">
         <div class="modal editor-modal glassmorphism">
-             <div class="modal-header">
+            <div class="modal-header">
                 <div class="editor-modal-header">
                     <input type="text" id="editor-id" disabled placeholder="文章 ID">
                     <input type="date" id="editor-date">
@@ -242,20 +244,15 @@
     </div>
     <div id="cat-mgmt-overlay">
         <div class="modal cat-mgmt-modal glassmorphism">
-            <div class="modal-header">
-                <h2>分類管理</h2>
-                <button id="close-cat-mgmt-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-color)">×</button>
-            </div>
+            <div class="modal-header"><h2>分類管理</h2><button id="close-cat-mgmt-btn" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-color)">×</button></div>
             <div class="modal-body">
                 <ul id="cat-mgmt-list"></ul>
-                <form id="add-cat-form">
-                    <input id="add-cat-input" placeholder="輸入新分類名稱..." required>
-                    <button type="submit" class="btn btn-primary">新增</button>
-                </form>
+                <form id="add-cat-form"><input id="add-cat-input" placeholder="輸入新分類名稱..." required><button type="submit" class="btn btn-primary">新增</button></form>
             </div>
         </div>
     </div>
     <datalist id="category-list"></datalist>
+    
     <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
 
     <script type="module">
@@ -272,14 +269,7 @@
             databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
         };
         
-        let appState = { 
-            articles: {}, 
-            allCategories: [], 
-            isEditMode: false, 
-            currentFilter: 'All',
-            currentSort: 'newest',
-            sortedArticleIds: []
-        };
+        let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All', currentSort: 'newest', sortedArticleIds: [] };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -288,11 +278,10 @@
 
         const ui = {
             loader: document.getElementById('loader'),
-            loaderText: document.getElementById('loader-text'),
-            progressBarInner: document.getElementById('progress-bar-inner'),
             homeView: document.getElementById('home-view'),
             articleView: document.getElementById('article-view'),
             articleGrid: document.getElementById('article-grid'),
+            articleBottomNav: document.getElementById('article-bottom-nav'), // 新增
             sortDisplayBtn: document.getElementById('sort-display-btn'),
             sortDropdown: document.getElementById('sort-dropdown'),
             catDisplayBtn: document.getElementById('category-display-btn'),
@@ -311,16 +300,224 @@
             catMgmtOverlay: document.getElementById('cat-mgmt-overlay'), catMgmtList: document.getElementById('cat-mgmt-list'),
             closeCatMgmtBtn: document.getElementById('close-cat-mgmt-btn'), addCatForm: document.getElementById('add-cat-form'),
             addCatInput: document.getElementById('add-cat-input'),
+            footer: document.querySelector('.site-footer p'), // 綁定到 p 元素
         };
         
         async function loadInitialData() {
             try {
-                ui.progressBarInner.style.width = '30%';
-                const [articlesSnapshot, categoriesSnapshot] = await Promise.all([
-                    get(articlesRef),
-                    get(categoriesRef)
-                ]);
-                ui.progressBarInner.style.width = '70%';
+                // ... 進度條邏輯 ...
+                ui.loader.querySelector('.progress-bar-inner').style.width = '30%';
+                const [articlesSnapshot, categoriesSnapshot] = await Promise.all([ get(articlesRef), get(categoriesRef) ]);
+                ui.loader.querySelector('.progress-bar-inner').style.width = '70%';
 
                 appState.articles = articlesSnapshot.val() || {};
-                appState.allCategories = categoriesSnapshot
+                appState.allCategories = categoriesSnapshot.val() || [];
+                
+                ui.loader.querySelector('p').textContent = '✅ 資料取得成功，正在渲染畫面...';
+                ui.loader.querySelector('.progress-bar-inner').style.width = '100%';
+
+                setTimeout(() => {
+                    ui.loader.style.display = 'none';
+                    render.articles();
+                    render.categories();
+                    render.sortOptions();
+                    checkAdminFromURL(); // 頁面載入後檢查一次網址
+                }, 500);
+            } catch (error) {
+                console.error("從 Firebase 載入初始資料時發生錯誤:", error);
+                ui.loader.querySelector('.progress-bar-inner').style.backgroundColor = 'var(--danger-color)';
+                ui.loader.querySelector('p').innerHTML = `❌ 資料載入失敗，請檢查網路連線或稍後再試。`;
+            }
+        }
+
+        const calculateReadingTime = (text) => {
+            if (!text) return '1';
+            const westernWords = (text.match(/[\w'-]+/g) || []).length;
+            const cjkWords = (text.match(/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/g) || []).length;
+            const totalWords = westernWords + cjkWords;
+            const wordsPerMinute = 225;
+            const minutes = Math.ceil(totalWords / wordsPerMinute);
+            return `${minutes}`;
+        };
+
+        const render = {
+            // ... render.sortOptions, render.categories, render.articles 保持不變 ...
+            sortOptions: () => {
+                const sortOrders = { newest: '由新到舊', oldest: '由舊到新' };
+                ui.sortDisplayBtn.textContent = `排序：${sortOrders[appState.currentSort]} ▼`;
+                ui.sortDropdown.innerHTML = '';
+                Object.entries(sortOrders).forEach(([key, value]) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'dropdown-item';
+                    if (key === appState.currentSort) btn.classList.add('active');
+                    btn.textContent = value;
+                    btn.onclick = (e) => { e.stopPropagation(); appState.currentSort = key; actions.showHomePage(); render.sortOptions(); ui.sortDropdown.classList.remove('active'); };
+                    ui.sortDropdown.appendChild(btn);
+                });
+            },
+            categories: () => {
+                const allCats = ['All', ...appState.allCategories];
+                ui.catDisplayBtn.textContent = `分類：${appState.currentFilter} ▼`;
+                ui.catDropdown.innerHTML = '';
+                allCats.forEach(cat => {
+                    const btn = document.createElement('button');
+                    btn.className = 'dropdown-item';
+                    if (cat === appState.currentFilter) btn.classList.add('active');
+                    btn.textContent = cat;
+                    btn.onclick = (e) => { e.stopPropagation(); appState.currentFilter = cat; actions.showHomePage(); ui.catDropdown.classList.remove('active'); };
+                    ui.catDropdown.appendChild(btn);
+                });
+                if (appState.isEditMode) {
+                    ui.catDropdown.appendChild(document.createElement('div')).className = 'dropdown-divider';
+                    const manageBtn = document.createElement('button');
+                    manageBtn.className = 'dropdown-item'; manageBtn.textContent = '🔧 管理分類...';
+                    manageBtn.onclick = (e) => { e.stopPropagation(); actions.openCategoryManager(); ui.catDropdown.classList.remove('active'); };
+                    ui.catDropdown.appendChild(manageBtn);
+                }
+                ui.categoryDataList.innerHTML = appState.allCategories.map(cat => `<option value="${cat}"></option>`).join('');
+            },
+            articles: (searchTerm = '') => {
+                ui.articleGrid.innerHTML = '';
+                const filteredArticles = Object.entries(appState.articles)
+                    .filter(([, article]) => (appState.currentFilter === 'All' || article.category === appState.currentFilter) && (searchTerm ? (article.title?.toLowerCase().includes(searchTerm.toLowerCase()) || article.tags?.toLowerCase().includes(searchTerm.toLowerCase())) : true))
+                    .sort(([, a], [, b]) => {
+                        const timeA = a.date ? new Date(a.date).getTime() : 0, timeB = b.date ? new Date(b.date).getTime() : 0;
+                        return isNaN(timeA) || isNaN(timeB) ? (isNaN(timeA) ? 1 : -1) : (appState.currentSort === 'newest' ? timeB - timeA : timeA - timeB);
+                    });
+                appState.sortedArticleIds = filteredArticles.map(([id]) => id);
+                if (filteredArticles.length === 0) { ui.articleGrid.innerHTML = `<p style="padding: 20px;">找不到文章。</p>`; return; }
+                filteredArticles.forEach(([id, article]) => {
+                    const card = document.createElement('div');
+                    card.className = 'article-card'; card.onclick = () => actions.showArticlePage(id);
+                    const displayDate = article.date ? new Date(article.date).toLocaleDateString() : '無日期';
+                    card.innerHTML = `<img class="card-cover-image" src="${article.coverImage || 'https://via.placeholder.com/400x250/e9ecef/6c757d?text=No+Image'}" alt="Cover for ${article.title}"><div class="card-content"><h3 class="card-title">${article.title || '無標題文章'}</h3><p style="color:var(--secondary-color);font-size:0.9rem;">${displayDate}</p></div>`;
+                    ui.articleGrid.appendChild(card);
+                });
+            },
+            articleDetail: (id) => {
+                const article = appState.articles[id];
+                if (!article) { actions.showHomePage(); return; }
+
+                const currentIndex = appState.sortedArticleIds.indexOf(id);
+                const prevId = currentIndex > 0 ? appState.sortedArticleIds[currentIndex - 1] : null;
+                const nextId = currentIndex < appState.sortedArticleIds.length - 1 ? appState.sortedArticleIds[currentIndex + 1] : null;
+
+                const readingTime = calculateReadingTime(article.content);
+                const contentWithoutTitle = article.content.substring(article.content.indexOf('\n') + 1);
+                const htmlContent = marked.parse(contentWithoutTitle || '');
+                const displayDate = article.date ? new Date(article.date).toLocaleDateString() : '無日期';
+
+                ui.articleView.innerHTML = `
+                    <div class="article-container">
+                        ${article.coverImage ? `<img src="${article.coverImage}" alt="Cover Image for ${article.title}" class="article-header-image">` : ''}
+                        <h1 class="article-title">${article.title}</h1>
+                        <div class="article-meta">
+                            <span>📅 ${displayDate}</span>
+                            <span>🏷️ ${article.category}</span>
+                            <span>⏱️ 約 ${readingTime} 分鐘</span>
+                            ${appState.isEditMode ? `<span><button class="btn-edit" data-id="${id}" style="background:none; border:none; cursor:pointer; color:var(--primary-color); font-size: 1rem;">✏️ 編輯</button></span>` : ''}
+                        </div>
+                        <div class="article-content">${htmlContent}</div>
+                    </div>`;
+                
+                // [修改] 渲染底部導覽列
+                ui.articleBottomNav.innerHTML = `
+                    <a href="#" class="nav-btn prev-btn ${!prevId ? 'disabled' : ''}" data-id="${prevId}">‹ 上一篇</a>
+                    <a href="#" class="nav-btn back-btn">返回列表</a>
+                    <a href="#" class="nav-btn next-btn ${!nextId ? 'disabled' : ''}" data-id="${nextId}">下一篇 ›</a>
+                `;
+                
+                // 綁定事件
+                if (appState.isEditMode) ui.articleView.querySelector('.btn-edit').onclick = () => actions.openEditor(id);
+                ui.articleBottomNav.querySelector('.back-btn').onclick = (e) => { e.preventDefault(); actions.showHomePage(); };
+                if (prevId) ui.articleBottomNav.querySelector('.prev-btn').onclick = (e) => { e.preventDefault(); actions.showArticlePage(prevId); };
+                if (nextId) ui.articleBottomNav.querySelector('.next-btn').onclick = (e) => { e.preventDefault(); actions.showArticlePage(nextId); };
+
+                document.querySelectorAll('.article-content pre code').forEach(block => hljs.highlightElement(block));
+            },
+            // ... 其他 render 函數 ...
+            theme: () => { /* ... */ }, editMode: () => { /* ... */ }, categoryManager: () => { /* ... */ },
+        };
+
+        const actions = {
+            showHomePage: () => {
+                ui.homeView.classList.add('active');
+                ui.articleView.classList.remove('active');
+                ui.articleView.innerHTML = '';
+                ui.articleBottomNav.style.display = 'none'; // 隱藏底部導覽列
+                render.articles(ui.searchInput.value);
+            },
+            showArticlePage: (id) => {
+                if (!id) return;
+                ui.homeView.classList.remove('active');
+                ui.articleView.classList.add('active');
+                ui.articleBottomNav.style.display = 'flex'; // 顯示底部導覽列
+                render.articleDetail(id);
+                window.scrollTo(0, 0);
+            },
+            // [修改] 更新密碼
+            handleAdminLogin: () => {
+                 const password = prompt('請輸入管理密碼:');
+                 if (password === '980621') {
+                    appState.isEditMode = true;
+                    alert('已進入管理模式。');
+                 } else if (password) {
+                    appState.isEditMode = false;
+                    alert('密碼錯誤。');
+                 }
+                 render.editMode();
+            },
+            // ... 其他 actions 函數 ...
+            toggleTheme: () => { /* ... */ }, toggleDropdown: () => { /* ... */ }, openEditor: () => { /* ... */ }, /* etc. */
+        };
+
+       // --- 初始化與事件監聽 ---
+        render.theme();
+        loadInitialData();
+
+        // [新增] 檢查網址 hash 的函數
+        function checkAdminFromURL() {
+            if (window.location.hash === '?admin#kai') {
+                actions.handleAdminLogin();
+                // 清除 hash 避免重複觸發
+                history.replaceState(null, null, window.location.pathname + window.location.search);
+            }
+        }
+        
+        // --- Event Listeners ---
+        ui.themeToggle.onclick = actions.toggleTheme;
+        ui.siteTitle.onclick = actions.showHomePage;
+        ui.searchInput.oninput = (e) => render.articles(e.target.value);
+        ui.sortDisplayBtn.onclick = (e) => actions.toggleDropdown(e, ui.sortDropdown);
+        ui.catDisplayBtn.onclick = (e) => actions.toggleDropdown(e, ui.catDropdown);
+        document.body.onclick = () => { ui.catDropdown.classList.remove('active'); ui.sortDropdown.classList.remove('active'); };
+        ui.sortDropdown.onclick = (e) => e.stopPropagation();
+        ui.catDropdown.onclick = (e) => e.stopPropagation();
+        ui.newArticleBtn.onclick = () => actions.openEditor();
+        ui.exitEditBtn.onclick = () => { appState.isEditMode = false; render.editMode(); alert('已退出管理模式。'); };
+        ui.saveBtn.onclick = actions.saveArticle;
+        ui.cancelBtn.onclick = actions.closeEditor;
+        ui.deleteBtn.onclick = actions.deleteArticle;
+        ui.closeCatMgmtBtn.onclick = actions.closeCategoryManager;
+        ui.addCatForm.onsubmit = actions.addCategory;
+        
+        // [修改] 頁尾點擊觸發
+        let footerPressCount = 0;
+        let footerPressTimeout;
+        ui.footer.addEventListener('click', () => {
+            footerPressCount++;
+            clearTimeout(footerPressTimeout);
+            if (footerPressCount >= 5) {
+                actions.handleAdminLogin();
+                footerPressCount = 0;
+            } else {
+                footerPressTimeout = setTimeout(() => { footerPressCount = 0; }, 1000); // 1秒內重置
+            }
+        });
+
+        // 當 hash 改變時也檢查一次 (例如手動輸入)
+        window.addEventListener('hashchange', checkAdminFromURL);
+
+    </script>
+</body>
+</html>
