@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI's Tech Log - ✨ 大功告成版</title>
+    <!-- 修改：網頁標題 -->
+    <title>KAI Studio - ✨ 大功告成版</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <link rel="alternate" type="application/rss+xml" title="Kai's Tech Log RSS Feed" href="/kaistudio/rss.xml">
+    <link rel="alternate" type="application/rss+xml" title="KAI Studio RSS Feed" href="/kaistudio/rss.xml">
     
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
@@ -80,7 +81,8 @@
 <body>
     <header class="site-header">
         <div class="header-content">
-            <div id="site-title" class="site-title">✨ Kai's Tech Log</div>
+            <!-- 修改：網站標題 -->
+            <div id="site-title" class="site-title">✨ KAI Studio</div>
             <div class="header-controls">
                 <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
                 <div id="top-controls" class="controls">
@@ -131,7 +133,8 @@
     </div>
     
     <footer id="site-footer" class="site-footer">
-        <p>© 2024 Kai's Tech Log. (連續點擊此處進入管理模式)</p>
+        <!-- 修改：頁尾版權 -->
+        <p>© 2024 KAI Studio. (連續點擊此處進入管理模式)</p>
     </footer>
 
     <script type="module">
@@ -328,7 +331,6 @@
                 }
                 localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
                 
-                // Manually update local state to avoid full reload
                 const newLikes = (appState.articles[articleId].likes || 0) + (isLiked ? -1 : 1);
                 appState.articles[articleId].likes = newLikes < 0 ? 0 : newLikes;
 
@@ -390,27 +392,52 @@
             ui.editorOverlay.classList.add('active');
         }
 
+        // --- 修改：重寫儲存邏輯 ---
         async function saveArticle() {
             const id = ui.editorId.value || `post_${Date.now()}`;
             const isNew = !ui.editorId.value;
-            // [FIX] Preserve existing data when saving
-            const existingData = isNew ? {} : appState.articles[id] || {};
-            const articleData = {
-                ...existingData, // Start with old data
-                title: ui.editorTitle.value,
-                date: isNew ? new Date().toISOString() : existingData.date, // Only set date on creation
-                category: ui.editorCategory.value,
-                coverImage: ui.editorCoverImage.value,
-                content: easyMDE.value(),
+            
+            const articleDataFromForm = {
+                title: ui.editorTitle.value.trim(),
+                category: ui.editorCategory.value.trim() || '未分類',
+                coverImage: ui.editorCoverImage.value.trim(),
+                content: easyMDE.value()
             };
+
+            let finalArticleData;
+
+            if (isNew) {
+                // 建立全新文章，初始化所有欄位
+                finalArticleData = {
+                    ...articleDataFromForm,
+                    date: new Date().toISOString(),
+                    views: 0,
+                    likes: 0,
+                    comments: {}
+                };
+            } else {
+                // 編輯現有文章，保留舊資料，只更新表單內容
+                const existingData = appState.articles[id] || {};
+                finalArticleData = {
+                    ...existingData,
+                    ...articleDataFromForm
+                };
+            }
+            
             const articleRef = ref(db, `blogData/articles/${id}`);
             try {
-                await set(articleRef, articleData);
+                ui.saveBtn.disabled = true;
+                ui.saveBtn.textContent = '儲存中...';
+                await set(articleRef, finalArticleData);
                 ui.editorOverlay.classList.remove('active');
-                await loadInitialData();
+                await loadInitialData(); // 重新載入所有資料以更新畫面
                 switchView('home-view');
             } catch(error) {
-                 alert('儲存失敗！');
+                 alert(`儲存失敗！錯誤訊息: ${error.message}`);
+                 console.error("Save failed:", error);
+            } finally {
+                ui.saveBtn.disabled = false;
+                ui.saveBtn.textContent = '儲存發布';
             }
         }
 
@@ -442,10 +469,11 @@
                 <description><![CDATA[${description}...]]></description>
             </item>`;
             });
+            // --- 修改: RSS 頻道資訊 ---
             const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-    <title>Kai's Tech Log</title>
+    <title>KAI Studio</title>
     <link>${SITE_URL}</link>
     <description>Kai 的技術與生活分享</description>
     <language>zh-Hant</language>
@@ -468,7 +496,7 @@
         };
         
         function renderSortOptions(){const o={newest:'最新',oldest:'最舊',popular:'熱門',views:'熱度'};ui.sortDropdown.innerHTML='';Object.entries(o).forEach(([k,v])=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentSort===k?'active':''}`;i.textContent=v;i.dataset.sort=k;ui.sortDropdown.appendChild(i)});ui.sortDisplayBtn.innerHTML=`排序: ${o[appState.currentSort]}`;ui.sortDropdown.onclick=e=>{if(e.target.dataset.sort){appState.currentSort=e.target.dataset.sort;filterAndSort(ui.searchInput.value);renderSortOptions();toggleDropdown(ui.sortDropdown)}}}
-        function renderCategories(){ui.catDropdown.innerHTML='';['All',...new Set(Object.values(appState.articles).map(a=>a.category))].forEach(c=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentFilter===c?'active':''}`;i.textContent=c==='All'?'全部文章':c;i.dataset.cat=c;ui.catDropdown.appendChild(i)});ui.catDisplayBtn.textContent=`分類: ${appState.currentFilter==='All'?'全部':appState.currentFilter}`;ui.catDropdown.onclick=e=>{if(e.target.dataset.cat){appState.currentFilter=e.target.dataset.cat;filterAndSort(ui.searchInput.value);renderCategories();toggleDropdown(ui.catDropdown)}}}
+        function renderCategories(){ui.catDropdown.innerHTML='';['All',...new Set(Object.values(appState.articles).map(a=>a.category).filter(Boolean))].forEach(c=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentFilter===c?'active':''}`;i.textContent=c==='All'?'全部文章':c;i.dataset.cat=c;ui.catDropdown.appendChild(i)});ui.catDisplayBtn.textContent=`分類: ${appState.currentFilter==='All'?'全部':appState.currentFilter}`;ui.catDropdown.onclick=e=>{if(e.target.dataset.cat){appState.currentFilter=e.target.dataset.cat;filterAndSort(ui.searchInput.value);renderCategories();toggleDropdown(ui.catDropdown)}}}
         function renderBottomNav(id){const i=appState.sortedArticleIds.indexOf(id);const p=i>0?appState.sortedArticleIds[i-1]:null;const n=i<appState.sortedArticleIds.length-1?appState.sortedArticleIds[i+1]:null;ui.articleBottomNav.innerHTML=`<button class="btn prev-btn" data-id="${p}" ${p?'':'disabled'}>← 上篇</button><button class="btn back-btn">返回列表</button><button class="btn next-btn" data-id="${n}" ${n?'':'disabled'}>下篇 →</button>`;ui.articleBottomNav.style.display='flex';ui.articleBottomNav.onclick=e=>{const t=e.target;if(t.matches('.back-btn'))switchView('home-view');if(t.matches('.prev-btn:not([disabled])'))window.location.hash=t.dataset.id;if(t.matches('.next-btn:not([disabled])'))window.location.hash=t.dataset.id}}
         const toggleDropdown=d=>{const a=d.classList.contains('active');document.querySelectorAll('.control-dropdown.active').forEach(i=>i.classList.remove('active'));if(!a)d.classList.add('active')}
 
@@ -521,7 +549,8 @@
                 ui.themeToggle.textContent = isDark ? '🌙' : '☀️';
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             });
-            ui.footer.querySelector('p').textContent = `© ${new Date().getFullYear()} Kai's Tech Log. (連續點擊此處進入管理模式)`;
+            // 修改：頁尾版權年份動態化
+            ui.footer.querySelector('p').textContent = `© ${new Date().getFullYear()} KAI Studio. (連續點擊此處進入管理模式)`;
 
             setupEventListeners();
             loadInitialData().then(() => {
