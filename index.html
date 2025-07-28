@@ -3,78 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI's Tech Log - ✨ 大功告成版</title>
+    <title>KAI's Tech Log - ✨ 最終完美版</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <link rel="alternate" type="application/rss+xml" title="Kai's Tech Log RSS Feed" href="/kaistudio/rss.xml">
     
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
 
     <style>
-        :root{--bg-color:#f9f9fb;--text-color:#1d1d1f;--primary-color:#0071e3;--accent-color:#ff8c00;--secondary-color:#6e6e73;--border-color:#d2d2d7;--card-bg:#ffffff;--shadow-color:rgba(0,0,0,0.08);--code-bg:#f5f5f7;--danger-color:#ff3b30;--radius-large:20px;--radius-medium:15px;--radius-small:10px;--like-color:#ff3b30}
-        body.dark-mode{--bg-color:#000000;--text-color:#f5f5f7;--primary-color:#2997ff;--accent-color:#ff9500;--secondary-color:#8e8e93;--border-color:#424245;--card-bg:#1c1c1e;--shadow-color:rgba(0,0,0,0.3);--code-bg:#2c2c2e}
+        /* [VISUAL-FIX] 全局顏色與設計系統優化 */
+        :root{--bg-color:#f9f9fb;--text-color:#1d1d1f;--text-secondary-color:#6e6e73;--primary-color:#0071e3;--accent-color:#ff8c00;--border-color:#d2d2d7;--card-bg:#ffffff;--shadow-color:rgba(0,0,0,0.08);--code-bg:#f5f5f7;--danger-color:#ff3b30;--like-color:#ff3b30;--icon-color:var(--text-secondary-color);--radius-large:20px;--radius-medium:15px;--radius-small:10px;--header-height:60px}
+        body.dark-mode{--bg-color:#000000;--text-color:#f5f5f7;--text-secondary-color:#8e8e93;--primary-color:#2997ff;--accent-color:#ff9500;--border-color:#3a3a3c;--card-bg:#1c1c1e;--shadow-color:rgba(0,0,0,0.4);--code-bg:#2c2c2e;--icon-color:var(--text-secondary-color)}
         *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
         body{background-color:var(--bg-color);color:var(--text-color);font-family:-apple-system,BlinkMacSystemFont,"SF Pro TC","蘋方-繁","PingFang TC","Segoe UI",Helvetica,Arial,sans-serif;line-height:1.7;transition:background-color .4s,color .4s}
-        .btn{border:none;padding:9px 18px;border-radius:var(--radius-medium);cursor:pointer;font-weight:600;font-size:.9rem;transition:transform .15s,box-shadow .2s,background-color .2s}.btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(0) scale(.98)}
-        .btn-primary{background:linear-gradient(45deg,var(--accent-color),var(--primary-color));color:white}
+        .btn{border:none;padding:10px 20px;border-radius:var(--radius-medium);cursor:pointer;font-weight:600;font-size:.9rem;transition:transform .2s,box-shadow .2s,background-color .2s;display:flex;align-items:center;justify-content:center;gap:8px}.btn:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.15)}.btn:active{transform:translateY(-1px) scale(.98)}
+        .btn-primary{background:var(--primary-color);color:white}
         .btn-danger{background-color:var(--danger-color);color:white}
         .site-header{position:sticky;top:0;z-index:100;padding:0 5%;background-color:rgba(var(--bg-color),.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color)}
-        .header-content{display:flex;justify-content:space-between;align-items:center;min-height:60px;padding:10px 0;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:10px}
-        .site-title{font-size:1.5rem;font-weight:700;cursor:pointer;color:var(--primary-color)}
+        .header-content{display:flex;justify-content:space-between;align-items:center;height:var(--header-height);padding:10px 0;max-width:1280px;margin:0 auto;gap:15px}
+        .site-title{font-size:1.6rem;font-weight:700;cursor:pointer;color:var(--primary-color);letter-spacing:-.5px}
         .header-controls{display:flex;align-items:center;gap:15px}
         .controls{display:flex;align-items:center;gap:10px}
         .control-group{position:relative}
-        .control-btn{background-color:var(--code-bg);border:1px solid var(--border-color);color:var(--secondary-color);padding:8px 16px;border-radius:var(--radius-medium);cursor:pointer;font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:6px}
-        .control-dropdown{display:none;position:absolute;top:110%;right:0;min-width:180px;background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-large);z-index:110;padding:8px;box-shadow:0 8px 30px var(--shadow-color);animation:popIn .2s ease-out}@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(-10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .control-btn{background-color:var(--code-bg);border:1px solid var(--border-color);color:var(--text-color);padding:8px 16px;border-radius:var(--radius-medium);cursor:pointer;font-weight:500;font-size:.9rem;display:flex;align-items:center;gap:6px}
+        .control-dropdown{display:none;position:absolute;top:calc(100% + 5px);right:0;min-width:180px;background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-large);z-index:110;padding:8px;box-shadow:0 8px 30px var(--shadow-color);animation:popIn .2s ease-out}@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(-10px)}to{opacity:1;transform:scale(1) translateY(0)}}
         .control-dropdown.active{display:block}
         .dropdown-item{display:block;width:100%;text-align:left;padding:10px 15px;border:none;background:none;color:var(--text-color);cursor:pointer;border-radius:var(--radius-small)}.dropdown-item:hover,.dropdown-item.active{background-color:var(--primary-color);color:white}
-        .search-input{width:180px;padding:8px 15px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--code-bg);color:var(--text-color)}
-        .theme-toggle{cursor:pointer;font-size:1.5rem;display:grid;place-items:center}
+        .search-input{width:180px;padding:8px 15px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--code-bg);color:var(--text-color);font-size:.9rem}
+        .theme-toggle{cursor:pointer;font-size:1.5rem;display:grid;place-items:center;color:var(--text-color)}
         #new-article-btn{display:none}
-        body.edit-mode #new-article-btn{display:inline-block}
-        main{padding:40px 5%;min-height:calc(100vh - 140px);max-width:1280px;margin:0 auto}
-        .view{display:none}.view.active{display:block;animation:fadeIn .5s ease}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-        .article-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:30px}
-        .article-card{background-color:var(--card-bg);border-radius:var(--radius-large);overflow:hidden;box-shadow:0 4px 25px var(--shadow-color);transition:transform .3s,box-shadow .3s;position:relative;display:flex;flex-direction:column}
-        .article-card:hover{transform:translateY(-8px);box-shadow:0 12px 40px var(--shadow-color)}
-        .card-cover-image{width:100%;aspect-ratio:16/10;object-fit:cover;background-color:var(--border-color);cursor:pointer}
-        .card-content{padding:20px;cursor:pointer;flex-grow:1}
-        .card-title{font-size:1.25rem;font-weight:600;margin-bottom:12px}
-        .card-footer{padding:0 20px 15px;display:flex;justify-content:space-between;align-items:center;color:var(--secondary-color);font-size:.9rem;flex-wrap:wrap;gap:5px 15px}
-        .card-meta-item{display:flex;align-items:center;gap:6px}
-        .like-btn{cursor:pointer}.like-btn.liked{color:var(--like-color)}
-        .card-edit-btn{position:absolute;top:15px;right:15px;background-color:rgba(var(--accent-color),.8);color:white;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;z-index:5;backdrop-filter:blur(5px);display:none;place-items:center}
+        body.edit-mode #new-article-btn{display:flex}
+        main{padding:40px 5%;min-height:calc(100vh - var(--header-height) - 70px);max-width:1280px;margin:0 auto}
+        .view{display:none}.view.active{display:block;animation:fadeIn .6s ease-in-out}@keyframes fadeIn{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+        .article-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:35px}
+        .article-card{background-color:var(--card-bg);border-radius:var(--radius-large);box-shadow:0 4px 25px var(--shadow-color);transition:transform .3s ease,box-shadow .3s ease;position:relative;display:flex;flex-direction:column;opacity:0;animation:fadeIn .5s ease forwards}
+        .article-card:hover{transform:translateY(-10px);box-shadow:0 15px 45px var(--shadow-color)}
+        .card-cover-image{width:100%;aspect-ratio:16/10;object-fit:cover;background-color:var(--border-color);cursor:pointer;border-radius:var(--radius-large) var(--radius-large) 0 0}
+        .card-content{padding:25px;cursor:pointer;flex-grow:1}
+        .card-title{font-size:1.3rem;font-weight:600;margin-bottom:12px;color:var(--text-color)}
+        .card-footer{padding:0 25px 20px;display:flex;justify-content:space-between;align-items:center;color:var(--text-secondary-color);font-size:.9rem;flex-wrap:wrap;gap:5px 15px}
+        .card-meta-item{display:flex;align-items:center;gap:8px;color:var(--icon-color)}
+        .like-btn{cursor:pointer;transition:color .2s}.like-btn.liked{color:var(--like-color)}
+        @keyframes like-beat{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}.like-btn.beating{animation:like-beat .3s ease-in-out}
+        .card-edit-btn{position:absolute;top:15px;right:15px;background-color:rgba(255,149,0,.8);color:white;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;z-index:5;backdrop-filter:blur(5px);display:none;place-items:center}
         body.edit-mode .card-edit-btn{display:grid}
         .article-container{max-width:800px;margin:0 auto;padding-bottom:50px}
         .article-header-image{width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:var(--radius-large);margin-bottom:30px;background-color:var(--border-color)}
-        .article-title{font-size:2.5rem;font-weight:700;line-height:1.3;margin-bottom:15px}
-        .article-meta{color:var(--secondary-color);margin-bottom:30px;font-size:.95rem;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+        .article-title{font-size:2.8rem;font-weight:700;line-height:1.2;margin-bottom:15px}
+        .article-meta{color:var(--text-secondary-color);margin-bottom:30px;font-size:.95rem;display:flex;flex-wrap:wrap;gap:8px 25px;align-items:center}
+        .article-meta span{display:flex;align-items:center;gap:8px}
         .article-content{font-size:1.1rem;line-height:1.8}
+        .article-content h2{margin-top:2em;margin-bottom:1em;border-bottom:2px solid var(--border-color);padding-bottom:.3em}
+        .article-content code{background-color:var(--code-bg);padding:.2em .4em;margin:0;font-size:85%;border-radius:var(--radius-small)}
+        .article-content pre>code{padding:1em;display:block;overflow-x:auto}
         .interaction-bar{margin:40px 0;display:flex;align-items:center;gap:20px;border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color);padding:15px 0}
         .comments-section{margin-top:50px}
         #comment-form input,#comment-form textarea{width:100%;padding:12px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--code-bg);color:var(--text-color);font-size:1rem;margin-bottom:10px}
         #comment-list .comment{display:flex;gap:15px;padding:15px 0;border-bottom:1px solid var(--border-color)}
+        #comment-list .comment:first-child{padding-top:0}
         .comment-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;background-color:var(--border-color)}
         .comment-body{flex-grow:1}
-        .comment-author{font-weight:600}
+        .comment-author{font-weight:600;color:var(--text-color)}
+        .comment-text{color:var(--text-secondary-color);word-break:break-word}
         .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;animation:fadeIn .3s}
         .overlay.active{display:flex}
-        .modal{width:95%;max-width:900px;max-height:90vh;border-radius:var(--radius-large);display:flex;flex-direction:column;background-color:var(--card-bg);box-shadow:0 10px 40px rgba(0,0,0,.2)}
-        .modal-header{padding:20px 25px;border-bottom:1px solid var(--border-color);font-size:1.3rem;font-weight:600;display:flex;justify-content:space-between;align-items:center}
-        .modal-close-btn{background:0 0;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-color)}
-        .modal-body{padding:25px;overflow-y:auto;flex-grow:1}
-        .modal-footer{padding:15px 25px;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;gap:10px}
-        #editor-modal .modal-body{padding:10px}#editor-modal input{width:100%;padding:10px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--bg-color);color:var(--text-color);font-size:1rem}
-        #editor-modal input,.EasyMDEContainer{margin-bottom:15px}
-        .EasyMDEContainer{border:1px solid var(--border-color);border-radius:var(--radius-medium)}
-        .loader{text-align:center;padding:50px;}
-        .site-footer{padding:40px 5%;text-align:center;color:var(--secondary-color);border-top:1px solid var(--border-color);margin-top:30px;cursor:pointer;transition:margin-bottom .3s}
-        .article-bottom-nav{position:fixed;bottom:0;left:0;width:100%;background-color:rgba(var(--card-bg),.8);backdrop-filter:blur(10px);border-top:1px solid var(--border-color);display:none;justify-content:space-between;align-items:center;padding:15px 5%;z-index:200;animation:fadeIn .3s}
-        body.bottom-nav-active .site-footer { margin-bottom: 80px; } /* Push footer up */
+        /* [UX-FIX] Editor Modal redesign */
+        #editor-modal{width:95%;max-width:1100px;height:90vh}
+        #editor-modal .modal-body{display:flex;gap:20px;padding:15px}
+        #editor-modal .editor-meta{width:300px;flex-shrink:0}
+        #editor-modal .editor-main{flex-grow:1;display:flex;flex-direction:column}
+        #editor-modal input{width:100%;padding:12px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--bg-color);color:var(--text-color);font-size:1rem;margin-bottom:15px}
+        .EasyMDEContainer{flex-grow:1;display:flex;flex-direction:column;border:1px solid var(--border-color);border-radius:var(--radius-medium)}
+        .CodeMirror{flex-grow:1;border-radius:0 0 var(--radius-medium) var(--radius-medium)}
+        .modal-footer{padding:15px;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;gap:10px}
+        .loader{text-align:center;padding:50px;color:var(--text-secondary-color)}
+        .site-footer{padding:40px 5%;text-align:center;color:var(--text-secondary-color);border-top:1px solid var(--border-color);margin-top:30px;cursor:default;transition:margin-bottom .3s}
+        /* [UX-FIX] Smarter Bottom Navigation Bar */
+        .article-bottom-nav{display:none}
+        @media (max-width: 768px) {
+            .article-bottom-nav.active{display:flex;position:fixed;bottom:0;left:0;width:100%;background-color:rgba(var(--card-bg),.8);backdrop-filter:blur(10px);border-top:1px solid var(--border-color);justify-content:space-between;align-items:center;padding:15px 5%;z-index:200;animation:fadeIn .3s}
+            body.bottom-nav-active .site-footer { margin-bottom: 80px; }
+        }
+        @media (min-width: 769px) {
+            .article-bottom-nav.active{display:flex;justify-content:space-between;margin-top:50px;border-top:1px solid var(--border-color);padding-top:30px}
+        }
     </style>
 </head>
 <body>
@@ -107,9 +122,10 @@
         <div id="article-view" class="view"></div>
     </main>
     
+    <!-- [UX-FIX] Bottom nav is now just a container, logic handles display -->
     <nav id="article-bottom-nav" class="article-bottom-nav"></nav>
 
-    <!-- Editor Modal -->
+    <!-- [UX-FIX] Editor Modal Reworked -->
     <div id="editor-overlay" class="overlay">
         <div id="editor-modal" class="modal">
             <div class="modal-header">
@@ -117,15 +133,23 @@
                 <button class="modal-close-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <input type="hidden" id="editor-id">
-                <input type="text" id="editor-title" placeholder="文章標題">
-                <input type="text" id="editor-category" placeholder="分類">
-                <input type="text" id="editor-cover-image" placeholder="封面圖片 URL">
-                <textarea id="editor-content"></textarea>
+                <div class="editor-meta">
+                    <input type="hidden" id="editor-id">
+                    <label for="editor-title">標題</label>
+                    <input type="text" id="editor-title" placeholder="文章標題">
+                    <label for="editor-category">分類</label>
+                    <input type="text" id="editor-category" placeholder="文章分類">
+                    <label for="editor-cover-image">封面圖片</label>
+                    <input type="text" id="editor-cover-image" placeholder="圖片 URL">
+                </div>
+                <div class="editor-main">
+                    <label for="editor-content">內容 (Markdown)</label>
+                    <textarea id="editor-content"></textarea>
+                </div>
             </div>
             <div class="modal-footer">
-                <button id="delete-btn" class="btn btn-danger">刪除</button>
-                <button id="save-btn" class="btn btn-primary">儲存發布</button>
+                <button id="delete-btn" class="btn btn-danger"><i class="fas fa-trash"></i> 刪除</button>
+                <button id="save-btn" class="btn btn-primary"><i class="fas fa-save"></i> 儲存發布</button>
             </div>
         </div>
     </div>
@@ -153,9 +177,7 @@
         let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All', currentSort: 'newest', sortedArticleIds: [] };
         initializeApp(firebaseConfig);
         const db = getDatabase();
-        const articlesRef = ref(db, 'blogData/articles');
-        const categoriesRef = ref(db, 'blogData/categories');
-
+        
         const ui = {
             body: document.body, loader: document.getElementById('loader'), articleGrid: document.getElementById('article-grid'),
             homeView: document.getElementById('home-view'), articleView: document.getElementById('article-view'),
@@ -165,10 +187,9 @@
             siteTitle: document.getElementById('site-title'), searchInput: document.getElementById('search-input'), themeToggle: document.getElementById('theme-toggle'),
             newArticleBtn: document.getElementById('new-article-btn'),
             editorOverlay: document.getElementById('editor-overlay'), editorId: document.getElementById('editor-id'), editorTitle: document.getElementById('editor-title'),
-            editorCategory: document.getElementById('editor-category'), editorCoverImage: document.getElementById('editor-cover-image'),
+            editorCategory: document.getElementById('editor-category'), editorCoverImage: document.getElementById('editor-cover-image'), editorContent: document.getElementById('editor-content'),
             saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'),
-            footer: document.getElementById('site-footer'), 
-            articleBottomNav: document.getElementById('article-bottom-nav')
+            footer: document.getElementById('site-footer'), articleBottomNav: document.getElementById('article-bottom-nav')
         };
         let easyMDE;
         const DEFAULT_IMG_URL = 'https://i.imgur.com/g22yT3s.png';
@@ -176,9 +197,8 @@
         async function loadInitialData() {
             ui.loader.style.display = 'block';
             try {
-                const [articlesSnapshot, categoriesSnapshot] = await Promise.all([get(articlesRef), get(categoriesRef)]);
+                const articlesSnapshot = await get(ref(db, 'blogData/articles'));
                 appState.articles = articlesSnapshot.exists() ? articlesSnapshot.val() : {};
-                appState.allCategories = categoriesSnapshot.exists() ? categoriesSnapshot.val() : [];
                 filterAndSort();
                 renderCategories();
                 renderSortOptions();
@@ -197,11 +217,7 @@
                 filtered = filtered.filter(id => appState.articles[id].category === appState.currentFilter);
             }
             if (lowerCaseSearchTerm) {
-                filtered = filtered.filter(id => {
-                    const article = appState.articles[id];
-                    return (article.title?.toLowerCase().includes(lowerCaseSearchTerm)) ||
-                           (article.content?.toLowerCase().includes(lowerCaseSearchTerm));
-                });
+                filtered = filtered.filter(id => (appState.articles[id].title?.toLowerCase().includes(lowerCaseSearchTerm)) || (appState.articles[id].content?.toLowerCase().includes(lowerCaseSearchTerm)));
             }
             filtered.sort((a, b) => {
                 const articleA = appState.articles[a];
@@ -221,35 +237,38 @@
             ui.articleGrid.innerHTML = '';
             if (appState.sortedArticleIds.length === 0) return;
             const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
-            appState.sortedArticleIds.forEach(id => {
+            appState.sortedArticleIds.forEach((id, index) => {
                 const article = appState.articles[id];
                 if (!article) return;
                 const isLiked = likedArticles.includes(id);
-                const cardHTML = `
-                    <div class="article-card" data-id="${id}">
-                        <button class="card-edit-btn"><i class="fas fa-pencil-alt"></i></button>
-                        <img src="${article.coverImage || DEFAULT_IMG_URL}" alt="${article.title}" class="card-cover-image" onerror="this.src='${DEFAULT_IMG_URL}'">
-                        <div class="card-content">
-                            <h3 class="card-title">${article.title}</h3>
-                        </div>
-                        <div class="card-footer">
-                            <span class="card-meta-item"><i class="fas fa-eye"></i> ${article.views || 0}</span>
-                            <span class="card-meta-item like-btn ${isLiked ? 'liked' : ''}"><i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${article.likes || 0}</span>
-                            <span class="card-meta-item">${new Date(article.date).toLocaleDateString()}</span>
-                        </div>
+                const card = document.createElement('div');
+                card.className = 'article-card';
+                card.dataset.id = id;
+                card.style.animationDelay = `${index * 50}ms`;
+                card.innerHTML = `
+                    <button class="card-edit-btn"><i class="fas fa-pencil-alt"></i></button>
+                    <img src="${article.coverImage || DEFAULT_IMG_URL}" alt="${article.title}" class="card-cover-image" onerror="this.src='${DEFAULT_IMG_URL}'">
+                    <div class="card-content">
+                        <h3 class="card-title">${article.title}</h3>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-meta-item"><i class="fas fa-eye"></i> ${article.views || 0}</span>
+                        <span class="card-meta-item like-btn ${isLiked ? 'liked' : ''}"><i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${article.likes || 0}</span>
+                        <span class="card-meta-item">${new Date(article.date).toLocaleDateString()}</span>
                     </div>`;
-                ui.articleGrid.insertAdjacentHTML('beforeend', cardHTML);
+                ui.articleGrid.appendChild(card);
             });
         }
-
-        function renderArticle(id) {
+        
+        async function renderArticle(id) {
             const article = appState.articles[id];
             if (!article) { switchView('home-view'); return; }
 
             const viewsRef = ref(db, `blogData/articles/${id}/views`);
-            runTransaction(viewsRef, (currentViews) => (currentViews || 0) + 1).then(() => {
+            try {
+                await runTransaction(viewsRef, (currentViews) => (currentViews || 0) + 1);
                 if(appState.articles[id]) appState.articles[id].views = (appState.articles[id].views || 0) + 1;
-            });
+            } catch (e) { /* fail silently */ }
 
             const contentHTML = marked.parse(article.content || '');
             const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
@@ -262,7 +281,7 @@
                     <div class="article-meta">
                         <span><i class="fas fa-calendar-alt"></i> ${new Date(article.date).toLocaleDateString()}</span>
                         <span><i class="fas fa-folder"></i> ${article.category}</span>
-                        <span><i class="fas fa-eye"></i> ${article.views || 0} 次觀看</span>
+                        <span><i class="fas fa-eye"></i> ${appState.articles[id].views || 0}</span>
                     </div>
                     <div class="article-content">${contentHTML}</div>
                     <div class="interaction-bar">
@@ -285,7 +304,7 @@
             renderComments(id, article.comments || {});
 
             ui.articleView.querySelector('#comment-form').addEventListener('submit', (e) => postComment(e, id));
-            ui.articleView.querySelector('#article-like-btn').addEventListener('click', () => toggleLike(id));
+            ui.articleView.querySelector('#article-like-btn').addEventListener('click', () => toggleLike(id, true));
             ui.articleView.querySelector('#share-btn').addEventListener('click', () => shareArticle(id));
             
             switchView('article-view');
@@ -302,24 +321,26 @@
             }
             sortedKeys.forEach(key => {
                 const comment = comments[key];
+                const safeName = comment.name?.replace(/</g, "&lt;") || '匿名';
+                const safeText = comment.text?.replace(/</g, "&lt;") || '';
                 container.innerHTML += `
                     <div class="comment">
-                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(comment.name || 'V')}&background=random&color=fff" alt="avatar" class="comment-avatar">
-                        <div class="comment-body">
-                            <span class="comment-author">${comment.name.replace(/</g, "&lt;")}</span>
-                            <p>${comment.text.replace(/</g, "&lt;")}</p>
-                        </div>
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(safeName[0])}&background=random&color=fff" alt="avatar" class="comment-avatar">
+                        <div class="comment-body"><span class="comment-author">${safeName}</span><p class="comment-text">${safeText}</p></div>
                     </div>`;
             });
         }
         
-        async function toggleLike(articleId) {
+        async function toggleLike(articleId, fromArticlePage = false) {
             let likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+            const isLiked = likedArticles.includes(articleId);
             const likesRef = ref(db, `blogData/articles/${articleId}/likes`);
-            let isLiked = likedArticles.includes(articleId);
 
             try {
                 await runTransaction(likesRef, (currentLikes) => isLiked ? (currentLikes || 1) - 1 : (currentLikes || 0) + 1);
+                
+                const newLikes = (appState.articles[articleId].likes || 0) + (isLiked ? -1 : 1);
+                appState.articles[articleId].likes = newLikes < 0 ? 0 : newLikes;
 
                 if (isLiked) {
                     likedArticles = likedArticles.filter(id => id !== articleId);
@@ -328,52 +349,45 @@
                 }
                 localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
                 
-                // Manually update local state to avoid full reload
-                const newLikes = (appState.articles[articleId].likes || 0) + (isLiked ? -1 : 1);
-                appState.articles[articleId].likes = newLikes < 0 ? 0 : newLikes;
-
-                if (ui.homeView.classList.contains('active')) {
-                    renderArticleGrid();
-                } else {
+                if (fromArticlePage) {
                     renderArticle(articleId);
+                } else {
+                    const cardLikeIcon = document.querySelector(`.article-card[data-id="${articleId}"] .like-btn i`);
+                    const cardLikeSpan = document.querySelector(`.article-card[data-id="${articleId}"] .like-btn`);
+                    if(cardLikeIcon) {
+                        cardLikeIcon.className = `${isLiked ? 'far' : 'fas'} fa-heart`;
+                        cardLikeSpan.classList.toggle('liked', !isLiked);
+                        cardLikeSpan.innerHTML = `<i class="${!isLiked ? 'fas' : 'far'} fa-heart"></i> ${appState.articles[articleId].likes}`;
+                        cardLikeSpan.classList.add('beating');
+                        setTimeout(() => cardLikeSpan.classList.remove('beating'), 300);
+                    }
                 }
-            } catch (error) {
-                console.error("Like transaction failed:", error);
-            }
+            } catch (error) { console.error("Like transaction failed:", error); }
         }
         
         async function postComment(e, articleId) {
             e.preventDefault();
-            const nameInput = document.getElementById('comment-name');
-            const textInput = document.getElementById('comment-text');
-            const name = nameInput.value.trim();
-            const text = textInput.value.trim();
+            const nameInput = document.getElementById('comment-name'), textInput = document.getElementById('comment-text');
+            const name = nameInput.value.trim(), text = textInput.value.trim();
             if (!text || !name) return;
 
             const commentId = `comment_${Date.now()}`;
-            const commentRef = ref(db, `blogData/articles/${articleId}/comments/${commentId}`);
             try {
-                await set(commentRef, { name, text });
+                await set(ref(db, `blogData/articles/${articleId}/comments/${commentId}`), { name, text });
                 nameInput.value = ''; textInput.value = '';
                 appState.articles[articleId].comments = appState.articles[articleId].comments || {};
                 appState.articles[articleId].comments[commentId] = { name, text };
                 renderComments(articleId, appState.articles[articleId].comments);
-            } catch (error) {
-                alert('留言失敗，請確認 Firebase 權限設定。');
-            }
+            } catch (error) { alert('留言失敗，請確認 Firebase 權限設定。'); }
         }
         
         function shareArticle(id) {
             const url = `${SITE_URL}#${id}`;
-            navigator.clipboard.writeText(url).then(() => {
-                alert("已複製文章連結！");
-            }, () => {
-                prompt("複製失敗，請手動複製:", url);
-            });
+            navigator.clipboard?.writeText(url).then(() => alert("已複製文章連結！"), () => prompt("複製失敗，請手動複製:", url));
         }
 
         function openEditor(id = null) {
-            if (!easyMDE) easyMDE = new EasyMDE({ element: document.getElementById('editor-content') });
+            if (!easyMDE) easyMDE = new EasyMDE({ element: ui.editorContent, spellChecker: false });
             if (id) {
                 const article = appState.articles[id];
                 ui.editorId.value = id;
@@ -381,7 +395,7 @@
                 ui.editorCategory.value = article.category;
                 ui.editorCoverImage.value = article.coverImage || '';
                 easyMDE.value(article.content || '');
-                ui.deleteBtn.style.display = 'block';
+                ui.deleteBtn.style.display = 'flex';
             } else {
                 [ui.editorId, ui.editorTitle, ui.editorCategory, ui.editorCoverImage].forEach(el => el.value = '');
                 easyMDE.value('');
@@ -393,25 +407,14 @@
         async function saveArticle() {
             const id = ui.editorId.value || `post_${Date.now()}`;
             const isNew = !ui.editorId.value;
-            // [FIX] Preserve existing data when saving
             const existingData = isNew ? {} : appState.articles[id] || {};
-            const articleData = {
-                ...existingData, // Start with old data
-                title: ui.editorTitle.value,
-                date: isNew ? new Date().toISOString() : existingData.date, // Only set date on creation
-                category: ui.editorCategory.value,
-                coverImage: ui.editorCoverImage.value,
-                content: easyMDE.value(),
-            };
-            const articleRef = ref(db, `blogData/articles/${id}`);
+            const articleData = { ...existingData, title: ui.editorTitle.value, category: ui.editorCategory.value, coverImage: ui.editorCoverImage.value, content: easyMDE.value(), date: isNew ? new Date().toISOString() : existingData.date };
             try {
-                await set(articleRef, articleData);
+                await set(ref(db, `blogData/articles/${id}`), articleData);
                 ui.editorOverlay.classList.remove('active');
                 await loadInitialData();
                 switchView('home-view');
-            } catch(error) {
-                 alert('儲存失敗！');
-            }
+            } catch(error) { alert('儲存失敗！'); }
         }
 
         async function deleteArticle() {
@@ -422,39 +425,7 @@
                 ui.editorOverlay.classList.remove('active');
                 await loadInitialData();
                 switchView('home-view');
-            } catch(error) {
-                alert('刪除失敗！');
-            }
-        }
-        
-        window.generateRSS = function() {
-            const articles = Object.entries(appState.articles).sort(([,a],[,b]) => new Date(b.date) - new Date(a.date));
-            let rssItems = '';
-            articles.slice(0, 20).forEach(([id, article]) => {
-                const url = `${SITE_URL}#${id}`;
-                const description = article.content ? marked.parse(article.content).replace(/<[^>]*>/g, '').substring(0, 200) : '';
-                rssItems += `
-            <item>
-                <title><![CDATA[${article.title}]]></title>
-                <link>${url}</link>
-                <guid isPermaLink="true">${url}</guid>
-                <pubDate>${new Date(article.date).toUTCString()}</pubDate>
-                <description><![CDATA[${description}...]]></description>
-            </item>`;
-            });
-            const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-<channel>
-    <title>Kai's Tech Log</title>
-    <link>${SITE_URL}</link>
-    <description>Kai 的技術與生活分享</description>
-    <language>zh-Hant</language>
-    <atom:link href="${SITE_URL}rss.xml" rel="self" type="application/rss+xml" />
-    ${rssItems}
-</channel>
-</rss>`;
-            console.log(rssFeed);
-            alert("RSS XML 已輸出到瀏覽器主控台 (F12)！請複製並手動儲存為 rss.xml 檔案。");
+            } catch(error) { alert('刪除失敗！'); }
         }
 
         const switchView = (viewName) => {
@@ -462,14 +433,15 @@
             ui.homeView.classList.toggle('active', !isArticle);
             ui.articleView.classList.toggle('active', isArticle);
             ui.topControls.style.display = isArticle ? 'none' : 'flex';
-            ui.body.classList.toggle('bottom-nav-active', isArticle);
+            ui.articleBottomNav.classList.toggle('active', isArticle);
+            ui.body.classList.toggle('bottom-nav-active', isArticle && window.innerWidth <= 768);
             if (!isArticle) window.history.pushState(null, '', SITE_URL);
             window.scrollTo(0,0);
         };
         
-        function renderSortOptions(){const o={newest:'最新',oldest:'最舊',popular:'熱門',views:'熱度'};ui.sortDropdown.innerHTML='';Object.entries(o).forEach(([k,v])=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentSort===k?'active':''}`;i.textContent=v;i.dataset.sort=k;ui.sortDropdown.appendChild(i)});ui.sortDisplayBtn.innerHTML=`排序: ${o[appState.currentSort]}`;ui.sortDropdown.onclick=e=>{if(e.target.dataset.sort){appState.currentSort=e.target.dataset.sort;filterAndSort(ui.searchInput.value);renderSortOptions();toggleDropdown(ui.sortDropdown)}}}
-        function renderCategories(){ui.catDropdown.innerHTML='';['All',...new Set(Object.values(appState.articles).map(a=>a.category))].forEach(c=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentFilter===c?'active':''}`;i.textContent=c==='All'?'全部文章':c;i.dataset.cat=c;ui.catDropdown.appendChild(i)});ui.catDisplayBtn.textContent=`分類: ${appState.currentFilter==='All'?'全部':appState.currentFilter}`;ui.catDropdown.onclick=e=>{if(e.target.dataset.cat){appState.currentFilter=e.target.dataset.cat;filterAndSort(ui.searchInput.value);renderCategories();toggleDropdown(ui.catDropdown)}}}
-        function renderBottomNav(id){const i=appState.sortedArticleIds.indexOf(id);const p=i>0?appState.sortedArticleIds[i-1]:null;const n=i<appState.sortedArticleIds.length-1?appState.sortedArticleIds[i+1]:null;ui.articleBottomNav.innerHTML=`<button class="btn prev-btn" data-id="${p}" ${p?'':'disabled'}>← 上篇</button><button class="btn back-btn">返回列表</button><button class="btn next-btn" data-id="${n}" ${n?'':'disabled'}>下篇 →</button>`;ui.articleBottomNav.style.display='flex';ui.articleBottomNav.onclick=e=>{const t=e.target;if(t.matches('.back-btn'))switchView('home-view');if(t.matches('.prev-btn:not([disabled])'))window.location.hash=t.dataset.id;if(t.matches('.next-btn:not([disabled])'))window.location.hash=t.dataset.id}}
+        function renderSortOptions(){const o={newest:'最新',oldest:'最舊',popular:'熱門',views:'熱度'};ui.sortDropdown.innerHTML='';Object.entries(o).forEach(([k,v])=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentSort===k?'active':''}`;i.textContent=v;i.dataset.sort=k;ui.sortDropdown.appendChild(i)});ui.sortDisplayBtn.innerHTML=`<i class="fas fa-sort"></i> ${o[appState.currentSort]}`;ui.sortDropdown.onclick=e=>{const t=e.target.closest('.dropdown-item');if(t?.dataset.sort){appState.currentSort=t.dataset.sort;filterAndSort(ui.searchInput.value);renderSortOptions();toggleDropdown(ui.sortDropdown)}}}
+        function renderCategories(){appState.allCategories= [...new Set(Object.values(appState.articles).map(a=>a.category).filter(Boolean))]; ui.catDropdown.innerHTML='';['All',...appState.allCategories].forEach(c=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentFilter===c?'active':''}`;i.textContent=c==='All'?'全部文章':c;i.dataset.cat=c;ui.catDropdown.appendChild(i)});ui.catDisplayBtn.innerHTML=`<i class="fas fa-folder"></i> ${appState.currentFilter==='All'?'全部分類':appState.currentFilter}`;ui.catDropdown.onclick=e=>{const t=e.target.closest('.dropdown-item');if(t?.dataset.cat){appState.currentFilter=t.dataset.cat;filterAndSort(ui.searchInput.value);renderCategories();toggleDropdown(ui.catDropdown)}}}
+        function renderBottomNav(id){const i=appState.sortedArticleIds.indexOf(id);const p=i>0?appState.sortedArticleIds[i-1]:null;const n=i<appState.sortedArticleIds.length-1?appState.sortedArticleIds[i+1]:null;ui.articleBottomNav.innerHTML=`<button class="btn prev-btn" data-id="${p}" ${p?'':'disabled'}><i class="fas fa-arrow-left"></i> 上篇</button><button class="btn back-btn"><i class="fas fa-list"></i> 返回列表</button><button class="btn next-btn" data-id="${n}" ${n?'':'disabled'}>下篇 <i class="fas fa-arrow-right"></i></button>`;ui.articleBottomNav.onclick=e=>{const t=e.target.closest('button');if(!t)return;if(t.matches('.back-btn'))switchView('home-view');if(t.matches('.prev-btn:not([disabled])'))window.location.hash=t.dataset.id;if(t.matches('.next-btn:not([disabled])'))window.location.hash=t.dataset.id}}
         const toggleDropdown=d=>{const a=d.classList.contains('active');document.querySelectorAll('.control-dropdown.active').forEach(i=>i.classList.remove('active'));if(!a)d.classList.add('active')}
 
         function setupEventListeners() {
@@ -479,17 +451,16 @@
             ui.deleteBtn.addEventListener('click', deleteArticle);
             ui.editorOverlay.addEventListener('click', e => { if (e.target.matches('.overlay, .modal-close-btn')) ui.editorOverlay.classList.remove('active'); });
             ui.articleGrid.addEventListener('click', e => {
-                const card = e.target.closest('.article-card');
-                if (!card) return;
+                const card = e.target.closest('.article-card'); if (!card) return;
                 const id = card.dataset.id;
-                if (e.target.closest('.card-edit-btn')) { openEditor(id); }
-                else if (e.target.matches('.like-btn, .like-btn *')) { toggleLike(id); }
-                else { window.location.hash = id; }
+                if (e.target.closest('.card-edit-btn')) openEditor(id);
+                else if (e.target.matches('.like-btn, .like-btn *')) toggleLike(id);
+                else window.location.hash = id;
             });
             ui.searchInput.addEventListener('input', (e) => filterAndSort(e.target.value));
             ui.sortDisplayBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(ui.sortDropdown); });
             ui.catDisplayBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(ui.catDropdown); });
-
+            
             let footerClickCount = 0;
             ui.footer.addEventListener('click', () => {
                 footerClickCount = (footerClickCount + 1) % 5;
@@ -499,9 +470,7 @@
                         appState.isEditMode = !appState.isEditMode;
                         ui.body.classList.toggle('edit-mode', appState.isEditMode);
                         alert(appState.isEditMode ? "管理模式已啟用" : "已退出管理模式");
-                    } else if(password) {
-                        alert("密碼錯誤！");
-                    }
+                    } else if(password) { alert("密碼錯誤！"); }
                 }
             });
             window.addEventListener('hashchange', () => {
@@ -521,7 +490,7 @@
                 ui.themeToggle.textContent = isDark ? '🌙' : '☀️';
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             });
-            ui.footer.querySelector('p').textContent = `© ${new Date().getFullYear()} Kai's Tech Log. (連續點擊此處進入管理模式)`;
+            ui.footer.querySelector('p').textContent = `© ${new Date().getFullYear()} Kai's Tech Log. (點此處5次可進入管理模式)`;
 
             setupEventListeners();
             loadInitialData().then(() => {
