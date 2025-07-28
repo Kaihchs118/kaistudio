@@ -8,26 +8,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="alternate" type="application/rss+xml" title="Kai's Tech Log RSS Feed" href="/kaistudio/rss.xml">
+    
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
 
     <style>
-        :root{--bg-color:#f9f9fb;--text-color:#1d1d1f;--primary-color:#0071e3;--accent-color:#ff8c00;--success-color:#34c759;--secondary-color:#6e6e73;--border-color:#d2d2d7;--card-bg:#ffffff;--shadow-color:rgba(0,0,0,0.08);--code-bg:#f5f5f7;--danger-color:#ff3b30;--radius-large:20px;--radius-medium:15px;--radius-small:10px;--like-color:#ff3b30}
+        :root{--bg-color:#f9f9fb;--text-color:#1d1d1f;--primary-color:#0071e3;--accent-color:#ff8c00;--secondary-color:#6e6e73;--border-color:#d2d2d7;--card-bg:#ffffff;--shadow-color:rgba(0,0,0,0.08);--code-bg:#f5f5f7;--danger-color:#ff3b30;--radius-large:20px;--radius-medium:15px;--radius-small:10px;--like-color:#ff3b30}
         body.dark-mode{--bg-color:#000000;--text-color:#f5f5f7;--primary-color:#2997ff;--accent-color:#ff9500;--secondary-color:#8e8e93;--border-color:#424245;--card-bg:#1c1c1e;--shadow-color:rgba(0,0,0,0.3);--code-bg:#2c2c2e}
         *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
-        body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro TC","蘋方-繁","PingFang TC","Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;background-color:var(--bg-color);color:var(--text-color);transition:background-color .4s,color .4s;line-height:1.7}
-        .btn{border:none;padding:9px 18px;border-radius:var(--radius-medium);cursor:pointer;font-weight:600;font-size:.9rem;transition:transform .15s,box-shadow .2s}.btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(0) scale(.98)}
+        body{background-color:var(--bg-color);color:var(--text-color);font-family:-apple-system,BlinkMacSystemFont,"SF Pro TC","蘋方-繁","PingFang TC","Segoe UI",Helvetica,Arial,sans-serif;line-height:1.7;transition:background-color .4s,color .4s}
+        .btn{border:none;padding:9px 18px;border-radius:var(--radius-medium);cursor:pointer;font-weight:600;font-size:.9rem;transition:transform .15s,box-shadow .2s,background-color .2s}.btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(0) scale(.98)}
         .btn-primary{background:linear-gradient(45deg,var(--accent-color),var(--primary-color));color:white}
         .btn-danger{background-color:var(--danger-color);color:white}
-        .site-header{position:sticky;top:0;z-index:100;padding:0 5%;background-color:rgba(var(--bg-color),0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color)}
+        .site-header{position:sticky;top:0;z-index:100;padding:0 5%;background-color:rgba(var(--bg-color),.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color)}
         .header-content{display:flex;justify-content:space-between;align-items:center;min-height:60px;padding:10px 0;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:10px}
         .site-title{font-size:1.5rem;font-weight:700;cursor:pointer;color:var(--primary-color)}
         .header-controls{display:flex;align-items:center;gap:15px}
         .controls{display:flex;align-items:center;gap:10px}
         .control-group{position:relative}
         .control-btn{background-color:var(--code-bg);border:1px solid var(--border-color);color:var(--secondary-color);padding:8px 16px;border-radius:var(--radius-medium);cursor:pointer;font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:6px}
-        .control-dropdown{display:none;position:absolute;top:110%;right:0;min-width:180px;background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-large);z-index:110;padding:8px;box-shadow:0 8px 30px var(--shadow-color)}
+        .control-dropdown{display:none;position:absolute;top:110%;right:0;min-width:180px;background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-large);z-index:110;padding:8px;box-shadow:0 8px 30px var(--shadow-color);animation:popIn .2s ease-out}@keyframes popIn{from{opacity:0;transform:scale(.95) translateY(-10px)}to{opacity:1;transform:scale(1) translateY(0)}}
         .control-dropdown.active{display:block}
         .dropdown-item{display:block;width:100%;text-align:left;padding:10px 15px;border:none;background:none;color:var(--text-color);cursor:pointer;border-radius:var(--radius-small)}.dropdown-item:hover,.dropdown-item.active{background-color:var(--primary-color);color:white}
         .search-input{width:180px;padding:8px 15px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--code-bg);color:var(--text-color)}
@@ -44,19 +46,19 @@
         .card-title{font-size:1.25rem;font-weight:600;margin-bottom:12px}
         .card-footer{padding:0 20px 15px;display:flex;justify-content:space-between;align-items:center;color:var(--secondary-color);font-size:.9rem;flex-wrap:wrap;gap:5px 15px}
         .card-meta-item{display:flex;align-items:center;gap:6px}
-        .like-btn{cursor:pointer}.like-btn.liked i{color:var(--like-color);font-weight:900}
-        .card-edit-btn{display:none;position:absolute;top:15px;right:15px;background-color:rgba(var(--accent-color),.8);color:white;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-weight:600;z-index:5;backdrop-filter:blur(5px);display:none}
-        body.edit-mode .card-edit-btn{display:grid;place-items:center}
+        .like-btn{cursor:pointer}.like-btn.liked{color:var(--like-color)}
+        .card-edit-btn{position:absolute;top:15px;right:15px;background-color:rgba(var(--accent-color),.8);color:white;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;z-index:5;backdrop-filter:blur(5px);display:none;place-items:center}
+        body.edit-mode .card-edit-btn{display:grid}
         .article-container{max-width:800px;margin:0 auto;padding-bottom:50px}
         .article-header-image{width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:var(--radius-large);margin-bottom:30px;background-color:var(--border-color)}
         .article-title{font-size:2.5rem;font-weight:700;line-height:1.3;margin-bottom:15px}
         .article-meta{color:var(--secondary-color);margin-bottom:30px;font-size:.95rem;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
         .article-content{font-size:1.1rem;line-height:1.8}
         .interaction-bar{margin:40px 0;display:flex;align-items:center;gap:20px;border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color);padding:15px 0}
-        .comments-section{margin-top:50px;padding-top:30px}
+        .comments-section{margin-top:50px}
         #comment-form input,#comment-form textarea{width:100%;padding:12px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--code-bg);color:var(--text-color);font-size:1rem;margin-bottom:10px}
         #comment-list .comment{display:flex;gap:15px;padding:15px 0;border-bottom:1px solid var(--border-color)}
-        .comment-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
+        .comment-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover;background-color:var(--border-color)}
         .comment-body{flex-grow:1}
         .comment-author{font-weight:600}
         .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;animation:fadeIn .3s}
@@ -66,14 +68,13 @@
         .modal-close-btn{background:0 0;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-color)}
         .modal-body{padding:25px;overflow-y:auto;flex-grow:1}
         .modal-footer{padding:15px 25px;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;gap:10px}
-        #editor-modal .modal-body {padding: 10px;}
-        #editor-modal input, #editor-modal .EasyMDEContainer { margin-bottom: 15px; }
-        .EasyMDEContainer{border:1px solid var(--border-color)}
+        #editor-modal .modal-body{padding:10px}#editor-modal input{width:100%;padding:10px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--bg-color);color:var(--text-color);font-size:1rem}
+        #editor-modal input,.EasyMDEContainer{margin-bottom:15px}
+        .EasyMDEContainer{border:1px solid var(--border-color);border-radius:var(--radius-medium)}
         .loader{text-align:center;padding:50px;}
-        .site-footer{padding:40px 5%;text-align:center;color:var(--secondary-color);border-top:1px solid var(--border-color);margin-top:30px;cursor:pointer}
-        #rss-btn { margin-left: 20px; display: none; }
-        body.edit-mode #rss-btn { display: inline-block; }
-        .article-bottom-nav{position:fixed;bottom:0;left:0;width:100%;background-color:rgba(var(--card-bg),.8);backdrop-filter:blur(10px);border-top:1px solid var(--border-color);display:none;justify-content:space-between;align-items:center;padding:15px 5%;z-index:200}
+        .site-footer{padding:40px 5%;text-align:center;color:var(--secondary-color);border-top:1px solid var(--border-color);margin-top:30px;cursor:pointer;transition:margin-bottom .3s}
+        .article-bottom-nav{position:fixed;bottom:0;left:0;width:100%;background-color:rgba(var(--card-bg),.8);backdrop-filter:blur(10px);border-top:1px solid var(--border-color);display:none;justify-content:space-between;align-items:center;padding:15px 5%;z-index:200;animation:fadeIn .3s}
+        body.bottom-nav-active .site-footer { margin-bottom: 80px; } /* Push footer up */
     </style>
 </head>
 <body>
@@ -117,9 +118,9 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="editor-id">
-                <input type="text" id="editor-title" placeholder="文章標題" class="control-btn" style="width:100%;">
-                <input type="text" id="editor-category" placeholder="分類" class="control-btn" style="width:100%;">
-                <input type="text" id="editor-cover-image" placeholder="封面圖片 URL" class="control-btn" style="width:100%;">
+                <input type="text" id="editor-title" placeholder="文章標題">
+                <input type="text" id="editor-category" placeholder="分類">
+                <input type="text" id="editor-cover-image" placeholder="封面圖片 URL">
                 <textarea id="editor-content"></textarea>
             </div>
             <div class="modal-footer">
@@ -131,7 +132,6 @@
     
     <footer id="site-footer" class="site-footer">
         <p>© 2024 Kai's Tech Log. (連續點擊此處進入管理模式)</p>
-        <button id="rss-btn" class="btn">產生 RSS</button>
     </footer>
 
     <script type="module">
@@ -167,7 +167,7 @@
             editorOverlay: document.getElementById('editor-overlay'), editorId: document.getElementById('editor-id'), editorTitle: document.getElementById('editor-title'),
             editorCategory: document.getElementById('editor-category'), editorCoverImage: document.getElementById('editor-cover-image'),
             saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'),
-            footer: document.getElementById('site-footer'), rssBtn: document.getElementById('rss-btn'),
+            footer: document.getElementById('site-footer'), 
             articleBottomNav: document.getElementById('article-bottom-nav')
         };
         let easyMDE;
@@ -199,8 +199,8 @@
             if (lowerCaseSearchTerm) {
                 filtered = filtered.filter(id => {
                     const article = appState.articles[id];
-                    return (article.title && article.title.toLowerCase().includes(lowerCaseSearchTerm)) ||
-                           (article.content && article.content.toLowerCase().includes(lowerCaseSearchTerm));
+                    return (article.title?.toLowerCase().includes(lowerCaseSearchTerm)) ||
+                           (article.content?.toLowerCase().includes(lowerCaseSearchTerm));
                 });
             }
             filtered.sort((a, b) => {
@@ -219,10 +219,7 @@
 
         function renderArticleGrid() {
             ui.articleGrid.innerHTML = '';
-            if (appState.sortedArticleIds.length === 0) {
-                ui.articleGrid.innerHTML = `<p>找不到相關文章...</p>`;
-                return;
-            }
+            if (appState.sortedArticleIds.length === 0) return;
             const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
             appState.sortedArticleIds.forEach(id => {
                 const article = appState.articles[id];
@@ -237,7 +234,7 @@
                         </div>
                         <div class="card-footer">
                             <span class="card-meta-item"><i class="fas fa-eye"></i> ${article.views || 0}</span>
-                            <span class="card-meta-item like-btn ${isLiked ? 'liked' : ''}"><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                            <span class="card-meta-item like-btn ${isLiked ? 'liked' : ''}"><i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> ${article.likes || 0}</span>
                             <span class="card-meta-item">${new Date(article.date).toLocaleDateString()}</span>
                         </div>
                     </div>`;
@@ -249,9 +246,10 @@
             const article = appState.articles[id];
             if (!article) { switchView('home-view'); return; }
 
-            // Increment views
             const viewsRef = ref(db, `blogData/articles/${id}/views`);
-            runTransaction(viewsRef, (currentViews) => (currentViews || 0) + 1);
+            runTransaction(viewsRef, (currentViews) => (currentViews || 0) + 1).then(() => {
+                if(appState.articles[id]) appState.articles[id].views = (appState.articles[id].views || 0) + 1;
+            });
 
             const contentHTML = marked.parse(article.content || '');
             const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
@@ -268,7 +266,7 @@
                     </div>
                     <div class="article-content">${contentHTML}</div>
                     <div class="interaction-bar">
-                        <button class="btn like-btn ${isLiked ? 'liked' : ''}" id="article-like-btn"><i class="fas fa-heart"></i> <span>${isLiked ? '已喜歡' : '喜歡'} (${article.likes || 0})</span></button>
+                        <button class="btn like-btn ${isLiked ? 'liked' : ''}" id="article-like-btn"><i class="${isLiked ? 'fas' : 'far'} fa-heart"></i> <span>${isLiked ? '已喜歡' : '喜歡'} (${article.likes || 0})</span></button>
                         <button class="btn" id="share-btn"><i class="fas fa-share-alt"></i> 分享</button>
                     </div>
                     <div class="comments-section">
@@ -282,7 +280,7 @@
                     </div>
                 </div>`;
             
-            setTimeout(() => ui.articleView.querySelectorAll('pre code').forEach(hljs.highlightElement), 0);
+            setTimeout(() => ui.articleView.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)), 0);
             
             renderComments(id, article.comments || {});
 
@@ -306,43 +304,42 @@
                 const comment = comments[key];
                 container.innerHTML += `
                     <div class="comment">
-                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(comment.name || 'V')}&background=random" alt="avatar" class="comment-avatar">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(comment.name || 'V')}&background=random&color=fff" alt="avatar" class="comment-avatar">
                         <div class="comment-body">
-                            <span class="comment-author">${comment.name || '匿名'}</span>
-                            <p>${comment.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+                            <span class="comment-author">${comment.name.replace(/</g, "&lt;")}</span>
+                            <p>${comment.text.replace(/</g, "&lt;")}</p>
                         </div>
                     </div>`;
             });
         }
         
-        function toggleLike(articleId) {
+        async function toggleLike(articleId) {
             let likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
             const likesRef = ref(db, `blogData/articles/${articleId}/likes`);
             let isLiked = likedArticles.includes(articleId);
 
-            runTransaction(likesRef, (currentLikes) => {
-                if (isLiked) {
-                    // Unlike
-                    return (currentLikes || 1) - 1;
-                } else {
-                    // Like
-                    return (currentLikes || 0) + 1;
-                }
-            });
+            try {
+                await runTransaction(likesRef, (currentLikes) => isLiked ? (currentLikes || 1) - 1 : (currentLikes || 0) + 1);
 
-            if (isLiked) {
-                likedArticles = likedArticles.filter(id => id !== articleId);
-            } else {
-                likedArticles.push(articleId);
-            }
-            localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
-            
-            // Refresh views
-            loadInitialData().then(() => {
-                if (ui.articleView.classList.contains('active')) {
-                   renderArticle(articleId);
+                if (isLiked) {
+                    likedArticles = likedArticles.filter(id => id !== articleId);
+                } else {
+                    likedArticles.push(articleId);
                 }
-            });
+                localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
+                
+                // Manually update local state to avoid full reload
+                const newLikes = (appState.articles[articleId].likes || 0) + (isLiked ? -1 : 1);
+                appState.articles[articleId].likes = newLikes < 0 ? 0 : newLikes;
+
+                if (ui.homeView.classList.contains('active')) {
+                    renderArticleGrid();
+                } else {
+                    renderArticle(articleId);
+                }
+            } catch (error) {
+                console.error("Like transaction failed:", error);
+            }
         }
         
         async function postComment(e, articleId) {
@@ -363,7 +360,6 @@
                 renderComments(articleId, appState.articles[articleId].comments);
             } catch (error) {
                 alert('留言失敗，請確認 Firebase 權限設定。');
-                console.error("Post comment failed:", error);
             }
         }
         
@@ -371,15 +367,13 @@
             const url = `${SITE_URL}#${id}`;
             navigator.clipboard.writeText(url).then(() => {
                 alert("已複製文章連結！");
-            }).catch(err => {
-                alert("複製失敗，請手動複製連結。");
+            }, () => {
+                prompt("複製失敗，請手動複製:", url);
             });
         }
 
         function openEditor(id = null) {
-            if (!easyMDE) {
-                easyMDE = new EasyMDE({ element: document.getElementById('editor-content'), spellChecker: false });
-            }
+            if (!easyMDE) easyMDE = new EasyMDE({ element: document.getElementById('editor-content') });
             if (id) {
                 const article = appState.articles[id];
                 ui.editorId.value = id;
@@ -389,10 +383,7 @@
                 easyMDE.value(article.content || '');
                 ui.deleteBtn.style.display = 'block';
             } else {
-                ui.editorId.value = '';
-                ui.editorTitle.value = '';
-                ui.editorCategory.value = '';
-                ui.editorCoverImage.value = '';
+                [ui.editorId, ui.editorTitle, ui.editorCategory, ui.editorCoverImage].forEach(el => el.value = '');
                 easyMDE.value('');
                 ui.deleteBtn.style.display = 'none';
             }
@@ -402,15 +393,15 @@
         async function saveArticle() {
             const id = ui.editorId.value || `post_${Date.now()}`;
             const isNew = !ui.editorId.value;
+            // [FIX] Preserve existing data when saving
+            const existingData = isNew ? {} : appState.articles[id] || {};
             const articleData = {
+                ...existingData, // Start with old data
                 title: ui.editorTitle.value,
-                date: new Date().toISOString(),
+                date: isNew ? new Date().toISOString() : existingData.date, // Only set date on creation
                 category: ui.editorCategory.value,
                 coverImage: ui.editorCoverImage.value,
                 content: easyMDE.value(),
-                views: isNew ? 0 : (appState.articles[id]?.views || 0),
-                likes: isNew ? 0 : (appState.articles[id]?.likes || 0),
-                comments: isNew ? {} : (appState.articles[id]?.comments || {})
             };
             const articleRef = ref(db, `blogData/articles/${id}`);
             try {
@@ -419,17 +410,15 @@
                 await loadInitialData();
                 switchView('home-view');
             } catch(error) {
-                 alert('儲存失敗！請確認 Firebase 寫入權限已設定。');
-                 console.error("Save article failed:", error);
+                 alert('儲存失敗！');
             }
         }
 
         async function deleteArticle() {
             const id = ui.editorId.value;
             if (!id || !confirm('確定要永久刪除這篇文章嗎？')) return;
-            const articleRef = ref(db, `blogData/articles/${id}`);
             try {
-                await remove(articleRef);
+                await remove(ref(db, `blogData/articles/${id}`));
                 ui.editorOverlay.classList.remove('active');
                 await loadInitialData();
                 switchView('home-view');
@@ -438,52 +427,49 @@
             }
         }
         
-        function generateRSS() {
+        window.generateRSS = function() {
             const articles = Object.entries(appState.articles).sort(([,a],[,b]) => new Date(b.date) - new Date(a.date));
             let rssItems = '';
-            articles.forEach(([id, article]) => {
+            articles.slice(0, 20).forEach(([id, article]) => {
                 const url = `${SITE_URL}#${id}`;
+                const description = article.content ? marked.parse(article.content).replace(/<[^>]*>/g, '').substring(0, 200) : '';
                 rssItems += `
             <item>
-                <title>${article.title.replace(/&/g, '&amp;')}</title>
+                <title><![CDATA[${article.title}]]></title>
                 <link>${url}</link>
-                <guid>${url}</guid>
+                <guid isPermaLink="true">${url}</guid>
                 <pubDate>${new Date(article.date).toUTCString()}</pubDate>
-                <description><![CDATA[${marked.parse(article.content || '').substring(0, 300)}...]]></description>
+                <description><![CDATA[${description}...]]></description>
             </item>`;
             });
-
             const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
     <title>Kai's Tech Log</title>
     <link>${SITE_URL}</link>
     <description>Kai 的技術與生活分享</description>
     <language>zh-Hant</language>
+    <atom:link href="${SITE_URL}rss.xml" rel="self" type="application/rss+xml" />
     ${rssItems}
 </channel>
 </rss>`;
-            const blob = new Blob([rssFeed], { type: 'application/xml' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'rss.xml';
-            a.click();
-            URL.revokeObjectURL(a.href);
+            console.log(rssFeed);
+            alert("RSS XML 已輸出到瀏覽器主控台 (F12)！請複製並手動儲存為 rss.xml 檔案。");
         }
 
         const switchView = (viewName) => {
-            const isActive = viewName === 'article-view';
-            ui.articleView.classList.toggle('active', isActive);
-            ui.homeView.classList.toggle('active', !isActive);
-            ui.topControls.style.display = isActive ? 'none' : 'flex';
-            ui.articleBottomNav.style.display = isActive ? 'flex' : 'none';
-            if (!isActive) window.history.pushState(null, '', ' '); // Clear hash
+            const isArticle = viewName === 'article-view';
+            ui.homeView.classList.toggle('active', !isArticle);
+            ui.articleView.classList.toggle('active', isArticle);
+            ui.topControls.style.display = isArticle ? 'none' : 'flex';
+            ui.body.classList.toggle('bottom-nav-active', isArticle);
+            if (!isArticle) window.history.pushState(null, '', SITE_URL);
             window.scrollTo(0,0);
         };
         
         function renderSortOptions(){const o={newest:'最新',oldest:'最舊',popular:'熱門',views:'熱度'};ui.sortDropdown.innerHTML='';Object.entries(o).forEach(([k,v])=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentSort===k?'active':''}`;i.textContent=v;i.dataset.sort=k;ui.sortDropdown.appendChild(i)});ui.sortDisplayBtn.innerHTML=`排序: ${o[appState.currentSort]}`;ui.sortDropdown.onclick=e=>{if(e.target.dataset.sort){appState.currentSort=e.target.dataset.sort;filterAndSort(ui.searchInput.value);renderSortOptions();toggleDropdown(ui.sortDropdown)}}}
-        function renderCategories(){ui.catDropdown.innerHTML='';['All',...appState.allCategories].forEach(c=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentFilter===c?'active':''}`;i.textContent=c==='All'?'全部文章':c;i.dataset.cat=c;ui.catDropdown.appendChild(i)});ui.catDisplayBtn.textContent=`分類: ${appState.currentFilter==='All'?'全部':appState.currentFilter}`;ui.catDropdown.onclick=e=>{if(e.target.dataset.cat){appState.currentFilter=e.target.dataset.cat;filterAndSort(ui.searchInput.value);renderCategories();toggleDropdown(ui.catDropdown)}}}
-        function renderBottomNav(id){const i=appState.sortedArticleIds.indexOf(id),p=i>0?appState.sortedArticleIds[i-1]:null,n=i<appState.sortedArticleIds.length-1?appState.sortedArticleIds[i+1]:null;ui.articleBottomNav.innerHTML=`<button class="btn prev-btn" data-id="${p}" ${p?'':'disabled'}>← 上篇</button><button class="btn back-btn">返回列表</button><button class="btn next-btn" data-id="${n}" ${n?'':'disabled'}>下篇 →</button>`;ui.articleBottomNav.onclick=e=>{const t=e.target;if(t.matches('.back-btn'))switchView('home-view');if(t.matches('.prev-btn:not([disabled])'))renderArticle(t.dataset.id);if(t.matches('.next-btn:not([disabled])'))renderArticle(t.dataset.id)}}
+        function renderCategories(){ui.catDropdown.innerHTML='';['All',...new Set(Object.values(appState.articles).map(a=>a.category))].forEach(c=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentFilter===c?'active':''}`;i.textContent=c==='All'?'全部文章':c;i.dataset.cat=c;ui.catDropdown.appendChild(i)});ui.catDisplayBtn.textContent=`分類: ${appState.currentFilter==='All'?'全部':appState.currentFilter}`;ui.catDropdown.onclick=e=>{if(e.target.dataset.cat){appState.currentFilter=e.target.dataset.cat;filterAndSort(ui.searchInput.value);renderCategories();toggleDropdown(ui.catDropdown)}}}
+        function renderBottomNav(id){const i=appState.sortedArticleIds.indexOf(id);const p=i>0?appState.sortedArticleIds[i-1]:null;const n=i<appState.sortedArticleIds.length-1?appState.sortedArticleIds[i+1]:null;ui.articleBottomNav.innerHTML=`<button class="btn prev-btn" data-id="${p}" ${p?'':'disabled'}>← 上篇</button><button class="btn back-btn">返回列表</button><button class="btn next-btn" data-id="${n}" ${n?'':'disabled'}>下篇 →</button>`;ui.articleBottomNav.style.display='flex';ui.articleBottomNav.onclick=e=>{const t=e.target;if(t.matches('.back-btn'))switchView('home-view');if(t.matches('.prev-btn:not([disabled])'))window.location.hash=t.dataset.id;if(t.matches('.next-btn:not([disabled])'))window.location.hash=t.dataset.id}}
         const toggleDropdown=d=>{const a=d.classList.contains('active');document.querySelectorAll('.control-dropdown.active').forEach(i=>i.classList.remove('active'));if(!a)d.classList.add('active')}
 
         function setupEventListeners() {
@@ -497,23 +483,18 @@
                 if (!card) return;
                 const id = card.dataset.id;
                 if (e.target.closest('.card-edit-btn')) { openEditor(id); }
-                else if (e.target.closest('.like-btn')) { toggleLike(id); }
+                else if (e.target.matches('.like-btn, .like-btn *')) { toggleLike(id); }
                 else { window.location.hash = id; }
             });
             ui.searchInput.addEventListener('input', (e) => filterAndSort(e.target.value));
             ui.sortDisplayBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(ui.sortDropdown); });
             ui.catDisplayBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(ui.catDropdown); });
-            ui.rssBtn.addEventListener('click', generateRSS);
 
-            let footerClickCount = 0, footerClickTimer = null;
-            ui.footer.addEventListener('click', (e) => {
-                if(e.target.id === 'rss-btn') return;
-                footerClickCount++;
-                clearTimeout(footerClickTimer);
-                footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 1000);
-                if (footerClickCount === 5) {
-                    footerClickCount = 0;
-                    const password = prompt("請輸入管理密碼：");
+            let footerClickCount = 0;
+            ui.footer.addEventListener('click', () => {
+                footerClickCount = (footerClickCount + 1) % 5;
+                if (footerClickCount === 0) {
+                     const password = prompt("請輸入管理密碼：");
                     if (password === "980621") {
                         appState.isEditMode = !appState.isEditMode;
                         ui.body.classList.toggle('edit-mode', appState.isEditMode);
@@ -523,15 +504,11 @@
                     }
                 }
             });
-
             window.addEventListener('hashchange', () => {
                 const id = window.location.hash.substring(1);
-                if (id && appState.articles[id]) {
-                    renderArticle(id);
-                } else {
-                    switchView('home-view');
-                }
+                if (id && appState.articles[id]) renderArticle(id); else switchView('home-view');
             });
+            document.addEventListener('click', () => document.querySelectorAll('.control-dropdown.active').forEach(d=>d.classList.remove('active')));
         }
         
         document.addEventListener('DOMContentLoaded', () => {
@@ -549,9 +526,7 @@
             setupEventListeners();
             loadInitialData().then(() => {
                 const id = window.location.hash.substring(1);
-                if (id && appState.articles[id]) {
-                    renderArticle(id);
-                }
+                if (id) renderArticle(id);
             });
         });
     </script>
