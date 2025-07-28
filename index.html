@@ -16,6 +16,332 @@
             --secondary-color: #555; --border-color: #d1d1d6; --card-bg: #ffffff;
             --shadow-color: rgba(0, 0, 0, 0.08); --code-bg: #e9ecef; --code-color: #333;
             --danger-color: #dc3545; 
+            --apple-radius-large: 22px; 
+            --apple-radius-medium: 16px;
+            --apple-radius-small: 10px; 
+            --glass-blur: 16px;
+            --glass-light-bg-color: 250, 250, 252; 
+            --glass-light-opacity: 0.8; 
+        }
+        body.dark-mode {
+            --bg-color: #000000; --text-color: #e0e0e0; --primary-color: #0a84ff;
+            --secondary-color: #aaa; --border-color: #3a3a3c; --card-bg: #1c1c1e;
+            --shadow-color: rgba(0, 0, 0, 0.35); --code-bg: #2c2c2e; --code-color: #f0f0f0;
+            --glass-dark-bg-color: 38, 38, 40;
+            --glass-dark-opacity: 0.75;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; line-height: 1.7; }
+        
+        .glassmorphism {
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            background: linear-gradient(135deg, 
+                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) + 0.15)), 
+                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) - 0.1))
+            );
+            box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.7), 0 4px 15px var(--shadow-color);
+            border: 1px solid rgba(var(--glass-light-bg-color), 0.8);
+        }
+        body.dark-mode .glassmorphism {
+            background: linear-gradient(135deg, 
+                rgba(var(--glass-dark-bg-color), calc(var(--glass-dark-opacity) + 0.15)), 
+                rgba(var(--glass-dark-bg-color), var(--glass-dark-opacity))
+            );
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 20px var(--shadow-color);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .site-header { 
+            position: sticky; top: 0; z-index: 100;
+            padding: 0 5%;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .header-content { display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 10px 0; flex-wrap: wrap; }
+        .site-title { font-size: 1.4rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        
+        .controls { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            justify-content: flex-end; 
+            flex-wrap: wrap;
+        }
+
+        .control-group { position: relative; }
+        .control-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--apple-radius-medium); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
+        .control-dropdown { 
+            display: none; position: absolute; top: 110%; right: 0; min-width: 200px; 
+            border-radius: var(--apple-radius-large);
+            z-index: 110; padding: 8px; max-height: 300px; overflow-y: auto;
+        }
+        .control-dropdown.active { display: block; }
+        .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: var(--apple-radius-small); transition: background-color 0.2s; }
+        .dropdown-item:hover, .dropdown-item.active { background-color: rgba(128, 128, 128, 0.2); }
+        .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
+        
+        .search-box { position: relative; }
+        .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
+        .search-input { width: 150px; padding: 8px 15px 8px 35px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
+        .theme-toggle { cursor: pointer; font-size: 1.2rem; display: grid; place-items: center; }
+        #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; color: white; white-space: nowrap; }
+        #new-article-btn { background-color: var(--primary-color); } #exit-edit-btn { background-color: var(--secondary-color); }
+        
+        main { padding: 40px 5%; min-height: calc(100vh - 140px); }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .loader { width: 100%; max-width: 500px; margin: 40px auto; text-align: center; }
+        .progress-bar { height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden; }
+        .progress-bar-inner { width: 0%; height: 100%; background-color: var(--primary-color); transition: width 0.5s ease; }
+        .loader p { margin-top: 15px; color: var(--secondary-color); }
+
+        .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .article-card { background-color: var(--card-bg); border-radius: var(--apple-radius-large); overflow: hidden; box-shadow: 0 4px 20px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px var(--shadow-color); }
+        .card-cover-image { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background-color: var(--border-color); }
+        .card-content { padding: 20px; }
+        .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; }
+        
+        .article-container { max-width: 800px; margin: 0 auto; }
+        .article-header-image { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--apple-radius-large); margin-bottom: 30px; background-color: var(--border-color); }
+        .article-title { font-size: 2.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 15px; }
+        .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 0 10px; align-items: center; }
+        .article-meta span { display: inline-flex; align-items: center;}
+
+        .article-content { font-size: 1.1rem; line-height: 1.8; }
+        .article-content > * + * { margin-top: 1.2em; } 
+        .article-content pre { background-color: #282c34; color: #abb2bf; padding: 1.5em; border-radius: var(--apple-radius-medium); overflow-x: auto; margin: 1.5em 0;}
+        .article-content code { font-family: "SF Mono", "Fira Code", monospace; font-size: 0.9em; }
+        .article-content :not(pre) > code { background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 6px; }
+        .article-content blockquote { border-left: 4px solid var(--border-color); padding-left: 1.5em; margin: 1.5em 0; color: var(--secondary-color); }
+        
+        .article-navigation { margin-top: 50px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .nav-btn {
+            padding: 12px 25px;
+            border-radius: var(--apple-radius-medium);
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .nav-btn.disabled { opacity: 0.5; pointer-events: none; }
+
+        #editor-overlay, #cat-mgmt-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; 
+        }
+        #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; }
+        
+        .modal { width: 95%; max-width: 900px; border-radius: var(--apple-radius-large); display: flex; flex-direction: column; }
+        .editor-modal { height: 90vh; }
+        .cat-mgmt-modal { max-height: 80vh; max-width: 500px; }
+        .modal-header { padding: 20px 25px; border-bottom: 1px solid rgba(128,128,128,0.2); font-size: 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 25px; overflow-y: auto; flex-grow: 1; }
+        
+        .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; }
+        .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 1rem; }
+        .editor-modal-body { flex-grow: 1; padding: 0; display: flex; flex-direction: column;}
+        #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; flex-grow: 1; }
+        .modal-footer { padding: 15px 25px; border-top: 1px solid rgba(128,128,128,0.2); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+        .editor-modal-footer { justify-content: space-between; }
+        
+        .btn { border: none; padding: 10px 20px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        
+        #cat-mgmt-list { list-style: none; padding: 0; margin: 0; }
+        #cat-mgmt-list li { display: flex; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--border-color); }
+        #cat-mgmt-list li:last-child { border-bottom: none; }
+        #cat-mgmt-list .cat-name { flex-grow: 1; padding: 0 10px; }
+        #cat-mgmt-list .cat-name-input { flex-grow: 1; padding: 8px 10px; border-radius: var(--apple-radius-small); border: 1px solid var(--primary-color); background-color: var(--card-bg); color: var(--text-color); }
+        #cat-mgmt-list .cat-actions { display: flex; gap: 10px; }
+        #cat-mgmt-list .cat-actions button { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px; }
+        #add-cat-form { display: flex; gap: 10px; margin-top: 20px; }
+        #add-cat-input { flex-grow: 1; padding: 12px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); }
+
+        .site-footer { padding: 40px 5%; text-align: center; color: var(--secondary-color); border-top: 1px solid var(--border-color); font-size: 0.9rem; margin-top: 30px;}
+
+        @media (max-width: 768px) {
+            .site-title { font-size: 1.2rem; }
+            .article-title { font-size: 2rem; }
+            .header-content { row-gap: 12px; }
+            .controls { justify-content: flex-start; }
+            .search-input { width: 120px; }
+            .modal { width: 100%; height: 100%; border-radius: 0; }
+            .editor-modal, .cat-mgmt-modal { height: 100vh; max-height: 100vh; }
+            .article-navigation { flex-direction: column; align-items: stretch; }
+            .nav-btn { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header glassmorphism">
+        <div class="header-content">
+            <div id="site-title" class="site-title">Kai's Tech Log</div>
+            <div class="controls">
+                <div class="control-group">
+                    <button id="sort-display-btn" class="control-btn">排序 ▼</button>
+                    <div id="sort-dropdown" class="control-dropdown glassmorphism"></div>
+                </div>
+                <div class="control-group">
+                    <button id="category-display-btn" class="control-btn">分類 ▼</button>
+                    <div id="category-dropdown" class="control-dropdown glassmorphism"></div>
+                </div>
+                <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
+                <div class="theme-toggle" id="theme-toggle">☀️</div>
+                <button id="new-article-btn">+ 新增</button>
+                <button id="exit-edit-btn">退出</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="home-view" class="view active">
+            <div id="loader" class="loader">
+                <div class="progress-bar">
+                    <div id="progress-bar-inner" class="progress-bar-inner"></div>
+                </div>
+                <p id="loader-text">正在從雲端載入資料...</p>
+            </div>
+            <div class="article-grid" id="article-grid"></div>
+        </div>
+        <div id="article-view" class="view"></div>
+    </main>
+
+    <div id="editor-overlay">
+        <div class="modal editor-modal glassmorphism">
+             <div class="modal-header">
+                <div class="editor-modal-header">
+                    <input type="text" id="editor-id" disabled placeholder="文章 ID">
+                    <input type="date" id="editor-date">
+                    <input type="text" id="editor-category" placeholder="分類" list="category-list">
+                    <input type="text" id="editor-cover-image" placeholder="封面圖片 URL">
+                    <input type="text" id="editor-tags" placeholder="標籤 (用逗號分隔)">
+                </div>
+            </div>
+            <div class="modal-body editor-modal-body">
+                <textarea id="editor-content" spellcheck="false" placeholder="第一行為標題..."></textarea>
+            </div>
+            <div class="modal-footer editor-modal-footer">
+                <button id="delete-btn" class="btn btn-danger">刪除</button>
+                <div>
+                    <button id="cancel-btn" class="btn btn-secondary">取消</button>
+                    <button id="save-btn" class="btn btn-primary">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="cat-mgmt-overlay">
+        <div class="modal cat-mgmt-modal glassmorphism">
+            <div class="modal-header">
+                <h2>分類管理</h2>
+                <button id="close-cat-mgmt-btn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-color)">×</button>
+            </div>
+            <div class="modal-body">
+                <ul id="cat-mgmt-list"></ul>
+                <form id="add-cat-form">
+                    <input id="add-cat-input" placeholder="輸入新分類名稱..." required>
+                    <button type="submit" class="btn btn-primary">新增</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <datalist id="category-list"></datalist>
+    <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
+            authDomain: "blog-63ad2.firebaseapp.com", 
+            projectId: "blog-63ad2", 
+            storageBucket: "blog-63ad2.appspot.com", 
+            messagingSenderId: "265914768921", 
+            appId: "1:265914768921:web:e4c752780e604d0be69488", 
+            databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
+        };
+        
+        let appState = { 
+            articles: {}, 
+            allCategories: [], 
+            isEditMode: false, 
+            currentFilter: 'All',
+            currentSort: 'newest',
+            sortedArticleIds: []
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const articlesRef = ref(db, 'blogData/articles');
+        const categoriesRef = ref(db, 'blogData/categories');
+
+        const ui = {
+            loader: document.getElementById('loader'),
+            loaderText: document.getElementById('loader-text'),
+            progressBarInner: document.getElementById('progress-bar-inner'),
+            homeView: document.getElementById('home-view'),
+            articleView: document.getElementById('article-view'),
+            articleGrid: document.getElementById('article-grid'),
+            sortDisplayBtn: document.getElementById('sort-display-btn'),
+            sortDropdown: document.getElementById('sort-dropdown'),
+            catDisplayBtn: document.getElementById('category-display-btn'),
+            catDropdown: document.getElementById('category-dropdown'),
+            siteTitle: document.getElementById('site-title'),
+            searchInput: document.getElementById('search-input'),
+            themeToggle: document.getElementById('theme-toggle'),
+            newArticleBtn: document.getElementById('new-article-btn'),
+            exitEditBtn: document.getElementById('exit-edit-btn'),
+            editorOverlay: document.getElementById('editor-overlay'), editorId: document.getElementById('editor-id'),
+            editorDate: document.getElementById('editor-date'), editorCategory: document.getElementById('editor-category'),
+            editorCoverImage: document.getElementById('editor-cover-image'), editorTags: document.getElementById('editor-tags'),
+            editorContent: document.getElementById('editor-content'), saveBtn: document.getElementById('save-btn'),
+            cancelBtn: document.getElementById('cancel-btn'), deleteBtn: document.getElementById('delete-btn'),
+            categoryDataList: document.getElementById('category-list'),
+            catMgmtOverlay: document.getElementById('cat-mgmt-overlay'), catMgmtList: document.getElementById('cat-mgmt-list'),
+            closeCatMgmtBtn: document.getElementById('close-cat-mgmt-btn'), addCatForm: document.getElementById('add-cat-form'),
+            addCatInput: document.getElementById('add-cat-input'),
+        };
+        
+        async function loadInitialData() {
+            try {
+                ui.progressBarInner.style.width = '30%';
+                const [articlesSnapshot, categoriesSnapshot] = await Promise.all([
+                    get(articlesRef),
+                    get(categoriesRef)
+                ]);
+                ui.progressBarInner.style.width = '70%';
+
+                appState.articles = articlesSnapshot.val() || {};
+                appState.allCategories = categoriesSnapshot.val() || [];
+                
+                ui.loaderText.textContent = '✅ 資料取得成功，正在渲染畫面...';
+                ui.progressBarInner.style.width<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAI's Tech Log - GitHub Pages Edition</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- 引入 highlight.js 用於程式碼語法高亮 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+
+    <style>
+        :root {
+            --bg-color: #f0f2f5; --text-color: #1a1a1a; --primary-color: #007aff; 
+            --secondary-color: #555; --border-color: #d1d1d6; --card-bg: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.08); --code-bg: #e9ecef; --code-color: #333;
+            --danger-color: #dc3545; 
             /* [升級] 更明顯的圓角 */
             --apple-radius-large: 22px; 
             --apple-radius-medium: 16px;
