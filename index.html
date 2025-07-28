@@ -458,7 +458,7 @@
             // [修改] 更新密碼
             handleAdminLogin: () => {
                  const password = prompt('請輸入管理密碼:');
-                 if (password === '980416') {
+                 if (password === '980621') {
                     appState.isEditMode = true;
                     alert('已進入管理模式。');
                  } else if (password) {
@@ -477,7 +477,7 @@
 
         // [新增] 檢查網址 hash 的函數
         function checkAdminFromURL() {
-            if (window.location.hash === '#bosskai&6!') {
+            if (window.location.hash === '?admin#kai') {
                 actions.handleAdminLogin();
                 // 清除 hash 避免重複觸發
                 history.replaceState(null, null, window.location.pathname + window.location.search);
