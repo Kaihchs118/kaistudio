@@ -3,521 +3,557 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI's Tech Log - GitHub Pages Edition</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <!-- 引入 highlight.js 用於程式碼語法高亮 -->
+    <title>KAI's Tech Log - ✨ 大功告成版</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
 
     <style>
-        :root {
-            --bg-color: #f0f2f5; --text-color: #1a1a1a; --primary-color: #007aff; 
-            --secondary-color: #555; --border-color: #d1d1d6; --card-bg: #ffffff;
-            --shadow-color: rgba(0, 0, 0, 0.08); --code-bg: #e9ecef; --code-color: #333;
-            --danger-color: #dc3545; 
-            --apple-radius-large: 22px; 
-            --apple-radius-medium: 16px;
-            --apple-radius-small: 10px; 
-            --glass-blur: 16px;
-            --glass-light-bg-color: 250, 250, 252; 
-            --glass-light-opacity: 0.8; 
-        }
-        body.dark-mode {
-            --bg-color: #000000; --text-color: #e0e0e0; --primary-color: #0a84ff;
-            --secondary-color: #aaa; --border-color: #3a3a3c; --card-bg: #1c1c1e;
-            --shadow-color: rgba(0, 0, 0, 0.35); --code-bg: #2c2c2e; --code-color: #f0f0f0;
-            --glass-dark-bg-color: 38, 38, 40;
-            --glass-dark-opacity: 0.75;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "蘋方-繁", "PingFang TC", "Helvetica Neue", Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; line-height: 1.7; }
-        
-        .glassmorphism {
-            backdrop-filter: blur(var(--glass-blur));
-            -webkit-backdrop-filter: blur(var(--glass-blur));
-            background: linear-gradient(135deg, 
-                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) + 0.15)), 
-                rgba(var(--glass-light-bg-color), calc(var(--glass-light-opacity) - 0.1))
-            );
-            box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.7), 0 4px 15px var(--shadow-color);
-            border: 1px solid rgba(var(--glass-light-bg-color), 0.8);
-        }
-        body.dark-mode .glassmorphism {
-            background: linear-gradient(135deg, 
-                rgba(var(--glass-dark-bg-color), calc(var(--glass-dark-opacity) + 0.15)), 
-                rgba(var(--glass-dark-bg-color), var(--glass-dark-opacity))
-            );
-            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15), 0 4px 20px var(--shadow-color);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        .site-header { 
-            position: sticky; top: 0; z-index: 100;
-            padding: 0 5%;
-            transition: background 0.3s, box-shadow 0.3s;
-        }
-
-        .header-content { display: flex; justify-content: space-between; align-items: center; min-height: 60px; padding: 10px 0; flex-wrap: wrap; row-gap: 10px; }
-        .site-title { font-size: 1.3rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
-        
-        .header-top-controls { display: flex; align-items: center; gap: 15px; }
-        .controls { display: flex; align-items: center; gap: 10px; justify-content: flex-end; flex-wrap: wrap; flex-basis: 100%; }
-
-        .control-group { position: relative; }
-        .control-btn { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--apple-radius-medium); padding: 8px 15px; cursor: pointer; font-size: 0.9rem; font-weight: 500; color: var(--secondary-color); white-space: nowrap; }
-        .control-dropdown { 
-            display: none; position: absolute; top: 110%; right: 0; min-width: 200px; 
-            border-radius: var(--apple-radius-large); z-index: 110; padding: 8px; max-height: 300px; overflow-y: auto;
-        }
-        .control-dropdown.active { display: block; }
-        .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; white-space: nowrap; border-radius: var(--apple-radius-small); transition: background-color 0.2s; }
-        .dropdown-item:hover, .dropdown-item.active { background-color: rgba(128, 128, 128, 0.2); }
-        .dropdown-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
-        
-        .search-box { position: relative; }
-        .search-box::before { content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--secondary-color); z-index: 1; }
-        .search-input { width: 150px; padding: 8px 15px 8px 35px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 0.9rem; transition: all 0.3s; }
-        .theme-toggle { cursor: pointer; font-size: 1.2rem; display: grid; place-items: center; }
-        #new-article-btn, #exit-edit-btn { display: none; border: none; padding: 8px 15px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; color: white; white-space: nowrap; }
-        #new-article-btn { background-color: var(--primary-color); } #exit-edit-btn { background-color: var(--secondary-color); }
-        
-        main { padding: 40px 5%; min-height: calc(100vh - 140px); }
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .loader { width: 100%; max-width: 500px; margin: 40px auto; text-align: center; }
-        .progress-bar { height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden; }
-        .progress-bar-inner { width: 0%; height: 100%; background-color: var(--primary-color); transition: width 0.5s ease; }
-        .loader p { margin-top: 15px; color: var(--secondary-color); }
-
-        .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
-        .article-card { background-color: var(--card-bg); border-radius: var(--apple-radius-large); overflow: hidden; box-shadow: 0 4px 20px var(--shadow-color); cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
-        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 30px var(--shadow-color); }
-        .card-cover-image { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background-color: var(--border-color); }
-        .card-content { padding: 20px; }
-        .card-title { font-size: 1.3rem; font-weight: 600; margin-bottom: 10px; }
-        
-        .article-container { max-width: 800px; margin: 0 auto; padding-bottom: 100px; /* 為底部導航列預留空間 */ }
-        .article-header-image { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--apple-radius-large); margin-bottom: 30px; background-color: var(--border-color); }
-        .article-title { font-size: 2.8rem; font-weight: 700; line-height: 1.3; margin-bottom: 15px; }
-        .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 0 10px; align-items: center; }
-        .article-meta span { display: inline-flex; align-items: center;}
-
-        .article-content { font-size: 1.1rem; line-height: 1.8; }
-        .article-content > * + * { margin-top: 1.2em; } 
-        .article-content pre { background-color: #282c34; color: #abb2bf; padding: 1.5em; border-radius: var(--apple-radius-medium); overflow-x: auto; margin: 1.5em 0;}
-        .article-content code { font-family: "SF Mono", "Fira Code", monospace; font-size: 0.9em; }
-        .article-content :not(pre) > code { background-color: var(--code-bg); color: var(--code-color); padding: 0.2em 0.4em; border-radius: 6px; }
-        .article-content blockquote { border-left: 4px solid var(--border-color); padding-left: 1.5em; margin: 1.5em 0; color: var(--secondary-color); }
-        
-        /* [新增] 底部懸浮導航列樣式 */
-        .article-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            display: none; /* 預設隱藏 */
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 5%;
-            z-index: 200;
-        }
-        .nav-btn {
-            padding: 10px 20px;
-            border-radius: var(--apple-radius-medium);
-            text-decoration: none;
-            color: var(--text-color);
-            font-weight: 500;
-            transition: all 0.3s;
-            border: none;
-            background-color: transparent; /* 讓玻璃效果決定背景 */
-            font-size: 0.9rem;
-        }
-        .nav-btn.disabled { opacity: 0.4; pointer-events: none; }
-        .nav-btn.back-btn { flex-grow: 1; text-align: center; }
-
-        #editor-overlay, #cat-mgmt-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); 
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; 
-        }
-        .modal { width: 95%; max-width: 900px; border-radius: var(--apple-radius-large); display: flex; flex-direction: column; }
-        /* ... 其他 modal 樣式 ... */
-        .editor-modal { height: 90vh; }
-        .cat-mgmt-modal { max-height: 80vh; max-width: 500px; }
-        .modal-header { padding: 20px 25px; border-bottom: 1px solid rgba(128,128,128,0.2); font-size: 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 25px; overflow-y: auto; flex-grow: 1; }
-        .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; }
-        .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--apple-radius-medium); border: 1px solid var(--border-color); background-color: var(--card-bg); color: var(--text-color); font-size: 1rem; }
-        .editor-modal-body { flex-grow: 1; padding: 0; display: flex; flex-direction: column;}
-        #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; flex-grow: 1; }
-        .modal-footer { padding: 15px 25px; border-top: 1px solid rgba(128,128,128,0.2); display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
-        .editor-modal-footer { justify-content: space-between; }
-        .btn { border: none; padding: 10px 20px; border-radius: var(--apple-radius-medium); cursor: pointer; font-weight: 500; transition: all 0.2s; }
-        .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-secondary { background-color: var(--secondary-color); color: white; }
-        #cat-mgmt-list { list-style: none; padding: 0; margin: 0; }
-        #cat-mgmt-list li { display: flex; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--border-color); }
-        #cat-mgmt-list li:last-child { border-bottom: none; }
-        #cat-mgmt-list .cat-name { flex-grow: 1; padding: 0 10px; }
-        .site-footer { padding: 40px 5%; text-align: center; color: var(--secondary-color); border-top: 1px solid var(--border-color); font-size: 0.9rem; margin-top: 30px;}
-        /* [修改] 頁尾文字的互動樣式 */
-        .site-footer p { cursor: pointer; display: inline-block; transition: color 0.2s; }
-        .site-footer p:hover { color: var(--primary-color); text-decoration: underline; }
-
-        @media (max-width: 768px) {
-            .site-title { font-size: 1.2rem; }
-            .article-title { font-size: 2rem; }
-            .search-input { width: 100px; }
-            .modal { width: 100%; height: 100%; border-radius: 0; }
-            .editor-modal, .cat-mgmt-modal { height: 100vh; max-height: 100vh; }
-        }
+        :root{--bg-color:#f9f9fb;--text-color:#1d1d1f;--primary-color:#0071e3;--accent-color:#ff8c00;--success-color:#34c759;--secondary-color:#6e6e73;--border-color:#d2d2d7;--card-bg:#ffffff;--shadow-color:rgba(0,0,0,0.08);--code-bg:#f5f5f7;--danger-color:#ff3b30;--radius-large:20px;--radius-medium:15px;--radius-small:10px;--like-color:#ff3b30}
+        body.dark-mode{--bg-color:#000000;--text-color:#f5f5f7;--primary-color:#2997ff;--accent-color:#ff9500;--secondary-color:#8e8e93;--border-color:#424245;--card-bg:#1c1c1e;--shadow-color:rgba(0,0,0,0.3);--code-bg:#2c2c2e}
+        *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}
+        body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro TC","蘋方-繁","PingFang TC","Segoe UI","Helvetica Neue",Helvetica,Arial,sans-serif;background-color:var(--bg-color);color:var(--text-color);transition:background-color .4s,color .4s;line-height:1.7}
+        .btn{border:none;padding:9px 18px;border-radius:var(--radius-medium);cursor:pointer;font-weight:600;font-size:.9rem;transition:transform .15s,box-shadow .2s}.btn:hover{transform:translateY(-2px)}.btn:active{transform:translateY(0) scale(.98)}
+        .btn-primary{background:linear-gradient(45deg,var(--accent-color),var(--primary-color));color:white}
+        .btn-danger{background-color:var(--danger-color);color:white}
+        .site-header{position:sticky;top:0;z-index:100;padding:0 5%;background-color:rgba(var(--bg-color),0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border-color)}
+        .header-content{display:flex;justify-content:space-between;align-items:center;min-height:60px;padding:10px 0;max-width:1200px;margin:0 auto;flex-wrap:wrap;gap:10px}
+        .site-title{font-size:1.5rem;font-weight:700;cursor:pointer;color:var(--primary-color)}
+        .header-controls{display:flex;align-items:center;gap:15px}
+        .controls{display:flex;align-items:center;gap:10px}
+        .control-group{position:relative}
+        .control-btn{background-color:var(--code-bg);border:1px solid var(--border-color);color:var(--secondary-color);padding:8px 16px;border-radius:var(--radius-medium);cursor:pointer;font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:6px}
+        .control-dropdown{display:none;position:absolute;top:110%;right:0;min-width:180px;background-color:var(--card-bg);border:1px solid var(--border-color);border-radius:var(--radius-large);z-index:110;padding:8px;box-shadow:0 8px 30px var(--shadow-color)}
+        .control-dropdown.active{display:block}
+        .dropdown-item{display:block;width:100%;text-align:left;padding:10px 15px;border:none;background:none;color:var(--text-color);cursor:pointer;border-radius:var(--radius-small)}.dropdown-item:hover,.dropdown-item.active{background-color:var(--primary-color);color:white}
+        .search-input{width:180px;padding:8px 15px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--code-bg);color:var(--text-color)}
+        .theme-toggle{cursor:pointer;font-size:1.5rem;display:grid;place-items:center}
+        #new-article-btn{display:none}
+        body.edit-mode #new-article-btn{display:inline-block}
+        main{padding:40px 5%;min-height:calc(100vh - 140px);max-width:1280px;margin:0 auto}
+        .view{display:none}.view.active{display:block;animation:fadeIn .5s ease}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+        .article-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:30px}
+        .article-card{background-color:var(--card-bg);border-radius:var(--radius-large);overflow:hidden;box-shadow:0 4px 25px var(--shadow-color);transition:transform .3s,box-shadow .3s;position:relative;display:flex;flex-direction:column}
+        .article-card:hover{transform:translateY(-8px);box-shadow:0 12px 40px var(--shadow-color)}
+        .card-cover-image{width:100%;aspect-ratio:16/10;object-fit:cover;background-color:var(--border-color);cursor:pointer}
+        .card-content{padding:20px;cursor:pointer;flex-grow:1}
+        .card-title{font-size:1.25rem;font-weight:600;margin-bottom:12px}
+        .card-footer{padding:0 20px 15px;display:flex;justify-content:space-between;align-items:center;color:var(--secondary-color);font-size:.9rem;flex-wrap:wrap;gap:5px 15px}
+        .card-meta-item{display:flex;align-items:center;gap:6px}
+        .like-btn{cursor:pointer}.like-btn.liked i{color:var(--like-color);font-weight:900}
+        .card-edit-btn{display:none;position:absolute;top:15px;right:15px;background-color:rgba(var(--accent-color),.8);color:white;border:none;border-radius:50%;width:40px;height:40px;cursor:pointer;font-weight:600;z-index:5;backdrop-filter:blur(5px);display:none}
+        body.edit-mode .card-edit-btn{display:grid;place-items:center}
+        .article-container{max-width:800px;margin:0 auto;padding-bottom:50px}
+        .article-header-image{width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:var(--radius-large);margin-bottom:30px;background-color:var(--border-color)}
+        .article-title{font-size:2.5rem;font-weight:700;line-height:1.3;margin-bottom:15px}
+        .article-meta{color:var(--secondary-color);margin-bottom:30px;font-size:.95rem;display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+        .article-content{font-size:1.1rem;line-height:1.8}
+        .interaction-bar{margin:40px 0;display:flex;align-items:center;gap:20px;border-top:1px solid var(--border-color);border-bottom:1px solid var(--border-color);padding:15px 0}
+        .comments-section{margin-top:50px;padding-top:30px}
+        #comment-form input,#comment-form textarea{width:100%;padding:12px;border-radius:var(--radius-medium);border:1px solid var(--border-color);background-color:var(--code-bg);color:var(--text-color);font-size:1rem;margin-bottom:10px}
+        #comment-list .comment{display:flex;gap:15px;padding:15px 0;border-bottom:1px solid var(--border-color)}
+        .comment-avatar{width:40px;height:40px;border-radius:50%;object-fit:cover}
+        .comment-body{flex-grow:1}
+        .comment-author{font-weight:600}
+        .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;animation:fadeIn .3s}
+        .overlay.active{display:flex}
+        .modal{width:95%;max-width:900px;max-height:90vh;border-radius:var(--radius-large);display:flex;flex-direction:column;background-color:var(--card-bg);box-shadow:0 10px 40px rgba(0,0,0,.2)}
+        .modal-header{padding:20px 25px;border-bottom:1px solid var(--border-color);font-size:1.3rem;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+        .modal-close-btn{background:0 0;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-color)}
+        .modal-body{padding:25px;overflow-y:auto;flex-grow:1}
+        .modal-footer{padding:15px 25px;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;gap:10px}
+        #editor-modal .modal-body {padding: 10px;}
+        #editor-modal input, #editor-modal .EasyMDEContainer { margin-bottom: 15px; }
+        .EasyMDEContainer{border:1px solid var(--border-color)}
+        .loader{text-align:center;padding:50px;}
+        .site-footer{padding:40px 5%;text-align:center;color:var(--secondary-color);border-top:1px solid var(--border-color);margin-top:30px;cursor:pointer}
+        #rss-btn { margin-left: 20px; display: none; }
+        body.edit-mode #rss-btn { display: inline-block; }
+        .article-bottom-nav{position:fixed;bottom:0;left:0;width:100%;background-color:rgba(var(--card-bg),.8);backdrop-filter:blur(10px);border-top:1px solid var(--border-color);display:none;justify-content:space-between;align-items:center;padding:15px 5%;z-index:200}
     </style>
 </head>
 <body>
-    <header class="site-header glassmorphism">
+    <header class="site-header">
         <div class="header-content">
-            <div id="site-title" class="site-title">Kai's Tech Log</div>
-            <div class="header-top-controls">
+            <div id="site-title" class="site-title">✨ Kai's Tech Log</div>
+            <div class="header-controls">
                 <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
+                <div id="top-controls" class="controls">
+                    <button id="new-article-btn" class="btn btn-primary"><i class="fas fa-plus"></i> 新增</button>
+                    <div class="control-group">
+                        <button id="sort-display-btn" class="control-btn">排序 ▼</button>
+                        <div id="sort-dropdown" class="control-dropdown"></div>
+                    </div>
+                    <div class="control-group">
+                        <button id="category-display-btn" class="control-btn">分類 ▼</button>
+                        <div id="category-dropdown" class="control-dropdown"></div>
+                    </div>
+                </div>
                 <div class="theme-toggle" id="theme-toggle">☀️</div>
-            </div>
-            <div class="controls">
-                <div class="control-group">
-                    <button id="sort-display-btn" class="control-btn">排序 ▼</button>
-                    <div id="sort-dropdown" class="control-dropdown glassmorphism"></div>
-                </div>
-                <div class="control-group">
-                    <button id="category-display-btn" class="control-btn">分類 ▼</button>
-                    <div id="category-dropdown" class="control-dropdown glassmorphism"></div>
-                </div>
-                <button id="new-article-btn">+ 新增</button>
-                <button id="exit-edit-btn">退出</button>
             </div>
         </div>
     </header>
 
     <main>
         <div id="home-view" class="view active">
-            <div id="loader" class="loader">
-                <div class="progress-bar">
-                    <div id="progress-bar-inner" class="progress-bar-inner"></div>
-                </div>
-                <p id="loader-text">正在從雲端載入資料...</p>
-            </div>
+            <div id="loader" class="loader"><p>正在從雲端載入資料...</p></div>
             <div class="article-grid" id="article-grid"></div>
         </div>
         <div id="article-view" class="view"></div>
     </main>
-
-    <!-- [新增] 底部懸浮導覽列 -->
-    <nav id="article-bottom-nav" class="article-bottom-nav glassmorphism"></nav>
-
-    <!-- Modals and Datalist... -->
-    <div id="editor-overlay">
-        <div class="modal editor-modal glassmorphism">
-            <div class="modal-header">
-                <div class="editor-modal-header">
-                    <input type="text" id="editor-id" disabled placeholder="文章 ID">
-                    <input type="date" id="editor-date">
-                    <input type="text" id="editor-category" placeholder="分類" list="category-list">
-                    <input type="text" id="editor-cover-image" placeholder="封面圖片 URL">
-                    <input type="text" id="editor-tags" placeholder="標籤 (用逗號分隔)">
-                </div>
-            </div>
-            <div class="modal-body editor-modal-body">
-                <textarea id="editor-content" spellcheck="false" placeholder="第一行為標題..."></textarea>
-            </div>
-            <div class="modal-footer editor-modal-footer">
-                <button id="delete-btn" class="btn btn-danger">刪除</button>
-                <div>
-                    <button id="cancel-btn" class="btn btn-secondary">取消</button>
-                    <button id="save-btn" class="btn btn-primary">儲存</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="cat-mgmt-overlay">
-        <div class="modal cat-mgmt-modal glassmorphism">
-            <div class="modal-header"><h2>分類管理</h2><button id="close-cat-mgmt-btn" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text-color)">×</button></div>
-            <div class="modal-body">
-                <ul id="cat-mgmt-list"></ul>
-                <form id="add-cat-form"><input id="add-cat-input" placeholder="輸入新分類名稱..." required><button type="submit" class="btn btn-primary">新增</button></form>
-            </div>
-        </div>
-    </div>
-    <datalist id="category-list"></datalist>
     
-    <footer class="site-footer"><p>© 2025 Kai's Tech Log. All Rights Reserved.</p></footer>
+    <nav id="article-bottom-nav" class="article-bottom-nav"></nav>
+
+    <!-- Editor Modal -->
+    <div id="editor-overlay" class="overlay">
+        <div id="editor-modal" class="modal">
+            <div class="modal-header">
+                <span id="editor-modal-title">編輯文章</span>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editor-id">
+                <input type="text" id="editor-title" placeholder="文章標題" class="control-btn" style="width:100%;">
+                <input type="text" id="editor-category" placeholder="分類" class="control-btn" style="width:100%;">
+                <input type="text" id="editor-cover-image" placeholder="封面圖片 URL" class="control-btn" style="width:100%;">
+                <textarea id="editor-content"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button id="delete-btn" class="btn btn-danger">刪除</button>
+                <button id="save-btn" class="btn btn-primary">儲存發布</button>
+            </div>
+        </div>
+    </div>
+    
+    <footer id="site-footer" class="site-footer">
+        <p>© 2024 Kai's Tech Log. (連續點擊此處進入管理模式)</p>
+        <button id="rss-btn" class="btn">產生 RSS</button>
+    </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, set, get, remove, runTransaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
-            authDomain: "blog-63ad2.firebaseapp.com", 
-            projectId: "blog-63ad2", 
-            storageBucket: "blog-63ad2.appspot.com", 
-            messagingSenderId: "265914768921", 
-            appId: "1:265914768921:web:e4c752780e604d0be69488", 
-            databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
+        const firebaseConfig = {
+          apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y",
+          authDomain: "blog-63ad2.firebaseapp.com",
+          databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com",
+          projectId: "blog-63ad2",
+          storageBucket: "blog-63ad2.appspot.com",
+          messagingSenderId: "265914768921",
+          appId: "1:265914768921:web:e4c752780e604d0be69488"
         };
         
-        let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All', currentSort: 'newest', sortedArticleIds: [] };
+        const SITE_URL = "https://kaihchs118.github.io/kaistudio/";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+        let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All', currentSort: 'newest', sortedArticleIds: [] };
+        initializeApp(firebaseConfig);
+        const db = getDatabase();
         const articlesRef = ref(db, 'blogData/articles');
         const categoriesRef = ref(db, 'blogData/categories');
 
         const ui = {
-            loader: document.getElementById('loader'),
-            homeView: document.getElementById('home-view'),
-            articleView: document.getElementById('article-view'),
-            articleGrid: document.getElementById('article-grid'),
-            articleBottomNav: document.getElementById('article-bottom-nav'), // 新增
-            sortDisplayBtn: document.getElementById('sort-display-btn'),
-            sortDropdown: document.getElementById('sort-dropdown'),
-            catDisplayBtn: document.getElementById('category-display-btn'),
-            catDropdown: document.getElementById('category-dropdown'),
-            siteTitle: document.getElementById('site-title'),
-            searchInput: document.getElementById('search-input'),
-            themeToggle: document.getElementById('theme-toggle'),
+            body: document.body, loader: document.getElementById('loader'), articleGrid: document.getElementById('article-grid'),
+            homeView: document.getElementById('home-view'), articleView: document.getElementById('article-view'),
+            topControls: document.getElementById('top-controls'),
+            sortDisplayBtn: document.getElementById('sort-display-btn'), sortDropdown: document.getElementById('sort-dropdown'),
+            catDisplayBtn: document.getElementById('category-display-btn'), catDropdown: document.getElementById('category-dropdown'),
+            siteTitle: document.getElementById('site-title'), searchInput: document.getElementById('search-input'), themeToggle: document.getElementById('theme-toggle'),
             newArticleBtn: document.getElementById('new-article-btn'),
-            exitEditBtn: document.getElementById('exit-edit-btn'),
-            editorOverlay: document.getElementById('editor-overlay'), editorId: document.getElementById('editor-id'),
-            editorDate: document.getElementById('editor-date'), editorCategory: document.getElementById('editor-category'),
-            editorCoverImage: document.getElementById('editor-cover-image'), editorTags: document.getElementById('editor-tags'),
-            editorContent: document.getElementById('editor-content'), saveBtn: document.getElementById('save-btn'),
-            cancelBtn: document.getElementById('cancel-btn'), deleteBtn: document.getElementById('delete-btn'),
-            categoryDataList: document.getElementById('category-list'),
-            catMgmtOverlay: document.getElementById('cat-mgmt-overlay'), catMgmtList: document.getElementById('cat-mgmt-list'),
-            closeCatMgmtBtn: document.getElementById('close-cat-mgmt-btn'), addCatForm: document.getElementById('add-cat-form'),
-            addCatInput: document.getElementById('add-cat-input'),
-            footer: document.querySelector('.site-footer p'), // 綁定到 p 元素
+            editorOverlay: document.getElementById('editor-overlay'), editorId: document.getElementById('editor-id'), editorTitle: document.getElementById('editor-title'),
+            editorCategory: document.getElementById('editor-category'), editorCoverImage: document.getElementById('editor-cover-image'),
+            saveBtn: document.getElementById('save-btn'), deleteBtn: document.getElementById('delete-btn'),
+            footer: document.getElementById('site-footer'), rssBtn: document.getElementById('rss-btn'),
+            articleBottomNav: document.getElementById('article-bottom-nav')
         };
-        
+        let easyMDE;
+        const DEFAULT_IMG_URL = 'https://i.imgur.com/g22yT3s.png';
+
         async function loadInitialData() {
+            ui.loader.style.display = 'block';
             try {
-                // ... 進度條邏輯 ...
-                ui.loader.querySelector('.progress-bar-inner').style.width = '30%';
-                const [articlesSnapshot, categoriesSnapshot] = await Promise.all([ get(articlesRef), get(categoriesRef) ]);
-                ui.loader.querySelector('.progress-bar-inner').style.width = '70%';
-
-                appState.articles = articlesSnapshot.val() || {};
-                appState.allCategories = categoriesSnapshot.val() || [];
-                
-                ui.loader.querySelector('p').textContent = '✅ 資料取得成功，正在渲染畫面...';
-                ui.loader.querySelector('.progress-bar-inner').style.width = '100%';
-
-                setTimeout(() => {
-                    ui.loader.style.display = 'none';
-                    render.articles();
-                    render.categories();
-                    render.sortOptions();
-                    checkAdminFromURL(); // 頁面載入後檢查一次網址
-                }, 500);
+                const [articlesSnapshot, categoriesSnapshot] = await Promise.all([get(articlesRef), get(categoriesRef)]);
+                appState.articles = articlesSnapshot.exists() ? articlesSnapshot.val() : {};
+                appState.allCategories = categoriesSnapshot.exists() ? categoriesSnapshot.val() : [];
+                filterAndSort();
+                renderCategories();
+                renderSortOptions();
             } catch (error) {
-                console.error("從 Firebase 載入初始資料時發生錯誤:", error);
-                ui.loader.querySelector('.progress-bar-inner').style.backgroundColor = 'var(--danger-color)';
-                ui.loader.querySelector('p').innerHTML = `❌ 資料載入失敗，請檢查網路連線或稍後再試。`;
+                console.error("Firebase data loading failed:", error);
+                ui.loader.innerHTML = `<p style="color:red;"><b>資料載入失敗！</b><br>請確認 Firebase 資料庫規則已設定正確。<br>(${error.message})</p>`;
+            } finally {
+                ui.loader.style.display = 'none';
             }
         }
 
-        const calculateReadingTime = (text) => {
-            if (!text) return '1';
-            const westernWords = (text.match(/[\w'-]+/g) || []).length;
-            const cjkWords = (text.match(/[\u4e00-\u9fff\u3040-\u309f\u30a0-\u30ff]/g) || []).length;
-            const totalWords = westernWords + cjkWords;
-            const wordsPerMinute = 225;
-            const minutes = Math.ceil(totalWords / wordsPerMinute);
-            return `${minutes}`;
-        };
-
-        const render = {
-            // ... render.sortOptions, render.categories, render.articles 保持不變 ...
-            sortOptions: () => {
-                const sortOrders = { newest: '由新到舊', oldest: '由舊到新' };
-                ui.sortDisplayBtn.textContent = `排序：${sortOrders[appState.currentSort]} ▼`;
-                ui.sortDropdown.innerHTML = '';
-                Object.entries(sortOrders).forEach(([key, value]) => {
-                    const btn = document.createElement('button');
-                    btn.className = 'dropdown-item';
-                    if (key === appState.currentSort) btn.classList.add('active');
-                    btn.textContent = value;
-                    btn.onclick = (e) => { e.stopPropagation(); appState.currentSort = key; actions.showHomePage(); render.sortOptions(); ui.sortDropdown.classList.remove('active'); };
-                    ui.sortDropdown.appendChild(btn);
+        function filterAndSort(searchTerm = '') {
+            const lowerCaseSearchTerm = searchTerm ? searchTerm.toLowerCase() : '';
+            let filtered = Object.keys(appState.articles);
+            if (appState.currentFilter !== 'All') {
+                filtered = filtered.filter(id => appState.articles[id].category === appState.currentFilter);
+            }
+            if (lowerCaseSearchTerm) {
+                filtered = filtered.filter(id => {
+                    const article = appState.articles[id];
+                    return (article.title && article.title.toLowerCase().includes(lowerCaseSearchTerm)) ||
+                           (article.content && article.content.toLowerCase().includes(lowerCaseSearchTerm));
                 });
-            },
-            categories: () => {
-                const allCats = ['All', ...appState.allCategories];
-                ui.catDisplayBtn.textContent = `分類：${appState.currentFilter} ▼`;
-                ui.catDropdown.innerHTML = '';
-                allCats.forEach(cat => {
-                    const btn = document.createElement('button');
-                    btn.className = 'dropdown-item';
-                    if (cat === appState.currentFilter) btn.classList.add('active');
-                    btn.textContent = cat;
-                    btn.onclick = (e) => { e.stopPropagation(); appState.currentFilter = cat; actions.showHomePage(); ui.catDropdown.classList.remove('active'); };
-                    ui.catDropdown.appendChild(btn);
-                });
-                if (appState.isEditMode) {
-                    ui.catDropdown.appendChild(document.createElement('div')).className = 'dropdown-divider';
-                    const manageBtn = document.createElement('button');
-                    manageBtn.className = 'dropdown-item'; manageBtn.textContent = '🔧 管理分類...';
-                    manageBtn.onclick = (e) => { e.stopPropagation(); actions.openCategoryManager(); ui.catDropdown.classList.remove('active'); };
-                    ui.catDropdown.appendChild(manageBtn);
+            }
+            filtered.sort((a, b) => {
+                const articleA = appState.articles[a];
+                const articleB = appState.articles[b];
+                switch (appState.currentSort) {
+                    case 'popular': return (articleB.likes || 0) - (articleA.likes || 0);
+                    case 'views': return (articleB.views || 0) - (articleA.views || 0);
+                    case 'oldest': return new Date(articleA.date) - new Date(articleB.date);
+                    default: return new Date(articleB.date) - new Date(articleA.date);
                 }
-                ui.categoryDataList.innerHTML = appState.allCategories.map(cat => `<option value="${cat}"></option>`).join('');
-            },
-            articles: (searchTerm = '') => {
-                ui.articleGrid.innerHTML = '';
-                const filteredArticles = Object.entries(appState.articles)
-                    .filter(([, article]) => (appState.currentFilter === 'All' || article.category === appState.currentFilter) && (searchTerm ? (article.title?.toLowerCase().includes(searchTerm.toLowerCase()) || article.tags?.toLowerCase().includes(searchTerm.toLowerCase())) : true))
-                    .sort(([, a], [, b]) => {
-                        const timeA = a.date ? new Date(a.date).getTime() : 0, timeB = b.date ? new Date(b.date).getTime() : 0;
-                        return isNaN(timeA) || isNaN(timeB) ? (isNaN(timeA) ? 1 : -1) : (appState.currentSort === 'newest' ? timeB - timeA : timeA - timeB);
-                    });
-                appState.sortedArticleIds = filteredArticles.map(([id]) => id);
-                if (filteredArticles.length === 0) { ui.articleGrid.innerHTML = `<p style="padding: 20px;">找不到文章。</p>`; return; }
-                filteredArticles.forEach(([id, article]) => {
-                    const card = document.createElement('div');
-                    card.className = 'article-card'; card.onclick = () => actions.showArticlePage(id);
-                    const displayDate = article.date ? new Date(article.date).toLocaleDateString() : '無日期';
-                    card.innerHTML = `<img class="card-cover-image" src="${article.coverImage || 'https://via.placeholder.com/400x250/e9ecef/6c757d?text=No+Image'}" alt="Cover for ${article.title}"><div class="card-content"><h3 class="card-title">${article.title || '無標題文章'}</h3><p style="color:var(--secondary-color);font-size:0.9rem;">${displayDate}</p></div>`;
-                    ui.articleGrid.appendChild(card);
-                });
-            },
-            articleDetail: (id) => {
+            });
+            appState.sortedArticleIds = filtered;
+            renderArticleGrid();
+        }
+
+        function renderArticleGrid() {
+            ui.articleGrid.innerHTML = '';
+            if (appState.sortedArticleIds.length === 0) {
+                ui.articleGrid.innerHTML = `<p>找不到相關文章...</p>`;
+                return;
+            }
+            const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+            appState.sortedArticleIds.forEach(id => {
                 const article = appState.articles[id];
-                if (!article) { actions.showHomePage(); return; }
-
-                const currentIndex = appState.sortedArticleIds.indexOf(id);
-                const prevId = currentIndex > 0 ? appState.sortedArticleIds[currentIndex - 1] : null;
-                const nextId = currentIndex < appState.sortedArticleIds.length - 1 ? appState.sortedArticleIds[currentIndex + 1] : null;
-
-                const readingTime = calculateReadingTime(article.content);
-                const contentWithoutTitle = article.content.substring(article.content.indexOf('\n') + 1);
-                const htmlContent = marked.parse(contentWithoutTitle || '');
-                const displayDate = article.date ? new Date(article.date).toLocaleDateString() : '無日期';
-
-                ui.articleView.innerHTML = `
-                    <div class="article-container">
-                        ${article.coverImage ? `<img src="${article.coverImage}" alt="Cover Image for ${article.title}" class="article-header-image">` : ''}
-                        <h1 class="article-title">${article.title}</h1>
-                        <div class="article-meta">
-                            <span>📅 ${displayDate}</span>
-                            <span>🏷️ ${article.category}</span>
-                            <span>⏱️ 約 ${readingTime} 分鐘</span>
-                            ${appState.isEditMode ? `<span><button class="btn-edit" data-id="${id}" style="background:none; border:none; cursor:pointer; color:var(--primary-color); font-size: 1rem;">✏️ 編輯</button></span>` : ''}
+                if (!article) return;
+                const isLiked = likedArticles.includes(id);
+                const cardHTML = `
+                    <div class="article-card" data-id="${id}">
+                        <button class="card-edit-btn"><i class="fas fa-pencil-alt"></i></button>
+                        <img src="${article.coverImage || DEFAULT_IMG_URL}" alt="${article.title}" class="card-cover-image" onerror="this.src='${DEFAULT_IMG_URL}'">
+                        <div class="card-content">
+                            <h3 class="card-title">${article.title}</h3>
                         </div>
-                        <div class="article-content">${htmlContent}</div>
+                        <div class="card-footer">
+                            <span class="card-meta-item"><i class="fas fa-eye"></i> ${article.views || 0}</span>
+                            <span class="card-meta-item like-btn ${isLiked ? 'liked' : ''}"><i class="fas fa-heart"></i> ${article.likes || 0}</span>
+                            <span class="card-meta-item">${new Date(article.date).toLocaleDateString()}</span>
+                        </div>
                     </div>`;
-                
-                // [修改] 渲染底部導覽列
-                ui.articleBottomNav.innerHTML = `
-                    <a href="#" class="nav-btn prev-btn ${!prevId ? 'disabled' : ''}" data-id="${prevId}">‹ 上一篇</a>
-                    <a href="#" class="nav-btn back-btn">返回列表</a>
-                    <a href="#" class="nav-btn next-btn ${!nextId ? 'disabled' : ''}" data-id="${nextId}">下一篇 ›</a>
-                `;
-                
-                // 綁定事件
-                if (appState.isEditMode) ui.articleView.querySelector('.btn-edit').onclick = () => actions.openEditor(id);
-                ui.articleBottomNav.querySelector('.back-btn').onclick = (e) => { e.preventDefault(); actions.showHomePage(); };
-                if (prevId) ui.articleBottomNav.querySelector('.prev-btn').onclick = (e) => { e.preventDefault(); actions.showArticlePage(prevId); };
-                if (nextId) ui.articleBottomNav.querySelector('.next-btn').onclick = (e) => { e.preventDefault(); actions.showArticlePage(nextId); };
+                ui.articleGrid.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
 
-                document.querySelectorAll('.article-content pre code').forEach(block => hljs.highlightElement(block));
-            },
-            // ... 其他 render 函數 ...
-            theme: () => { /* ... */ }, editMode: () => { /* ... */ }, categoryManager: () => { /* ... */ },
-        };
+        function renderArticle(id) {
+            const article = appState.articles[id];
+            if (!article) { switchView('home-view'); return; }
 
-        const actions = {
-            showHomePage: () => {
-                ui.homeView.classList.add('active');
-                ui.articleView.classList.remove('active');
-                ui.articleView.innerHTML = '';
-                ui.articleBottomNav.style.display = 'none'; // 隱藏底部導覽列
-                render.articles(ui.searchInput.value);
-            },
-            showArticlePage: (id) => {
-                if (!id) return;
-                ui.homeView.classList.remove('active');
-                ui.articleView.classList.add('active');
-                ui.articleBottomNav.style.display = 'flex'; // 顯示底部導覽列
-                render.articleDetail(id);
-                window.scrollTo(0, 0);
-            },
-            // [修改] 更新密碼
-            handleAdminLogin: () => {
-                 const password = prompt('請輸入管理密碼:');
-                 if (password === '980621') {
-                    appState.isEditMode = true;
-                    alert('已進入管理模式。');
-                 } else if (password) {
-                    appState.isEditMode = false;
-                    alert('密碼錯誤。');
-                 }
-                 render.editMode();
-            },
-            // ... 其他 actions 函數 ...
-            toggleTheme: () => { /* ... */ }, toggleDropdown: () => { /* ... */ }, openEditor: () => { /* ... */ }, /* etc. */
-        };
+            // Increment views
+            const viewsRef = ref(db, `blogData/articles/${id}/views`);
+            runTransaction(viewsRef, (currentViews) => (currentViews || 0) + 1);
 
-       // --- 初始化與事件監聽 ---
-        render.theme();
-        loadInitialData();
+            const contentHTML = marked.parse(article.content || '');
+            const likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+            const isLiked = likedArticles.includes(id);
+            
+            ui.articleView.innerHTML = `
+                <div class="article-container" data-id="${id}">
+                    <img src="${article.coverImage || DEFAULT_IMG_URL}" alt="${article.title}" class="article-header-image" onerror="this.src='${DEFAULT_IMG_URL}'">
+                    <h1 class="article-title">${article.title}</h1>
+                    <div class="article-meta">
+                        <span><i class="fas fa-calendar-alt"></i> ${new Date(article.date).toLocaleDateString()}</span>
+                        <span><i class="fas fa-folder"></i> ${article.category}</span>
+                        <span><i class="fas fa-eye"></i> ${article.views || 0} 次觀看</span>
+                    </div>
+                    <div class="article-content">${contentHTML}</div>
+                    <div class="interaction-bar">
+                        <button class="btn like-btn ${isLiked ? 'liked' : ''}" id="article-like-btn"><i class="fas fa-heart"></i> <span>${isLiked ? '已喜歡' : '喜歡'} (${article.likes || 0})</span></button>
+                        <button class="btn" id="share-btn"><i class="fas fa-share-alt"></i> 分享</button>
+                    </div>
+                    <div class="comments-section">
+                        <h2>留言</h2>
+                        <div id="comment-list"></div>
+                        <form id="comment-form">
+                            <input type="text" id="comment-name" placeholder="你的名字 (必填)" required>
+                            <textarea id="comment-text" placeholder="分享你的看法..." required></textarea>
+                            <button type="submit" class="btn btn-primary">送出留言</button>
+                        </form>
+                    </div>
+                </div>`;
+            
+            setTimeout(() => ui.articleView.querySelectorAll('pre code').forEach(hljs.highlightElement), 0);
+            
+            renderComments(id, article.comments || {});
 
-        // [新增] 檢查網址 hash 的函數
-        function checkAdminFromURL() {
-            if (window.location.hash === '?admin#kai') {
-                actions.handleAdminLogin();
-                // 清除 hash 避免重複觸發
-                history.replaceState(null, null, window.location.pathname + window.location.search);
+            ui.articleView.querySelector('#comment-form').addEventListener('submit', (e) => postComment(e, id));
+            ui.articleView.querySelector('#article-like-btn').addEventListener('click', () => toggleLike(id));
+            ui.articleView.querySelector('#share-btn').addEventListener('click', () => shareArticle(id));
+            
+            switchView('article-view');
+            renderBottomNav(id);
+        }
+
+        function renderComments(articleId, comments) {
+            const container = document.getElementById('comment-list');
+            if(!container) return;
+            container.innerHTML = '';
+            const sortedKeys = Object.keys(comments).sort((a,b) => b.localeCompare(a));
+            if (sortedKeys.length === 0) {
+                container.innerHTML = '<p>還沒有人留言，快來搶頭香！</p>'; return;
+            }
+            sortedKeys.forEach(key => {
+                const comment = comments[key];
+                container.innerHTML += `
+                    <div class="comment">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(comment.name || 'V')}&background=random" alt="avatar" class="comment-avatar">
+                        <div class="comment-body">
+                            <span class="comment-author">${comment.name || '匿名'}</span>
+                            <p>${comment.text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+                        </div>
+                    </div>`;
+            });
+        }
+        
+        function toggleLike(articleId) {
+            let likedArticles = JSON.parse(localStorage.getItem('likedArticles') || '[]');
+            const likesRef = ref(db, `blogData/articles/${articleId}/likes`);
+            let isLiked = likedArticles.includes(articleId);
+
+            runTransaction(likesRef, (currentLikes) => {
+                if (isLiked) {
+                    // Unlike
+                    return (currentLikes || 1) - 1;
+                } else {
+                    // Like
+                    return (currentLikes || 0) + 1;
+                }
+            });
+
+            if (isLiked) {
+                likedArticles = likedArticles.filter(id => id !== articleId);
+            } else {
+                likedArticles.push(articleId);
+            }
+            localStorage.setItem('likedArticles', JSON.stringify(likedArticles));
+            
+            // Refresh views
+            loadInitialData().then(() => {
+                if (ui.articleView.classList.contains('active')) {
+                   renderArticle(articleId);
+                }
+            });
+        }
+        
+        async function postComment(e, articleId) {
+            e.preventDefault();
+            const nameInput = document.getElementById('comment-name');
+            const textInput = document.getElementById('comment-text');
+            const name = nameInput.value.trim();
+            const text = textInput.value.trim();
+            if (!text || !name) return;
+
+            const commentId = `comment_${Date.now()}`;
+            const commentRef = ref(db, `blogData/articles/${articleId}/comments/${commentId}`);
+            try {
+                await set(commentRef, { name, text });
+                nameInput.value = ''; textInput.value = '';
+                appState.articles[articleId].comments = appState.articles[articleId].comments || {};
+                appState.articles[articleId].comments[commentId] = { name, text };
+                renderComments(articleId, appState.articles[articleId].comments);
+            } catch (error) {
+                alert('留言失敗，請確認 Firebase 權限設定。');
+                console.error("Post comment failed:", error);
             }
         }
         
-        // --- Event Listeners ---
-        ui.themeToggle.onclick = actions.toggleTheme;
-        ui.siteTitle.onclick = actions.showHomePage;
-        ui.searchInput.oninput = (e) => render.articles(e.target.value);
-        ui.sortDisplayBtn.onclick = (e) => actions.toggleDropdown(e, ui.sortDropdown);
-        ui.catDisplayBtn.onclick = (e) => actions.toggleDropdown(e, ui.catDropdown);
-        document.body.onclick = () => { ui.catDropdown.classList.remove('active'); ui.sortDropdown.classList.remove('active'); };
-        ui.sortDropdown.onclick = (e) => e.stopPropagation();
-        ui.catDropdown.onclick = (e) => e.stopPropagation();
-        ui.newArticleBtn.onclick = () => actions.openEditor();
-        ui.exitEditBtn.onclick = () => { appState.isEditMode = false; render.editMode(); alert('已退出管理模式。'); };
-        ui.saveBtn.onclick = actions.saveArticle;
-        ui.cancelBtn.onclick = actions.closeEditor;
-        ui.deleteBtn.onclick = actions.deleteArticle;
-        ui.closeCatMgmtBtn.onclick = actions.closeCategoryManager;
-        ui.addCatForm.onsubmit = actions.addCategory;
-        
-        // [修改] 頁尾點擊觸發
-        let footerPressCount = 0;
-        let footerPressTimeout;
-        ui.footer.addEventListener('click', () => {
-            footerPressCount++;
-            clearTimeout(footerPressTimeout);
-            if (footerPressCount >= 5) {
-                actions.handleAdminLogin();
-                footerPressCount = 0;
-            } else {
-                footerPressTimeout = setTimeout(() => { footerPressCount = 0; }, 1000); // 1秒內重置
+        function shareArticle(id) {
+            const url = `${SITE_URL}#${id}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert("已複製文章連結！");
+            }).catch(err => {
+                alert("複製失敗，請手動複製連結。");
+            });
+        }
+
+        function openEditor(id = null) {
+            if (!easyMDE) {
+                easyMDE = new EasyMDE({ element: document.getElementById('editor-content'), spellChecker: false });
             }
+            if (id) {
+                const article = appState.articles[id];
+                ui.editorId.value = id;
+                ui.editorTitle.value = article.title;
+                ui.editorCategory.value = article.category;
+                ui.editorCoverImage.value = article.coverImage || '';
+                easyMDE.value(article.content || '');
+                ui.deleteBtn.style.display = 'block';
+            } else {
+                ui.editorId.value = '';
+                ui.editorTitle.value = '';
+                ui.editorCategory.value = '';
+                ui.editorCoverImage.value = '';
+                easyMDE.value('');
+                ui.deleteBtn.style.display = 'none';
+            }
+            ui.editorOverlay.classList.add('active');
+        }
+
+        async function saveArticle() {
+            const id = ui.editorId.value || `post_${Date.now()}`;
+            const isNew = !ui.editorId.value;
+            const articleData = {
+                title: ui.editorTitle.value,
+                date: new Date().toISOString(),
+                category: ui.editorCategory.value,
+                coverImage: ui.editorCoverImage.value,
+                content: easyMDE.value(),
+                views: isNew ? 0 : (appState.articles[id]?.views || 0),
+                likes: isNew ? 0 : (appState.articles[id]?.likes || 0),
+                comments: isNew ? {} : (appState.articles[id]?.comments || {})
+            };
+            const articleRef = ref(db, `blogData/articles/${id}`);
+            try {
+                await set(articleRef, articleData);
+                ui.editorOverlay.classList.remove('active');
+                await loadInitialData();
+                switchView('home-view');
+            } catch(error) {
+                 alert('儲存失敗！請確認 Firebase 寫入權限已設定。');
+                 console.error("Save article failed:", error);
+            }
+        }
+
+        async function deleteArticle() {
+            const id = ui.editorId.value;
+            if (!id || !confirm('確定要永久刪除這篇文章嗎？')) return;
+            const articleRef = ref(db, `blogData/articles/${id}`);
+            try {
+                await remove(articleRef);
+                ui.editorOverlay.classList.remove('active');
+                await loadInitialData();
+                switchView('home-view');
+            } catch(error) {
+                alert('刪除失敗！');
+            }
+        }
+        
+        function generateRSS() {
+            const articles = Object.entries(appState.articles).sort(([,a],[,b]) => new Date(b.date) - new Date(a.date));
+            let rssItems = '';
+            articles.forEach(([id, article]) => {
+                const url = `${SITE_URL}#${id}`;
+                rssItems += `
+            <item>
+                <title>${article.title.replace(/&/g, '&amp;')}</title>
+                <link>${url}</link>
+                <guid>${url}</guid>
+                <pubDate>${new Date(article.date).toUTCString()}</pubDate>
+                <description><![CDATA[${marked.parse(article.content || '').substring(0, 300)}...]]></description>
+            </item>`;
+            });
+
+            const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+    <title>Kai's Tech Log</title>
+    <link>${SITE_URL}</link>
+    <description>Kai 的技術與生活分享</description>
+    <language>zh-Hant</language>
+    ${rssItems}
+</channel>
+</rss>`;
+            const blob = new Blob([rssFeed], { type: 'application/xml' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'rss.xml';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        }
+
+        const switchView = (viewName) => {
+            const isActive = viewName === 'article-view';
+            ui.articleView.classList.toggle('active', isActive);
+            ui.homeView.classList.toggle('active', !isActive);
+            ui.topControls.style.display = isActive ? 'none' : 'flex';
+            ui.articleBottomNav.style.display = isActive ? 'flex' : 'none';
+            if (!isActive) window.history.pushState(null, '', ' '); // Clear hash
+            window.scrollTo(0,0);
+        };
+        
+        function renderSortOptions(){const o={newest:'最新',oldest:'最舊',popular:'熱門',views:'熱度'};ui.sortDropdown.innerHTML='';Object.entries(o).forEach(([k,v])=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentSort===k?'active':''}`;i.textContent=v;i.dataset.sort=k;ui.sortDropdown.appendChild(i)});ui.sortDisplayBtn.innerHTML=`排序: ${o[appState.currentSort]}`;ui.sortDropdown.onclick=e=>{if(e.target.dataset.sort){appState.currentSort=e.target.dataset.sort;filterAndSort(ui.searchInput.value);renderSortOptions();toggleDropdown(ui.sortDropdown)}}}
+        function renderCategories(){ui.catDropdown.innerHTML='';['All',...appState.allCategories].forEach(c=>{const i=document.createElement('div');i.className=`dropdown-item ${appState.currentFilter===c?'active':''}`;i.textContent=c==='All'?'全部文章':c;i.dataset.cat=c;ui.catDropdown.appendChild(i)});ui.catDisplayBtn.textContent=`分類: ${appState.currentFilter==='All'?'全部':appState.currentFilter}`;ui.catDropdown.onclick=e=>{if(e.target.dataset.cat){appState.currentFilter=e.target.dataset.cat;filterAndSort(ui.searchInput.value);renderCategories();toggleDropdown(ui.catDropdown)}}}
+        function renderBottomNav(id){const i=appState.sortedArticleIds.indexOf(id),p=i>0?appState.sortedArticleIds[i-1]:null,n=i<appState.sortedArticleIds.length-1?appState.sortedArticleIds[i+1]:null;ui.articleBottomNav.innerHTML=`<button class="btn prev-btn" data-id="${p}" ${p?'':'disabled'}>← 上篇</button><button class="btn back-btn">返回列表</button><button class="btn next-btn" data-id="${n}" ${n?'':'disabled'}>下篇 →</button>`;ui.articleBottomNav.onclick=e=>{const t=e.target;if(t.matches('.back-btn'))switchView('home-view');if(t.matches('.prev-btn:not([disabled])'))renderArticle(t.dataset.id);if(t.matches('.next-btn:not([disabled])'))renderArticle(t.dataset.id)}}
+        const toggleDropdown=d=>{const a=d.classList.contains('active');document.querySelectorAll('.control-dropdown.active').forEach(i=>i.classList.remove('active'));if(!a)d.classList.add('active')}
+
+        function setupEventListeners() {
+            ui.siteTitle.addEventListener('click', () => switchView('home-view'));
+            ui.newArticleBtn.addEventListener('click', () => openEditor());
+            ui.saveBtn.addEventListener('click', saveArticle);
+            ui.deleteBtn.addEventListener('click', deleteArticle);
+            ui.editorOverlay.addEventListener('click', e => { if (e.target.matches('.overlay, .modal-close-btn')) ui.editorOverlay.classList.remove('active'); });
+            ui.articleGrid.addEventListener('click', e => {
+                const card = e.target.closest('.article-card');
+                if (!card) return;
+                const id = card.dataset.id;
+                if (e.target.closest('.card-edit-btn')) { openEditor(id); }
+                else if (e.target.closest('.like-btn')) { toggleLike(id); }
+                else { window.location.hash = id; }
+            });
+            ui.searchInput.addEventListener('input', (e) => filterAndSort(e.target.value));
+            ui.sortDisplayBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(ui.sortDropdown); });
+            ui.catDisplayBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleDropdown(ui.catDropdown); });
+            ui.rssBtn.addEventListener('click', generateRSS);
+
+            let footerClickCount = 0, footerClickTimer = null;
+            ui.footer.addEventListener('click', (e) => {
+                if(e.target.id === 'rss-btn') return;
+                footerClickCount++;
+                clearTimeout(footerClickTimer);
+                footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 1000);
+                if (footerClickCount === 5) {
+                    footerClickCount = 0;
+                    const password = prompt("請輸入管理密碼：");
+                    if (password === "980621") {
+                        appState.isEditMode = !appState.isEditMode;
+                        ui.body.classList.toggle('edit-mode', appState.isEditMode);
+                        alert(appState.isEditMode ? "管理模式已啟用" : "已退出管理模式");
+                    } else if(password) {
+                        alert("密碼錯誤！");
+                    }
+                }
+            });
+
+            window.addEventListener('hashchange', () => {
+                const id = window.location.hash.substring(1);
+                if (id && appState.articles[id]) {
+                    renderArticle(id);
+                } else {
+                    switchView('home-view');
+                }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'dark') {
+                ui.body.classList.add('dark-mode');
+                ui.themeToggle.textContent = '🌙';
+            }
+            ui.themeToggle.addEventListener('click', () => {
+                const isDark = ui.body.classList.toggle('dark-mode');
+                ui.themeToggle.textContent = isDark ? '🌙' : '☀️';
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            });
+            ui.footer.querySelector('p').textContent = `© ${new Date().getFullYear()} Kai's Tech Log. (連續點擊此處進入管理模式)`;
+
+            setupEventListeners();
+            loadInitialData().then(() => {
+                const id = window.location.hash.substring(1);
+                if (id && appState.articles[id]) {
+                    renderArticle(id);
+                }
+            });
         });
-
-        // 當 hash 改變時也檢查一次 (例如手動輸入)
-        window.addEventListener('hashchange', checkAdminFromURL);
-
     </script>
 </body>
 </html>
