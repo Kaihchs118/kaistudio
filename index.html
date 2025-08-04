@@ -1,13 +1,13 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI's Tech Log - 🍎 最終實用版 ✨</title>
+    <title>KAI Studio✨</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
-
     <style>
         :root {
             --bg-color: #f9f9fb; --text-color: #1d1d1f; --primary-color: #0071e3;
@@ -16,7 +16,6 @@
             --code-bg: #f5f5f7; --code-color: #333; --danger-color: #ff3b30;
             --radius-large: 20px; --radius-medium: 15px; --radius-small: 10px;
             --glass-blur: 18px; --glass-light-bg-color: 255, 255, 255; --glass-light-opacity: 0.7;
-            /* [新增] 標籤顏色變數 */
             --tag-mac-color: #0071e3; --tag-windows-color: #d83b01;
             --tag-linux-color: #fca311; --tag-android-color: #3ddc84;
             --tag-default-color: #8e8e93;
@@ -27,7 +26,6 @@
             --border-color: #424245; --card-bg: #1c1c1e; --shadow-color: rgba(0, 0, 0, 0.3);
             --code-bg: #2c2c2e; --code-color: #f0f0f0;
             --glass-dark-bg-color: 28, 28, 30; --glass-dark-opacity: 0.75;
-             /* [新增] 深色模式標籤顏色 */
             --tag-mac-color: #2997ff; --tag-windows-color: #e85a19;
             --tag-linux-color: #ffb74d; --tag-android-color: #69f0ae;
             --tag-default-color: #98989d;
@@ -47,19 +45,49 @@
             background: rgba(var(--glass-dark-bg-color), var(--glass-dark-opacity)); border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .control-btn, .btn, #new-article-btn, .nav-btn {
-            border: none; padding: 9px 18px; border-radius: var(--radius-medium);
-            cursor: pointer; font-weight: 600; font-size: 0.9rem;
-            transition: transform 0.15s cubic-bezier(0.215, 0.610, 0.355, 1), box-shadow 0.2s ease;
+            border: none;
+            padding: 12px 28px;
+            border-radius: var(--radius-large);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: #fff;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            transition: background 0.3s, box-shadow 0.2s, transform 0.1s;
         }
-        .control-btn:hover, .btn:hover, #new-article-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); }
-        .control-btn:active, .btn:active, #new-article-btn:active { transform: translateY(-1px) scale(0.96); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); }
-        .btn-primary, #new-article-btn { 
-            background: linear-gradient(45deg, var(--accent-color), var(--primary-color)); color: white;
-            background-size: 150% 150%; animation: gradient-flow 3s ease infinite;
+        .btn:disabled, .control-btn:disabled, .nav-btn:disabled {
+            background: #ccc !important;
+            color: #888 !important;
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.7;
         }
-        @keyframes gradient-flow { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        .btn-danger { background-color: var(--danger-color); color: white; }
-        .btn-secondary { background-color: var(--secondary-color); color: white; }
+        .btn:hover:not(:disabled), .control-btn:hover:not(:disabled), .nav-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+            box-shadow: 0 6px 20px var(--shadow-color);
+            transform: translateY(-2px) scale(1.04);
+        }
+        .btn:active:not(:disabled), .control-btn:active:not(:disabled), .nav-btn:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+        #global-error {
+            display: none;
+            background: var(--danger-color);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: var(--radius-large);
+            margin: 20px auto;
+            max-width: 400px;
+            text-align: center;
+            font-weight: bold;
+            z-index: 9999;
+            position: fixed;
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
         #new-article-btn { display: none; }
         #exit-edit-btn-svg { display: none; width: 40px; height: 40px; cursor: pointer; }
         #exit-edit-btn-svg .circle { stroke: var(--success-color); stroke-width: 2.5; fill: transparent; transition: all 0.3s ease; }
@@ -114,7 +142,6 @@
         .article-header-image { width: 100%; aspect-ratio: 21 / 9; object-fit: cover; border-radius: var(--radius-large); margin-bottom: 30px; background-color: var(--border-color); }
         .article-title { font-size: 2.5rem; font-weight: 700; line-height: 1.3; margin-bottom: 15px; }
         .article-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
-        /* [升級] 智慧標籤樣式 */
         .tag {
             color: white; padding: 5px 12px; border-radius: var(--radius-small);
             font-size: 0.8rem; font-weight: 600; transition: transform 0.2s;
@@ -134,7 +161,6 @@
         .site-footer p { cursor: pointer; display: inline-block; transition: color 0.2s; font-weight: 500;}
         .site-footer p:hover { color: var(--primary-color); }
         body.edit-mode .site-footer p { cursor: not-allowed; opacity: 0.6; }
-        /* 其餘未變動的 CSS */
         .loader { width: 100%; max-width: 500px; margin: 40px auto; text-align: center; } .progress-bar { height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden; } .progress-bar-inner { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); transition: width 0.5s ease; } .loader p { margin-top: 15px; color: var(--secondary-color); font-weight: 500; } .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 8px 15px; align-items: center; } .article-content { font-size: 1.1rem; line-height: 1.8; } .article-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; display: none; justify-content: space-between; align-items: center; padding: 15px 5%; z-index: 200; } #editor-overlay, #cat-mgmt-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; } #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; } .editor-modal { height: 90vh; } .cat-mgmt-modal { max-height: 80vh; max-width: 500px; } .modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); font-size: 1.3rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--primary-color); } .modal-body { padding: 25px; overflow-y: auto; flex-grow: 1; } .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; } .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--radius-medium); border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); font-size: 1rem; } #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; flex-grow: 1; } .modal-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 10px; } .editor-modal-footer { justify-content: space-between; } #cat-mgmt-list { list-style: none; padding: 0; margin: 0; } #cat-mgmt-list li { display: flex; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--border-color); } #add-cat-form { display: flex; gap: 10px; margin-top: 20px; } #add-cat-form input { flex-grow: 1; padding: 10px; border-radius: var(--radius-medium); border: 1px solid var(--border-color); }
         @media (max-width: 768px) { .header-content { flex-direction: column; align-items: flex-start; } .controls { justify-content: flex-start; width: 100%; padding-top: 10px; } .article-title { font-size: 2rem; } #back-to-top { bottom: 20px; right: 20px; } }
     </style>
@@ -142,7 +168,7 @@
 <body>
     <header class="site-header">
         <div class="header-content">
-            <div id="site-title" class="site-title">✨ Kai's Tech Log</div>
+            <div id="site-title" class="site-title">✨ Kai Studio</div>
             <div class="header-controls-wrapper">
                 <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
                 <div class="theme-toggle" id="theme-toggle">☀️</div>
@@ -164,7 +190,7 @@
             </div>
         </div>
     </header>
-
+    <div id="global-error"></div>
     <main>
         <div id="home-view" class="view active">
             <div id="loader" class="loader">
@@ -175,10 +201,8 @@
         </div>
         <div id="article-view" class="view"></div>
     </main>
-    
     <nav id="article-bottom-nav" class="article-bottom-nav glassmorphism"></nav>
     <button id="back-to-top" title="返回頂部">🚀</button>
-
     <div id="editor-overlay">
         <div class="modal editor-modal">
             <div class="modal-header">
@@ -212,13 +236,10 @@
         </div>
     </div>
     <datalist id="category-list"></datalist>
-    
     <footer class="site-footer"><p>© 2025 Kai's Tech Log. (點我進入管理模式)</p></footer>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-
         const firebaseConfig = { 
             apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
             authDomain: "blog-63ad2.firebaseapp.com", 
@@ -228,14 +249,11 @@
             appId: "1:265914768921:web:e4c752780e604d0be69488", 
             databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
         };
-        
         let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All', currentSort: 'newest', sortedArticleIds: [] };
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const articlesRef = ref(db, 'blogData/articles');
         const categoriesRef = ref(db, 'blogData/categories');
-
         const ui = {
             body: document.body, header: document.querySelector('.site-header'),
             loader: document.getElementById('loader'), loaderText: document.getElementById('loader-text'), progressBarInner: document.getElementById('progress-bar-inner'),
@@ -254,8 +272,6 @@
             closeCatMgmtBtn: document.getElementById('close-cat-mgmt-btn'), addCatForm: document.getElementById('add-cat-form'), addCatInput: document.getElementById('add-cat-input'),
             footer: document.querySelector('.site-footer p'), backToTopBtn: document.getElementById('back-to-top'),
         };
-
-        // --- [升級] 智慧標籤顏色函式 ---
         function getTagColor(tagName) {
             const lowerCaseTag = tagName.toLowerCase();
             switch (lowerCaseTag) {
@@ -266,10 +282,13 @@
                 default: return 'var(--tag-default-color)';
             }
         }
-        
-        // --- [升級] 預設圖片 URL ---
         const DEFAULT_IMG_URL = 'https://via.placeholder.com/400x250/e0e0e0/cccccc?text=Image+Not+Found';
-
+        function showError(msg) {
+            const el = document.getElementById('global-error');
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 4000);
+        }
         async function loadInitialData() {
             ui.loader.style.display = 'block';
             ui.progressBarInner.style.width = '30%';
@@ -289,10 +308,10 @@
                 }, 500);
             } catch (error) {
                 console.error("Firebase data loading failed:", error);
+                showError('糟糕！載入失敗了。');
                 ui.loaderText.textContent = '糟糕！載入失敗了。';
             }
         }
-
         function filterAndSort(searchTerm = '') {
             let filtered = Object.entries(appState.articles);
             if (appState.currentFilter !== 'All') {
@@ -316,7 +335,6 @@
             appState.sortedArticleIds = filtered.map(([id]) => id);
             renderArticleGrid();
         }
-
         function renderArticleGrid() {
             ui.articleGrid.innerHTML = '';
             if (appState.sortedArticleIds.length === 0) {
@@ -340,7 +358,6 @@
                 ui.articleGrid.appendChild(card);
             });
         }
-        
         function renderArticle(id) {
             const article = appState.articles[id];
             if (!article) return;
@@ -363,18 +380,16 @@
             switchView('article-view');
             renderBottomNav(id);
         }
-
         function renderBottomNav(currentId) {
             const currentIndex = appState.sortedArticleIds.indexOf(currentId);
             const prevId = currentIndex > 0 ? appState.sortedArticleIds[currentIndex - 1] : null;
             const nextId = currentIndex < appState.sortedArticleIds.length - 1 ? appState.sortedArticleIds[currentIndex + 1] : null;
             ui.articleBottomNav.innerHTML = `
-                <button class="nav-btn prev-btn ${!prevId ? 'disabled' : ''}" data-id="${prevId}">← 上一篇</button>
+                <button class="nav-btn prev-btn ${!prevId ? 'disabled' : ''}" data-id="${prevId}" ${!prevId ? 'disabled' : ''}>← 上一篇</button>
                 <button class="nav-btn back-btn">返回列表</button>
-                <button class="nav-btn next-btn ${!nextId ? 'disabled' : ''}" data-id="${nextId}">下一篇 →</button>`;
+                <button class="nav-btn next-btn ${!nextId ? 'disabled' : ''}" data-id="${nextId}" ${!nextId ? 'disabled' : ''}>下一篇 →</button>`;
             ui.articleBottomNav.style.display = 'flex';
         }
-
         function renderCategories() {
             ui.catDropdown.innerHTML = '';
             ui.categoryDataList.innerHTML = '';
@@ -399,7 +414,6 @@
             });
             ui.catDisplayBtn.textContent = `分類: ${appState.currentFilter === 'All' ? '全部' : appState.currentFilter} ▼`;
         }
-
         function renderSortOptions() {
             const options = { newest: '最新', oldest: '最舊' };
             ui.sortDropdown.innerHTML = '';
@@ -411,20 +425,17 @@
             });
             ui.sortDisplayBtn.textContent = `排序: ${options[appState.currentSort]} ▼`;
         }
-
         function switchView(viewName) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById(viewName).classList.add('active');
             window.scrollTo(0, 0);
             ui.articleBottomNav.style.display = viewName === 'article-view' ? 'flex' : 'none';
         }
-
         function toggleDropdown(dropdown) {
             const isActive = dropdown.classList.contains('active');
             document.querySelectorAll('.control-dropdown').forEach(d => d.classList.remove('active'));
             if (!isActive) dropdown.classList.add('active');
         }
-        
         function openEditor(articleId = null) {
             if (articleId) {
                 const article = appState.articles[articleId];
@@ -441,8 +452,9 @@
             }
             ui.editorOverlay.classList.add('active');
         }
-
         async function saveArticle() {
+            ui.saveBtn.disabled = true;
+            ui.saveBtn.textContent = '儲存中...';
             const id = ui.editorId.value || `post_${new Date().getTime()}`;
             const [title, ...bodyParts] = ui.editorContent.value.split('\n');
             const body = bodyParts.join('\n').trim();
@@ -452,7 +464,10 @@
                 category: ui.editorCategory.value, coverImage: ui.editorCoverImage.value, tags: tags
             };
             if (!articleData.title || !articleData.date || !articleData.category) {
-                alert('標題、日期和分類都是必填的喔！'); return;
+                showError('標題、日期和分類都是必填的喔！');
+                ui.saveBtn.disabled = false;
+                ui.saveBtn.textContent = '儲存';
+                return;
             }
             try {
                 await set(ref(db, `blogData/articles/${id}`), articleData);
@@ -465,10 +480,17 @@
                 alert('儲存成功！🎉');
                 ui.editorOverlay.classList.remove('active');
                 filterAndSort();
-            } catch (error) { console.error("Save failed: ", error); alert('糟糕，儲存失敗了！'); }
+            } catch (error) {
+                showError('儲存失敗，請檢查網路或 Firebase 權限！');
+                handleAdminToggle();
+            } finally {
+                ui.saveBtn.disabled = false;
+                ui.saveBtn.textContent = '儲存';
+            }
         }
-
         async function deleteArticle() {
+            ui.deleteBtn.disabled = true;
+            ui.deleteBtn.textContent = '刪除中...';
             const id = ui.editorId.value;
             if (id && confirm('真的要刪除這篇文章嗎？刪掉就沒囉！')) {
                 try {
@@ -477,10 +499,18 @@
                     alert('文章已成功刪除。');
                     ui.editorOverlay.classList.remove('active');
                     filterAndSort();
-                } catch(error) { console.error("Delete failed: ", error); alert('刪除失敗了！'); }
+                } catch(error) {
+                    showError('刪除失敗，請檢查網路或 Firebase 權限！');
+                    handleAdminToggle();
+                } finally {
+                    ui.deleteBtn.disabled = false;
+                    ui.deleteBtn.textContent = '刪除';
+                }
+            } else {
+                ui.deleteBtn.disabled = false;
+                ui.deleteBtn.textContent = '刪除';
             }
         }
-        
         function openCatMgmt() {
             ui.catMgmtList.innerHTML = '';
             appState.allCategories.forEach(cat => {
@@ -490,7 +520,6 @@
             });
             ui.catMgmtOverlay.classList.add('active');
         }
-
         async function addCategory(e) {
             e.preventDefault();
             const newCat = ui.addCatInput.value.trim();
@@ -499,10 +528,9 @@
                 try {
                     await set(categoriesRef, appState.allCategories);
                     ui.addCatInput.value = ''; openCatMgmt(); renderCategories();
-                } catch(error) { alert('新增分類失敗！'); appState.allCategories.pop(); }
+                } catch(error) { showError('新增分類失敗！'); appState.allCategories.pop(); }
             }
         }
-
         async function deleteCategory(catName) {
             if (confirm(`確定要刪除分類 "${catName}" 嗎？`)) {
                 const originalCategories = [...appState.allCategories];
@@ -510,10 +538,9 @@
                 try {
                     await set(categoriesRef, appState.allCategories);
                     openCatMgmt(); renderCategories();
-                } catch(error) { alert('刪除分類失敗！'); appState.allCategories = originalCategories; }
+                } catch(error) { showError('刪除分類失敗！'); appState.allCategories = originalCategories; }
             }
         }
-
         function handleAdminToggle() {
             appState.isEditMode = !appState.isEditMode;
             ui.body.classList.toggle('edit-mode', appState.isEditMode);
@@ -527,21 +554,19 @@
             renderCategories();
             renderArticleGrid();
         }
-
         function setupEventListeners() {
             ui.footer.addEventListener('click', () => {
                 if (appState.isEditMode) return;
                 const password = prompt("請輸入管理密碼：");
                 if (password === "980621") {
                     alert('密碼正確！歡迎進入管理模式。'); handleAdminToggle();
-                } else if (password !== null) { alert("密碼錯誤！"); }
+                } else if (password !== null) { showError("密碼錯誤！"); }
             });
             ui.exitEditBtnSvg.addEventListener('click', () => {
                 if (!appState.isEditMode) return;
                 handleAdminToggle();
                  setTimeout(() => { alert('已退出管理模式。'); }, 500);
             });
-
             let lastScrollY = window.scrollY;
             window.addEventListener('scroll', () => {
                 const isScrollingDown = window.scrollY > lastScrollY;
@@ -553,7 +578,6 @@
                 lastScrollY = window.scrollY;
                 ui.backToTopBtn.classList.toggle('show', window.scrollY > 300);
             });
-
             ui.backToTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
             ui.siteTitle.addEventListener('click', () => switchView('home-view'));
             ui.themeToggle.addEventListener('click', () => {
@@ -605,7 +629,6 @@
                 if (e.target.matches('.next-btn:not(.disabled)')) renderArticle(e.target.dataset.id);
             });
         }
-
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('theme') === 'dark') {
                 ui.body.classList.add('dark-mode');
