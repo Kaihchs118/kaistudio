@@ -4,342 +4,405 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KAI's Tech Log - 🚀 Pro Version</title>
-
-    <!-- Libs: Toast UI Editor for a modern writing experience -->
+    
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 
     <style>
         :root {
-            --primary-color: #007aff; --accent-color: #ff9500; --danger-color: #ff3b30; --success-color: #34c759;
-            --bg-color: #f0f2f5; --card-bg: #ffffff; --text-color: #1d1d1f; --secondary-text: #6c757d;
-            --border-color: #dee2e6; --shadow: 0 4px 15px rgba(0, 0, 0, 0.07); --radius: 12px;
+            --bg-color: #ffffff; --text-color: #1a1a1a; --primary-color: #007aff; --accent-color: #ff9500;
+            --secondary-color: #6e6e73; --border-color: #e5e5ea; --card-bg: #ffffff; --shadow-color: rgba(0, 0, 0, 0.05);
+            --danger-color: #ff3b30; --success-color: #34c759;
+            --radius-md: 12px; --radius-lg: 16px;
         }
         body.dark-mode {
-            --bg-color: #000000; --card-bg: #1c1c1e; --text-color: #f5f5f7; --secondary-text: #8d8d93;
-            --border-color: #3a3a3c; --shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+            --bg-color: #121212; --text-color: #e0e0e0; --border-color: #333333; --card-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.2); --secondary-color: #98989d;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; }
-        main { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
-        /* --- Header --- */
-        .site-header { position: sticky; top: 0; z-index: 100; background-color: rgba(var(--bg-color), 0.8); backdrop-filter: blur(10px); padding: 10px 15px; border-bottom: 1px solid var(--border-color); }
-        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; gap: 15px; }
-        .site-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); cursor: pointer; }
-        .controls { display: flex; align-items: center; gap: 10px; }
-        .btn { border: none; padding: 8px 16px; border-radius: var(--radius); cursor: pointer; font-weight: 600; background: var(--primary-color); color: #fff; transition: all 0.2s; }
-        .search-input { padding: 8px 12px; border-radius: var(--radius); border: 1px solid var(--border-color); background-color: var(--bg-color); }
-        /* --- Article Grid --- */
-        .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-        .article-card { background: var(--card-bg); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: all 0.2s ease-out; }
-        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .card-cover { width: 100%; height: 200px; object-fit: cover; background-color: var(--border-color);}
-        .card-content { padding: 15px; }
-        .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; }
-        .tag { color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
-        /* --- Article View --- */
-        .article-container { max-width: 720px; margin: 0 auto; background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); }
-        .article-header-image { width: 100%; max-height: 450px; object-fit: cover; border-radius: var(--radius); margin-bottom: 25px; }
-        .article-title { font-size: 2.4rem; line-height: 1.2; margin-bottom: 15px; }
-        .article-meta-info { display: flex; align-items: center; flex-wrap: wrap; gap: 5px 15px; color: var(--secondary-text); font-size: 0.9rem; margin-bottom: 25px; }
-        .article-meta-info div { display: flex; align-items: center; gap: 5px; }
-        .article-content { font-size: 1.1rem; line-height: 1.8; }
-        .article-content img { max-width: 100%; border-radius: var(--radius); }
-        #scroll-progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--primary-color); width: 0%; z-index: 200; transition: width 0.1s; }
-        /* --- Article Bottom Nav --- */
-        .article-bottom-nav { position: sticky; bottom: 0; background: rgba(var(--card-bg), 0.85); backdrop-filter: blur(10px); display: flex; justify-content: space-between; padding: 10px 15px; border-top: 1px solid var(--border-color); margin-top:30px; }
-        /* --- Comments (YouTube Style) --- */
-        .comment-section { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); }
-        .comment-header { font-size: 1.2rem; margin-bottom: 20px; }
-        .comment-form-container { display: flex; gap: 10px; align-items: flex-start; }
-        .comment-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-color); color: white; display: grid; place-items: center; font-weight: 600; flex-shrink: 0; }
-        .comment-input-area { width: 100%; }
-        .comment-input { width: 100%; border: none; background: transparent; border-bottom: 2px solid var(--border-color); padding: 5px 0; margin-bottom: 10px; font-size: 1rem; }
-        .comment { display: flex; gap: 15px; margin-top: 20px; }
-        .comment-content .author { font-weight: 600; }
-        .comment-content .timestamp { font-size: 0.8rem; color: var(--secondary-text); margin-left: 8px; }
-        /* --- Management Modal --- */
-        #mgmt-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .mgmt-modal { width: 95%; max-width: 600px; height: 80vh; background: var(--card-bg); border-radius: var(--radius); display: flex; flex-direction: column; }
-        .mgmt-header { padding: 15px; display: flex; border-bottom: 1px solid var(--border-color); }
-        .mgmt-header .tab { padding: 8px 15px; cursor: pointer; border-bottom: 3px solid transparent; }
-        .mgmt-header .tab.active { border-bottom-color: var(--primary-color); font-weight: 600; }
-        .mgmt-body { flex-grow: 1; padding: 15px; overflow-y: auto; }
-        .mgmt-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
-        .mgmt-item .color-dot { width: 20px; height: 20px; border-radius: 50%; }
-        /* Like button SVG */
-        .like-icon { cursor: pointer; width: 24px; height: 24px; }
-        .like-icon path { transition: all 0.2s; }
-        .like-icon.unliked path { fill: none; stroke: var(--secondary-text); stroke-width: 2; }
-        .like-icon.liked path { fill: var(--danger-color); stroke: var(--danger-color); stroke-width: 2; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif; background: var(--bg-color); color: var(--text-color); transition: background 0.3s, color 0.3s; line-height: 1.6; }
+        
+        /* Layout & Header */
+        #scroll-progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--primary-color); width: 0%; z-index: 1001; transition: width 0.1s; }
+        .site-header { padding: 15px 5%; border-bottom: 1px solid var(--border-color); background: rgba(var(--bg-color),0.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
+        .header-content { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
+        .site-title { font-weight: 700; font-size: 1.5rem; cursor: pointer; color: var(--primary-color); }
+        main { padding: 40px 5%; max-width: 1200px; margin: auto; }
+        .view { display: none; } .view.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Buttons & Controls */
+        .btn { border: none; padding: 10px 20px; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; background: var(--primary-color); color: white; transition: all 0.2s; }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); opacity: 0.9; }
+        .btn.secondary { background: var(--secondary-color); } .btn.danger { background: var(--danger-color); }
+        #new-article-btn, #manage-btn { display: none; }
+        body.edit-mode #new-article-btn, body.edit-mode #manage-btn { display: inline-block; }
+
+        /* Article Grid & Cards */
+        .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
+        .article-card { background: var(--card-bg); border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 5px 25px var(--shadow-color); transition: all 0.3s; position: relative; border: 1px solid var(--border-color); cursor: pointer; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 10px 35px var(--shadow-color); }
+        .card-cover { width: 100%; height: 200px; object-fit: cover; }
+        .card-content { padding: 20px; } .card-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 10px; }
+        .card-tags .tag { padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; color: white; }
+        body.edit-mode .card-edit-btn { display: block; } .card-edit-btn { display:none; position:absolute; top:15px; right:15px; z-index:5; background:var(--accent-color); padding: 5px 10px;}
+
+        /* Article View */
+        .article-container { max-width: 720px; margin: auto; }
+        .article-title { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.2; margin: 20px 0; }
+        .article-header-image { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: var(--radius-lg); margin-bottom: 20px; }
+        .article-meta { display: flex; align-items: center; gap: 15px; color: var(--secondary-color); font-size: 0.9rem; flex-wrap: wrap; padding-bottom: 15px; border-bottom: 1px solid var(--border-color); }
+        .article-content { margin-top: 30px; font-size: clamp(1rem, 1.5vw, 1.1rem); line-height: 1.8; }
+        .author-info { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .author-avatar { width: 24px; height: 24px; border-radius: 50%; background: var(--border-color); }
+        .article-stats { display:flex; align-items: center; gap: 15px; }
+        .like-action { cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .like-icon { width: 24px; height: 24px; stroke: var(--text-color); fill: none; stroke-width: 2; transition: all 0.2s; }
+        .like-icon.liked { stroke: var(--danger-color); fill: var(--danger-color); transform: scale(1.1); }
+
+        /* Comment Section */
+        #comment-section { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        #comment-form { display: grid; gap: 10px; margin-bottom: 30px; }
+        #comment-form textarea, #comment-form input { padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-color); }
+        .comment { display: flex; gap: 15px; margin-bottom: 20px; }
+        .comment-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--secondary-color); flex-shrink: 0; }
+        .comment-body { flex-grow: 1; }
+        .comment-author { font-weight: 600; } .comment-date { font-size: 0.8rem; color: var(--secondary-color); }
+
+        /* Modals */
+        #editor-overlay, #management-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1001; }
+        .modal { width: 95%; max-width: 1100px; height: 90vh; background: var(--bg-color); border-radius: var(--radius-lg); display: flex; flex-direction: column; }
+        .modal-header { padding: 15px; border-bottom: 1px solid var(--border-color); display:flex; justify-content: space-between; align-items:center; }
+        .modal-body { flex-grow: 1; overflow-y: auto; padding: 20px; }
+        .modal-footer { padding: 15px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; }
+        .toastui-editor-defaultUI { border: 0 !important; }
+        
+        /* Management Modal */
+        .mgmt-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
+        .mgmt-tab { padding: 10px 20px; cursor: pointer; }
+        .mgmt-tab.active { border-bottom: 2px solid var(--primary-color); font-weight: 600; }
+        .mgmt-content { display: none; } .mgmt-content.active { display: block; }
+        .mgmt-list { list-style: none; }
+        .mgmt-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid var(--border-color); }
+        
+        /* Bottom Nav */
+        #article-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; padding: 15px 5%; display: none; justify-content: space-between; background: rgba(var(--bg-color), 0.8); backdrop-filter: blur(10px); z-index: 999; }
+        
         @media (max-width: 768px) {
-            .header-content { flex-direction: column; align-items: stretch; gap: 8px; }
-            .article-title { font-size: 1.8rem; }
-            .article-container { padding: 15px; }
+            .header-content { flex-direction: column; align-items: stretch; }
+            .controls { flex-direction:column; align-items:stretch; gap: 8px;}
         }
+
     </style>
 </head>
 <body>
+
     <div id="scroll-progress-bar"></div>
+
+    <svg width="0" height="0" style="position:absolute">
+      <symbol id="icon-heart" viewBox="0 0 24 24">
+        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+      </symbol>
+    </svg>
+
     <header class="site-header">
         <div class="header-content">
-            <h1 id="site-title" class="site-title">🚀 Kai's Tech Log</h1>
+            <div id="site-title" class="site-title">🚀 Kai's Tech Log</div>
             <div class="controls">
-                <input type="search" id="search-input" class="search-input" placeholder="搜尋文章...">
-                <button id="theme-toggle" class="btn">🌙</button>
-                <button id="manage-btn" class="btn" style="display:none;">⚙️ 管理</button>
-                <button id="new-article-btn" class="btn" style="display:none;">+ 新增</button>
+                <button id="manage-btn" class="btn secondary">🔧 管理中心</button>
+                <button id="new-article-btn" class="btn">+ 新增文章</button>
             </div>
         </div>
     </header>
+    
     <main>
         <div id="home-view" class="view active">
-            <div id="article-grid"></div>
+            <div id="article-grid" class="article-grid"></div>
         </div>
         <div id="article-view" class="view"></div>
     </main>
-
-    <!-- Editor Modal -->
-    <div id="editor-overlay" style="display:none;"> <!-- Hidden by default --> </div>
-    <!-- Site Management Modal (for Tags and Categories) -->
-    <div id="mgmt-overlay">
-        <div class="mgmt-modal">
-            <div class="mgmt-header">
-                <div class="tab active" data-tab="categories">分類管理</div>
-                <div class="tab" data-tab="tags">標籤管理</div>
-                <button id="close-mgmt-btn" style="margin-left:auto;">✖</button>
+    
+    <nav id="article-bottom-nav">
+        <button id="prev-article" class="btn secondary">← 上一篇</button>
+        <button id="back-to-list" class="btn">返回列表</button>
+        <button id="next-article" class="btn secondary">下一篇 →</button>
+    </nav>
+    
+    <div id="editor-overlay">
+        <div class="modal">
+            <div class="modal-body" style="padding:0;"><div id="editor-container"></div></div>
+            <div class="modal-footer">
+                <button id="delete-btn" class="btn danger">刪除文章</button>
+                <div><button id="cancel-btn" class="btn secondary">取消</button><button id="save-btn" class="btn">儲存</button></div>
             </div>
-            <div id="mgmt-body-categories" class="mgmt-body"></div>
-            <div id="mgmt-body-tags" class="mgmt-body" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div id="management-overlay">
+        <div class="modal" style="height:auto; max-height:80vh;">
+            <div class="modal-header">
+                <h2>管理中心</h2>
+                <button id="close-mgmt-btn" class="btn secondary" style="padding:5px 10px;">×</button>
+            </div>
+            <div class="mgmt-tabs">
+                <div class="mgmt-tab active" data-tab="categories">分類</div>
+                <div class="mgmt-tab" data-tab="tags">標籤</div>
+            </div>
+            <div class="modal-body">
+                <div id="mgmt-categories" class="mgmt-content active">
+                    <ul id="cat-mgmt-list" class="mgmt-list"></ul>
+                </div>
+                <div id="mgmt-tags" class="mgmt-content">
+                     <ul id="tag-mgmt-list" class="mgmt-list"></ul>
+                </div>
+            </div>
         </div>
     </div>
     
+    <footer style="text-align:center; padding:30px;"><p id="admin-login" style="cursor:pointer;">© 2025 Kai's Tech Log</p></footer>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, set, get, remove, update, increment } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
-        // --- Firebase Config ---
-        const firebaseConfig = { /* Your Config Here */ };
+        // Firebase Config - REMEMBER TO SET YOUR SECURITY RULES
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y",
+            authDomain: "blog-63ad2.firebaseapp.com", projectId: "blog-63ad2", 
+            storageBucket: "blog-63ad2.appspot.com", messagingSenderId: "265914768921", 
+            appId: "1:265914768921:web:e4c752780e604d0be69488", databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
+        };
 
-        // --- Init ---
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        let appState = { articles: {}, categories: [], tags: [], isEditMode: false };
+
+        let appState = { articles: {}, allCategories: [], tagStyles: {}, isEditMode: false, currentArticleId: null, sortedIds: [] };
         let editor;
 
-        // --- UI Elements ---
-        const ui = Object.fromEntries(['scroll-progress-bar', 'site-title', 'search-input', 'theme-toggle', 'manage-btn', 'new-article-btn', 'home-view', 'article-grid', 'article-view', 'editor-overlay', 'mgmt-overlay', 'close-mgmt-btn'].map(id => [id.replace(/-(\w)/g, (m, g) => g.toUpperCase()), document.getElementById(id)]));
-
-        // --- Helper Functions ---
-        const showError = msg => { alert(msg); console.error(msg); };
-        const calculateReadingTime = text => `${Math.ceil((text || "").split(/\s+/).length / 200)} 分鐘`;
-
-        // --- Core Application ---
-        async function loadData() {
-            try {
-                const [articlesSnap, catsSnap, tagsSnap] = await Promise.all([
-                    get(ref(db, 'articles')), get(ref(db, 'categories')), get(ref(db, 'tags'))
-                ]);
-                appState.articles = articlesSnap.val() || {};
-                appState.categories = catsSnap.val() || [];
-                appState.tags = tagsSnap.val() || [];
-                renderArticleGrid();
-            } catch (err) { showError('資料載入失敗: ' + err.message); }
-        }
+        const ui = {
+            body: document.body, progressBar: document.getElementById('scroll-progress-bar'),
+            siteTitle: document.getElementById('site-title'), homeView: document.getElementById('home-view'),
+            articleView: document.getElementById('article-view'), articleGrid: document.getElementById('article-grid'),
+            newArticleBtn: document.getElementById('new-article-btn'), manageBtn: document.getElementById('manage-btn'),
+            editorOverlay: document.getElementById('editor-overlay'), editorContainer: document.getElementById('editor-container'),
+            saveBtn: document.getElementById('save-btn'), cancelBtn: document.getElementById('cancel-btn'), deleteBtn: document.getElementById('delete-btn'),
+            managementOverlay: document.getElementById('management-overlay'), closeMgmtBtn: document.getElementById('close-mgmt-btn'),
+            adminLogin: document.getElementById('admin-login'), bottomNav: document.getElementById('article-bottom-nav'),
+            prevBtn: document.getElementById('prev-article'), nextBtn: document.getElementById('next-article'), backToListBtn: document.getElementById('back-to-list')
+        };
         
-        function renderArticleGrid(filter = '') {
-            const term = filter.toLowerCase();
-            const filteredArticles = Object.entries(appState.articles).filter(([,a]) => (a.title + (a.content||'') + (a.tags||[]).join('')).toLowerCase().includes(term));
-            
-            ui.articleGrid.innerHTML = filteredArticles.sort(([,a],[,b]) => new Date(b.date) - new Date(a.date)).map(([id, article]) => {
-                const tagsHtml = (article.tags || []).map(tagName => {
-                    const tag = appState.tags.find(t => t.name === tagName);
-                    return `<span class="tag" style="background-color:${tag?.color || '#6c757d'}">${tagName}</span>`;
-                }).join('');
+        // --- HELPERS ---
+        const ensureArray = data => Array.isArray(data) ? data : (typeof data === 'string' && data ? data.split(',').map(t=>t.trim()) : []);
+        const calculateReadingTime = content => Math.ceil((content || '').split(' ').length / 200);
+        function getTagColor(tag, styles) {
+            if (styles[tag]) return styles[tag];
+            let hash = 0; for (let i = 0; i < tag.length; i++) hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+            return `hsl(${hash % 360}, 70%, 40%)`;
+        }
+
+        // --- CORE LOGIC ---
+        async function loadInitialData() {
+            try {
+                const [articlesSnap, catSnap, tagStyleSnap] = await Promise.all([
+                    get(ref(db, 'blogData/articles')), get(ref(db, 'blogData/categories')), get(ref(db, 'blogData/tagStyles'))
+                ]);
+                appState.articles = articlesSnap.exists() ? articlesSnap.val() : {};
+                appState.allCategories = catSnap.exists() ? ensureArray(catSnap.val()) : [];
+                appState.tagStyles = tagStyleSnap.exists() ? tagStyleSnap.val() : {};
+                renderArticleGrid();
+            } catch (error) { console.error("Data loading failed:", error); }
+        }
+
+        function renderArticleGrid() {
+            appState.sortedIds = Object.keys(appState.articles).sort((a,b) => new Date(appState.articles[b].date) - new Date(appState.articles[a].date));
+            ui.articleGrid.innerHTML = appState.sortedIds.map(id => {
+                const article = appState.articles[id];
+                const tagsHtml = ensureArray(article.tags).map(tag => `<span class="tag" style="background-color: ${getTagColor(tag, appState.tagStyles)};">${tag}</span>`).join('');
                 return `
-                <article class="article-card" data-id="${id}">
+                <div class="article-card" data-id="${id}">
                     <img src="${article.coverImage || ''}" class="card-cover" onerror="this.style.display='none'">
                     <div class="card-content">
                         <h3 class="card-title">${article.title}</h3>
-                        <div class="tags">${tagsHtml}</div>
+                        <div class="card-tags">${tagsHtml}</div>
                     </div>
-                </article>`;
-            }).join('') || '<p>沒有文章</p>';
+                    <button class="card-edit-btn btn btn-sm" data-id="${id}">✏️</button>
+                </div>`;
+            }).join('');
         }
-        
-        async function renderArticleView(id) {
+
+        async function renderArticle(id) {
+            appState.currentArticleId = id;
             const article = appState.articles[id];
             if (!article) return;
-            
-            // Increment View Count
+
             if (!sessionStorage.getItem(`viewed_${id}`)) {
-                await update(ref(db, `articles/${id}`), { viewCount: increment(1) });
-                article.viewCount = (article.viewCount || 0) + 1;
                 sessionStorage.setItem(`viewed_${id}`, 'true');
+                await set(ref(db, `blogData/articles/${id}/viewCount`), increment(1));
+                if(article) article.viewCount = (article.viewCount || 0) + 1;
             }
-            
-            const likeIconSvg = (isLiked) => `
-                <svg class="like-icon ${isLiked ? 'liked' : 'unliked'}" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
-            
+
+            const readingTime = calculateReadingTime(article.content);
+            const likesCount = article.likes ? Object.keys(article.likes).length : 0;
+            const userLiked = localStorage.getItem(`liked_${id}`);
+
             ui.articleView.innerHTML = `
-                <article class="article-container">
-                    <img src="${article.coverImage || ''}" class="article-header-image" onerror="this.style.display='none'">
+                <div class="article-container">
                     <h1 class="article-title">${article.title}</h1>
-                    <div class="article-meta-info">
-                        <div>👤 Kai</div>
-                        <div>📅 ${article.date}</div>
-                        <div>⏳ ${calculateReadingTime(article.content)}</div>
-                        <div>👁️ ${article.viewCount || 1}</div>
-                        <div id="like-container" data-id="${id}">${likeIconSvg(false)}<span id="like-count">0</span></div>
+                    <div class="article-meta">
+                        <div class="author-info"><div class="author-avatar"></div><span>Kai</span></div>
+                        <span>${new Date(article.date).toLocaleDateString()}</span>
+                        <span>${readingTime} min read</span>
+                    </div>
+                    <img src="${article.coverImage}" class="article-header-image" onerror="this.style.display='none'">
+                    <div class="article-stats">
+                        <div class="like-action" data-id="${id}">
+                            <svg class="like-icon ${userLiked ? 'liked' : ''}"_><use href="#icon-heart"></use></svg>
+                            <span>${likesCount}</span>
+                        </div>
+                        <span>👁️ ${article.viewCount || 1}</span>
                     </div>
                     <div class="article-content">${marked.parse(article.content || '')}</div>
-                </article>
-                <nav class="article-bottom-nav"><button id="back-btn" class="btn">返回列表</button></nav>
-                <div class="comment-section">
-                     <h3 class="comment-header"><span id="comment-count">0</span> 則留言</h3>
-                     <div class="comment-form-container">
-                        <div class="comment-avatar">我</div>
-                        <div class="comment-input-area">
-                           <form id="comment-form" data-id="${id}">
-                              <input id="comment-author-input" type="hidden" value="我">
-                              <input id="comment-text-input" class="comment-input" placeholder="新增留言..." required>
-                              <div style="text-align:right;"><button type="submit" class="btn">留言</button></div>
-                           </form>
-                        </div>
-                     </div>
-                     <div id="comment-list"></div>
+                    <div id="comment-section">...</div>
                 </div>`;
             
-            ui.homeView.classList.remove('active');
-            ui.articleView.classList.add('active');
-            window.scrollTo(0,0);
-            updateLikeAndCommentView(id); // Initial load
+            if (window.hljs) ui.articleView.querySelectorAll('pre code').forEach(hljs.highlightBlock);
+            switchView('article-view');
+            updateBottomNav();
         }
 
-        async function updateLikeAndCommentView(id) {
-            // Likes
-            const likesSnap = await get(ref(db, `likes/${id}`));
-            const likes = likesSnap.val() || {};
-            const userKey = localStorage.getItem('userKey');
-            const isLiked = userKey && likes[userKey];
-            document.getElementById('like-container').innerHTML = `${document.querySelector('.like-icon').outerHTML.replace(/class="[^"]*"/, `class="like-icon ${isLiked ? 'liked' : 'unliked'}"`)} <span id="like-count">${Object.keys(likes).length}</span>`;
-
-            // Comments
-            const commentsSnap = await get(ref(db, `comments/${id}`));
-            const comments = commentsSnap.val() || {};
-            document.getElementById('comment-count').textContent = Object.keys(comments).length;
-            document.getElementById('comment-list').innerHTML = Object.values(comments).sort((a,b)=>b.timestamp-a.timestamp).map(c=>`
-            <div class="comment">
-                <div class="comment-avatar">${(c.author || 'A')[0]}</div>
-                <div class="comment-content">
-                    <span class="author">${c.author}</span><span class="timestamp">${new Date(c.timestamp).toLocaleString()}</span>
-                    <p>${c.text}</p>
-                </div>
-            </div>`).join('');
+        // --- UI & VIEW MANAGEMENT ---
+        function switchView(viewName) {
+            ui.homeView.classList.toggle('active', viewName === 'home-view');
+            ui.articleView.classList.toggle('active', viewName === 'article-view');
+            ui.bottomNav.style.display = viewName === 'article-view' ? 'flex' : 'none';
         }
-        
-        async function openEditor(id = null) {
+
+        function updateBottomNav() {
+            const currentIndex = appState.sortedIds.indexOf(appState.currentArticleId);
+            ui.prevBtn.disabled = currentIndex <= 0;
+            ui.nextBtn.disabled = currentIndex >= appState.sortedIds.length - 1;
+            ui.prevBtn.dataset.id = appState.sortedIds[currentIndex - 1];
+            ui.nextBtn.dataset.id = appState.sortedIds[currentIndex + 1];
+        }
+
+        function openEditor(id = null) {
             const article = id ? appState.articles[id] : {};
-            ui.editorOverlay.innerHTML = `
-                <div class="modal">
-                    <input type="hidden" id="editor-id" value="${id || ''}">
-                    <input id="editor-title" value="${article.title || ''}" placeholder="標題">
-                    <input id="editor-date" type="date" value="${article.date || new Date().toISOString().slice(0,10)}">
-                    <!-- ... inputs for category, cover, tags ... -->
-                    <div id="editor-container" style="flex-grow:1;"></div>
-                    <button id="save-btn">儲存</button> <button id="delete-btn" style="${id ? '' : 'display:none;'}">刪除</button>
-                </div>`;
+            if (!editor) {
+                editor = new toastui.Editor({
+                    el: ui.editorContainer, height: '100%', initialEditType: 'markdown', previewStyle: 'vertical'
+                });
+            }
+            const content = id ? `# ${article.title || ''}\n\n${article.content || ''}` : '';
+            editor.setMarkdown(content);
+            ui.deleteBtn.dataset.id = id;
+            ui.deleteBtn.style.display = id ? 'block' : 'none';
             ui.editorOverlay.style.display = 'flex';
-            
-            editor = new toastui.Editor({
-                el: document.getElementById('editor-container'), initialEditType: 'markdown', previewStyle: 'vertical',
-                initialValue: article.content || ''
-            });
         }
-        
+
+        // --- DATA MUTATIONS (SAVE, DELETE, LIKE) ---
         async function saveArticle() {
-            const id = document.getElementById('editor-id').value || `post_${Date.now()}`;
-            const articleData = {
-                title: document.getElementById('editor-title').value,
-                date: document.getElementById('editor-date').value,
-                content: editor.getMarkdown()
-            };
-            await set(ref(db, `articles/${id}`), articleData);
+            const id = ui.deleteBtn.dataset.id || `post_${Date.now()}`;
+            const [titleLine, ...contentParts] = editor.getMarkdown().split('\n');
+            const title = titleLine.startsWith('# ') ? titleLine.substring(2) : titleLine;
+            const content = contentParts.join('\n').trim();
+            // This is a simplified data extraction. For a real app, you'd have dedicated input fields.
+            const articleData = { ...appState.articles[id], title, content, date: (appState.articles[id]?.date || new Date().toISOString().split('T')[0]) };
+            await set(ref(db, `blogData/articles/${id}`), articleData);
+            appState.articles[id] = articleData;
             ui.editorOverlay.style.display = 'none';
-            loadData();
+            loadInitialData();
         }
 
-        async function deleteArticle() {
-            const id = document.getElementById('editor-id').value;
-            if (id && confirm('確定要刪除這篇文章嗎？此操作無法復原。')) {
-                await remove(ref(db, `articles/${id}`));
-                await remove(ref(db, `likes/${id}`)); // Also delete associated data
-                await remove(ref(db, `comments/${id}`));
-                ui.editorOverlay.style.display = 'none';
-                loadData();
-            }
+        async function deleteArticle(id) {
+            if (!id || !confirm('您確定要永久刪除這篇文章嗎？')) return;
+            const updates = {
+                [`/blogData/articles/${id}`]: null,
+                // Optional: clean up likes and comments too
+            };
+            await update(ref(db), updates);
+            delete appState.articles[id];
+            ui.editorOverlay.style.display = 'none';
+            switchView('home-view');
+            renderArticleGrid();
         }
-        
-        // --- Event Listeners ---
-        ui.siteTitle.addEventListener('click', () => { ui.articleView.classList.remove('active'); ui.homeView.classList.add('active'); renderArticleGrid(); });
-        ui.themeToggle.addEventListener('click', () => document.body.classList.toggle('dark-mode'));
-        ui.searchInput.addEventListener('input', (e) => renderArticleGrid(e.target.value));
-        ui.articleGrid.addEventListener('click', e => { const id = e.target.closest('.article-card')?.dataset.id; if(id) renderArticleView(id); });
-        
-        // Delegated listeners for dynamic content
-        document.addEventListener('click', e => {
-            if (e.target.closest('#back-btn')) { ui.articleView.classList.remove('active'); ui.homeView.classList.add('active'); renderArticleGrid(); }
-            if (e.target.closest('#like-container')) {
-                let userKey = localStorage.getItem('userKey');
-                if (!userKey) { userKey = `user_${Date.now()}`; localStorage.setItem('userKey', userKey); }
-                const id = e.target.closest('#like-container').dataset.id;
-                const likeRef = ref(db, `likes/${id}/${userKey}`);
-                const isLiked = document.querySelector('.like-icon.liked');
-                (isLiked) ? remove(likeRef).then(() => updateLikeAndCommentView(id)) : set(likeRef, true).then(() => updateLikeAndCommentView(id));
+
+        async function handleLike(id) {
+            const userLiked = localStorage.getItem(`liked_${id}`);
+            const likeRef = ref(db, `blogData/articles/${id}/likes/${localStorage.getItem('userKey')}`);
+            if(userLiked) {
+                localStorage.removeItem(`liked_${id}`);
+                await remove(likeRef);
+            } else {
+                localStorage.setItem(`liked_${id}`, 'true');
+                await set(likeRef, true);
             }
-            if(e.target.id === "save-btn") saveArticle();
-            if(e.target.id === "delete-btn") deleteArticle();
-        });
-        
-        document.addEventListener('submit', e => {
-            if (e.target.id === 'comment-form') {
-                e.preventDefault();
-                const id = e.target.dataset.id;
-                const text = document.getElementById('comment-text-input').value.trim();
-                if(text) {
-                    set(ref(db, `comments/${id}/${Date.now()}`), { author: "我", text, timestamp: Date.now() })
-                    .then(() => { e.target.reset(); updateLikeAndCommentView(id); });
+            // Just visually update, no need to re-render whole article
+            const icon = document.querySelector('.like-icon');
+            const countEl = icon.nextElementSibling;
+            const currentCount = parseInt(countEl.textContent);
+            icon.classList.toggle('liked');
+            countEl.textContent = userLiked ? currentCount - 1 : currentCount + 1;
+        }
+
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if(!localStorage.getItem('userKey')) localStorage.setItem('userKey', `user_${Date.now()}`);
+            loadInitialData();
+
+            ui.siteTitle.addEventListener('click', () => switchView('home-view'));
+            ui.newArticleBtn.addEventListener('click', () => openEditor());
+            ui.manageBtn.addEventListener('click', () => ui.managementOverlay.style.display = 'flex');
+            ui.closeMgmtBtn.addEventListener('click', () => ui.managementOverlay.style.display = 'none');
+            
+            ui.saveBtn.addEventListener('click', saveArticle);
+            ui.cancelBtn.addEventListener('click', () => ui.editorOverlay.style.display = 'none');
+            ui.deleteBtn.addEventListener('click', (e) => deleteArticle(e.target.dataset.id));
+            
+            ui.articleGrid.addEventListener('click', e => {
+                const card = e.target.closest('.article-card');
+                if (!card) return;
+                const id = card.dataset.id;
+                if (e.target.closest('.card-edit-btn')) {
+                    openEditor(id);
+                } else {
+                    renderArticle(id);
                 }
-            }
+            });
+
+            ui.articleView.addEventListener('click', e => {
+                if(e.target.closest('.like-action')) handleLike(e.target.closest('.like-action').dataset.id);
+            });
+
+            ui.bottomNav.addEventListener('click', e => {
+                if (e.target === ui.backToListBtn) switchView('home-view');
+                if (e.target === ui.prevBtn && !e.target.disabled) renderArticle(e.target.dataset.id);
+                if (e.target === ui.nextBtn && !e.target.disabled) renderArticle(e.target.dataset.id);
+            });
+            
+            window.addEventListener('scroll', () => {
+                const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+                if(scrollTop === 0) { ui.progressBar.style.width = '0%'; return; }
+                const percent = (scrollTop / (scrollHeight - clientHeight)) * 100;
+                ui.progressBar.style.width = `${percent}%`;
+            });
+            
+            ui.adminLogin.addEventListener('click', () => {
+                const pass = prompt('Admin Password:');
+                if(pass === "980621") {
+                    ui.body.classList.add('edit-mode');
+                    alert('管理模式已啟用！');
+                } else if(pass) {
+                    alert('密碼錯誤！');
+                }
+            });
         });
 
-        // --- Admin Mode ---
-        ui.manageBtn.addEventListener('click', () => {
-            ui.mgmtOverlay.style.display = 'flex';
-            // Here you would render the management views for tags/cats
-        });
-        ui.newArticleBtn.addEventListener('click', () => openEditor());
-
-        // Simple password auth for edit mode
-        let attemptCount = 0;
-        document.querySelector('footer').addEventListener('click', () => {
-            if (appState.isEditMode) return;
-            const pass = prompt('Enter admin password:');
-            if (pass === "980621") {
-                appState.isEditMode = true;
-                document.body.classList.add('admin-mode');
-                ui.manageBtn.style.display = 'inline-block';
-                ui.newArticleBtn.style.display = 'inline-block';
-                alert('Admin mode activated.');
-            } else if (pass) {
-                attemptCount++;
-                if (attemptCount > 2) alert('Too many failed attempts.');
-                else alert('Incorrect password.');
-            }
-        });
-
-        // --- Initial Load ---
-        loadData();
     </script>
+
 </body>
 </html>
