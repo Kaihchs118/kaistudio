@@ -3,349 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kai's Tech Log - Pro X</title>
+    <title>KAI's Tech Log - 🚀 Pro Version</title>
 
-    <!-- Libs: Markdown Parser, Code Highlighter, Advanced Editor -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+    <!-- Libs: Toast UI Editor for a modern writing experience -->
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
 
     <style>
         :root {
-            --bg-color: #f4f5f7; --text-color: #1d1d1f; --primary-color: #0071e3;
-            --accent-color: #ff8c00; --success-color: #34c759; --secondary-color: #6e6e73;
-            --border-color: #d2d2d7; --card-bg: #ffffff; --shadow-color: rgba(0, 0, 0, 0.06);
-            --danger-color: #ff3b30; --radius: 16px;
+            --primary-color: #007aff; --accent-color: #ff9500; --danger-color: #ff3b30; --success-color: #34c759;
+            --bg-color: #f0f2f5; --card-bg: #ffffff; --text-color: #1d1d1f; --secondary-text: #6c757d;
+            --border-color: #dee2e6; --shadow: 0 4px 15px rgba(0, 0, 0, 0.07); --radius: 12px;
         }
         body.dark-mode {
-            --bg-color: #121212; --text-color: #e1e1e1; --primary-color: #2997ff;
-            --accent-color: #ff9500; --secondary-color: #8e8e93; --border-color: #333;
-            --card-bg: #1e1e1e; --shadow-color: rgba(0, 0, 0, 0.2);
+            --bg-color: #000000; --card-bg: #1c1c1e; --text-color: #f5f5f7; --secondary-text: #8d8d93;
+            --border-color: #3a3a3c; --shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color); color: var(--text-color); line-height: 1.7;
-        }
-        .btn { border: none; padding: 10px 24px; border-radius: var(--radius); cursor: pointer; font-weight: 600; background: linear-gradient(45deg, var(--primary-color), var(--accent-color)); color: #fff; transition: all 0.2s; }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0, 113, 227, 0.3); }
-        .btn:disabled { background: #ccc !important; cursor: not-allowed; opacity: 0.6; }
-        .site-header { position: sticky; top: 0; z-index: 1000; padding: 10px 5%; background-color: rgba(var(--card-bg), 0.7); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border-color); }
-        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; gap: 15px; }
-        .site-title { font-size: 1.6rem; font-weight: 700; cursor: pointer; color: var(--primary-color); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; }
+        main { max-width: 1200px; margin: 30px auto; padding: 0 15px; }
+        /* --- Header --- */
+        .site-header { position: sticky; top: 0; z-index: 100; background-color: rgba(var(--bg-color), 0.8); backdrop-filter: blur(10px); padding: 10px 15px; border-bottom: 1px solid var(--border-color); }
+        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; gap: 15px; }
+        .site-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-color); cursor: pointer; }
         .controls { display: flex; align-items: center; gap: 10px; }
-        .search-input { width: 200px; padding: 10px 15px; border-radius: var(--radius); border: 1px solid transparent; background-color: rgba(var(--text-color), 0.05); color: var(--text-color); }
-        .search-input:focus { border-color: var(--primary-color); }
-        .control-group { position: relative; }
-        .control-dropdown { display: none; position: absolute; top: 115%; right: 0; min-width: 180px; background:var(--card-bg); border-radius: var(--radius); z-index: 110; padding: 8px; box-shadow: 0 8px 30px var(--shadow-color); border:1px solid var(--border-color);}
-        .control-dropdown.active { display: block; animation: popIn 0.2s; }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        main { padding: 40px 5%; max-width: 1400px; margin: 0 auto; }
-        .view { display: none; }
-        .view.active { display: block; }
-        .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; }
-        .article-card { background: var(--card-bg); border-radius: var(--radius); overflow: hidden; box-shadow: 0 4px 25px var(--shadow-color); transition: all 0.3s; cursor: pointer; }
-        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 35px var(--shadow-color); }
-        .card-img-container { position: relative; }
-        .card-cover-image { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; background-color: var(--border-color); }
-        .card-category-overlay { position: absolute; bottom: 10px; left: 10px; background-color: rgba(0,0,0,0.5); color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; }
+        .btn { border: none; padding: 8px 16px; border-radius: var(--radius); cursor: pointer; font-weight: 600; background: var(--primary-color); color: #fff; transition: all 0.2s; }
+        .search-input { padding: 8px 12px; border-radius: var(--radius); border: 1px solid var(--border-color); background-color: var(--bg-color); }
+        /* --- Article Grid --- */
+        .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .article-card { background: var(--card-bg); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; transition: all 0.2s ease-out; }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .card-cover { width: 100%; height: 200px; object-fit: cover; background-color: var(--border-color);}
         .card-content { padding: 15px; }
-        .card-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 10px; }
-        .card-stats { display: flex; gap: 15px; font-size: 0.9rem; color: var(--secondary-color); }
-        body.edit-mode .card-edit-btn { display: block; }
-        .card-edit-btn { display: none; position: absolute; top: 10px; right: 10px; z-index: 5; background-color: var(--accent-color); color: white; padding: 5px 10px; border-radius: 8px; font-size:0.8rem }
-        .article-container { max-width: 800px; margin: 0 auto; }
-        .article-header-image { width: 100%; aspect-ratio: 16 / 9; max-height: 50vh; object-fit: cover; border-radius: var(--radius); margin-bottom: 20px; background-color: var(--border-color); cursor: pointer; }
+        .card-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; }
+        .tag { color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+        /* --- Article View --- */
+        .article-container { max-width: 720px; margin: 0 auto; background: var(--card-bg); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .article-header-image { width: 100%; max-height: 450px; object-fit: cover; border-radius: var(--radius); margin-bottom: 25px; }
+        .article-title { font-size: 2.4rem; line-height: 1.2; margin-bottom: 15px; }
+        .article-meta-info { display: flex; align-items: center; flex-wrap: wrap; gap: 5px 15px; color: var(--secondary-text); font-size: 0.9rem; margin-bottom: 25px; }
+        .article-meta-info div { display: flex; align-items: center; gap: 5px; }
         .article-content { font-size: 1.1rem; line-height: 1.8; }
-        .modal-overlay { display:none; position:fixed; top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(5px); display:flex;align-items:center;justify-content:center;z-index:2000; animation: fadeIn 0.3s;}
-        .editor-modal { width: 95%; max-width: 1200px; height: 90vh; background: var(--card-bg); border-radius: var(--radius); display: flex; flex-direction: column; }
-        .editor-header { padding: 15px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; border-bottom: 1px solid var(--border-color); }
-        #editor-title { grid-column: 1 / -1; font-size: 1.2rem; font-weight: bold; }
-        .modal-body { flex-grow: 1; overflow: hidden; }
-        .modal-footer { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color);}
-        .toastui-editor-defaultUI { border: 0 !important; }
-        .article-feedback { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); }
-        .article-stats { display: flex; align-items: center; gap: 25px; margin: 20px 0; color: var(--secondary-color); font-weight: 600; }
-        #like-btn { font-size: 1.8rem; transition: all 0.2s; color: var(--secondary-color); }
-        #like-btn.liked { color: var(--danger-color); transform: scale(1.1); }
-        .comment { padding: 15px; background: rgba(var(--text-color), 0.05); border-radius: var(--radius); margin-bottom: 15px; }
-        #admin-login-modal { padding: 30px; background: var(--card-bg); border-radius: var(--radius); text-align: center; }
-        #admin-login-modal input { padding:10px; margin: 10px 0; width:100%;}
+        .article-content img { max-width: 100%; border-radius: var(--radius); }
+        #scroll-progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: var(--primary-color); width: 0%; z-index: 200; transition: width 0.1s; }
+        /* --- Article Bottom Nav --- */
+        .article-bottom-nav { position: sticky; bottom: 0; background: rgba(var(--card-bg), 0.85); backdrop-filter: blur(10px); display: flex; justify-content: space-between; padding: 10px 15px; border-top: 1px solid var(--border-color); margin-top:30px; }
+        /* --- Comments (YouTube Style) --- */
+        .comment-section { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .comment-header { font-size: 1.2rem; margin-bottom: 20px; }
+        .comment-form-container { display: flex; gap: 10px; align-items: flex-start; }
+        .comment-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-color); color: white; display: grid; place-items: center; font-weight: 600; flex-shrink: 0; }
+        .comment-input-area { width: 100%; }
+        .comment-input { width: 100%; border: none; background: transparent; border-bottom: 2px solid var(--border-color); padding: 5px 0; margin-bottom: 10px; font-size: 1rem; }
+        .comment { display: flex; gap: 15px; margin-top: 20px; }
+        .comment-content .author { font-weight: 600; }
+        .comment-content .timestamp { font-size: 0.8rem; color: var(--secondary-text); margin-left: 8px; }
+        /* --- Management Modal --- */
+        #mgmt-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .mgmt-modal { width: 95%; max-width: 600px; height: 80vh; background: var(--card-bg); border-radius: var(--radius); display: flex; flex-direction: column; }
+        .mgmt-header { padding: 15px; display: flex; border-bottom: 1px solid var(--border-color); }
+        .mgmt-header .tab { padding: 8px 15px; cursor: pointer; border-bottom: 3px solid transparent; }
+        .mgmt-header .tab.active { border-bottom-color: var(--primary-color); font-weight: 600; }
+        .mgmt-body { flex-grow: 1; padding: 15px; overflow-y: auto; }
+        .mgmt-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+        .mgmt-item .color-dot { width: 20px; height: 20px; border-radius: 50%; }
+        /* Like button SVG */
+        .like-icon { cursor: pointer; width: 24px; height: 24px; }
+        .like-icon path { transition: all 0.2s; }
+        .like-icon.unliked path { fill: none; stroke: var(--secondary-text); stroke-width: 2; }
+        .like-icon.liked path { fill: var(--danger-color); stroke: var(--danger-color); stroke-width: 2; }
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; align-items: stretch; gap: 8px; }
+            .article-title { font-size: 1.8rem; }
+            .article-container { padding: 15px; }
+        }
     </style>
 </head>
 <body>
+    <div id="scroll-progress-bar"></div>
     <header class="site-header">
         <div class="header-content">
-            <div id="site-title" class="site-title">🚀 Kai's Tech Log</div>
+            <h1 id="site-title" class="site-title">🚀 Kai's Tech Log</h1>
             <div class="controls">
                 <input type="search" id="search-input" class="search-input" placeholder="搜尋文章...">
-                <div id="theme-toggle" style="cursor: pointer; font-size: 1.5rem;">☀️</div>
-                <div class="control-group">
-                    <button id="sort-display-btn" class="btn">排序 ▼</button>
-                    <div id="sort-dropdown" class="control-dropdown"></div>
-                </div>
-                <div class="control-group">
-                    <button id="category-display-btn" class="btn">分類 ▼</button>
-                    <div id="category-dropdown" class="control-dropdown"></div>
-                </div>
+                <button id="theme-toggle" class="btn">🌙</button>
+                <button id="manage-btn" class="btn" style="display:none;">⚙️ 管理</button>
                 <button id="new-article-btn" class="btn" style="display:none;">+ 新增</button>
             </div>
         </div>
     </header>
-    
     <main>
         <div id="home-view" class="view active">
-            <div id="loader"><p>資料載入中...</p></div>
-            <div id="article-grid" class="article-grid"></div>
+            <div id="article-grid"></div>
         </div>
         <div id="article-view" class="view"></div>
     </main>
-    
-    <div id="editor-overlay" class="modal-overlay">
-        <div class="editor-modal">
-            <div class="editor-header">
-                <input type="hidden" id="editor-id">
-                <input type="text" id="editor-title" placeholder="文章標題...">
-                <input type="date" id="editor-date">
-                <input type="text" id="editor-category" placeholder="分類" list="category-list">
-                <input type="text" id="editor-cover-image" placeholder="封面圖片 URL">
-                <input type="text" id="editor-tags" placeholder="標籤 (逗號分隔)">
-            </div>
-            <div id="editor-container" class="modal-body"></div>
-            <div class="modal-footer">
-                <button id="delete-btn" class="btn" style="background:var(--danger-color)">刪除文章</button>
-                <div>
-                    <button id="cancel-btn" class="btn" style="background:var(--secondary-color)">取消</button>
-                    <button id="save-btn" class="btn">儲存</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div id="admin-login-overlay" class="modal-overlay">
-        <div id="admin-login-modal">
-            <h3>管理員登入</h3>
-            <input type="password" id="admin-password" placeholder="請輸入密碼">
-            <button id="admin-login-btn" class="btn">登入</button>
-            <p id="admin-error" style="color:var(--danger-color); margin-top:10px;"></p>
+    <!-- Editor Modal -->
+    <div id="editor-overlay" style="display:none;"> <!-- Hidden by default --> </div>
+    <!-- Site Management Modal (for Tags and Categories) -->
+    <div id="mgmt-overlay">
+        <div class="mgmt-modal">
+            <div class="mgmt-header">
+                <div class="tab active" data-tab="categories">分類管理</div>
+                <div class="tab" data-tab="tags">標籤管理</div>
+                <button id="close-mgmt-btn" style="margin-left:auto;">✖</button>
+            </div>
+            <div id="mgmt-body-categories" class="mgmt-body"></div>
+            <div id="mgmt-body-tags" class="mgmt-body" style="display:none;"></div>
         </div>
     </div>
     
-    <datalist id="category-list"></datalist>
-    <footer style="text-align:center; padding:30px; color:var(--secondary-color);"><p>© 2025 Kai's Tech Log (Press Ctrl+Alt+A for Admin)</p></footer>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, set, get, remove, increment } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
-        
-        const firebaseConfig = { 
-            apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y",
-            authDomain: "blog-63ad2.firebaseapp.com", projectId: "blog-63ad2", 
-            storageBucket: "blog-63ad2.appspot.com", messagingSenderId: "265914768921", 
-            appId: "1:265914768921:web:e4c752780e604d0be69488", databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
-        };
+        import { getDatabase, ref, set, get, remove, update, increment } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        // --- Firebase Config ---
+        const firebaseConfig = { /* Your Config Here */ };
+
+        // --- Init ---
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
-        let appState = { articles: {}, allCategories: [], isEditMode: false, currentFilter: 'All', currentSort: 'newest' };
+        let appState = { articles: {}, categories: [], tags: [], isEditMode: false };
         let editor;
 
-        // --- UI Element Selectors ---
-        const ui = Object.fromEntries(Object.entries({body:'body',siteTitle:'#site-title',searchInput:'#search-input',themeToggle:'#theme-toggle',sortBtn:'#sort-display-btn',sortDropdown:'#sort-dropdown',catBtn:'#category-display-btn',catDropdown:'#category-dropdown',newArticleBtn:'#new-article-btn',homeView:'#home-view',articleView:'#article-view',articleGrid:'#article-grid',loader:'#loader',editorOverlay:'#editor-overlay',editorId:'#editor-id',editorTitle:'#editor-title',editorDate:'#editor-date',editorCategory:'#editor-category',editorCoverImage:'#editor-cover-image',editorTags:'#editor-tags',editorContainer:'#editor-container',saveBtn:'#save-btn',cancelBtn:'#cancel-btn',deleteBtn:'#delete-btn',categoryList:'#category-list',adminLoginOverlay:'#admin-login-overlay',adminPassword:'#admin-password',adminLoginBtn:'#admin-login-btn',adminError:'#admin-error'}).map(([k,v]) => [k, document.querySelector(v)]));
+        // --- UI Elements ---
+        const ui = Object.fromEntries(['scroll-progress-bar', 'site-title', 'search-input', 'theme-toggle', 'manage-btn', 'new-article-btn', 'home-view', 'article-grid', 'article-view', 'editor-overlay', 'mgmt-overlay', 'close-mgmt-btn'].map(id => [id.replace(/-(\w)/g, (m, g) => g.toUpperCase()), document.getElementById(id)]));
 
         // --- Helper Functions ---
-        const ensureArray = data => Array.isArray(data) ? data : (typeof data === 'string' && data ? data.split(',').map(t=>t.trim()) : []);
-        const generateColorForTag = tag => `hsl(${[...tag].reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0) % 360}, 60%, 45%)`;
-        const switchView = viewName => { ui.homeView.classList.toggle('active', viewName==='home-view'); ui.articleView.classList.toggle('active', viewName==='article-view'); };
+        const showError = msg => { alert(msg); console.error(msg); };
+        const calculateReadingTime = text => `${Math.ceil((text || "").split(/\s+/).length / 200)} 分鐘`;
 
-        // --- Core Application Logic ---
-        async function loadInitialData() {
+        // --- Core Application ---
+        async function loadData() {
             try {
-                const [articlesSnap, categoriesSnap, likesSnap] = await Promise.all([
-                    get(ref(db, 'blogData/articles')), get(ref(db, 'blogData/categories')), get(ref(db, 'likes'))
+                const [articlesSnap, catsSnap, tagsSnap] = await Promise.all([
+                    get(ref(db, 'articles')), get(ref(db, 'categories')), get(ref(db, 'tags'))
                 ]);
-                appState.articles = articlesSnap.exists() ? articlesSnap.val() : {};
-                appState.allCategories = categoriesSnap.exists() ? ensureArray(categoriesSnap.val()) : [];
-                appState.likes = likesSnap.exists() ? likesSnap.val() : {}; // Store all likes
-                filterAndSort();
-                renderCategories();
-                renderSortOptions();
-            } catch (error) { console.error("Data loading failed:", error); }
-            finally { ui.loader.style.display = 'none'; }
+                appState.articles = articlesSnap.val() || {};
+                appState.categories = catsSnap.val() || [];
+                appState.tags = tagsSnap.val() || [];
+                renderArticleGrid();
+            } catch (err) { showError('資料載入失敗: ' + err.message); }
         }
-
-        function filterAndSort() {
-            let filtered = Object.entries(appState.articles);
-            if (appState.currentFilter !== 'All') filtered = filtered.filter(([, a]) => a.category === appState.currentFilter);
-            const searchTerm = ui.searchInput.value.toLowerCase();
-            if (searchTerm) filtered = filtered.filter(([, a]) => (a.title+' '+(a.content||'')+' '+ensureArray(a.tags).join(' ')).toLowerCase().includes(searchTerm));
+        
+        function renderArticleGrid(filter = '') {
+            const term = filter.toLowerCase();
+            const filteredArticles = Object.entries(appState.articles).filter(([,a]) => (a.title + (a.content||'') + (a.tags||[]).join('')).toLowerCase().includes(term));
             
-            filtered.sort(([, a], [, b]) => {
-                const likeCountA = Object.keys(appState.likes[a.id] || {}).length;
-                const likeCountB = Object.keys(appState.likes[b.id] || {}).length;
-                switch(appState.currentSort) {
-                    case 'oldest': return new Date(a.date) - new Date(b.date);
-                    case 'popular': return (b.viewCount || 0) - (a.viewCount || 0);
-                    default: return new Date(b.date) - new Date(a.date);
-                }
-            });
-            
-            ui.articleGrid.innerHTML = filtered.map(([id, article]) => {
-                if (!article) return '';
-                const likeCount = Object.keys(appState.likes[id] || {}).length;
+            ui.articleGrid.innerHTML = filteredArticles.sort(([,a],[,b]) => new Date(b.date) - new Date(a.date)).map(([id, article]) => {
+                const tagsHtml = (article.tags || []).map(tagName => {
+                    const tag = appState.tags.find(t => t.name === tagName);
+                    return `<span class="tag" style="background-color:${tag?.color || '#6c757d'}">${tagName}</span>`;
+                }).join('');
                 return `
-                    <div class="article-card" data-id="${id}">
-                        <div class="card-img-container">
-                            <img src="${article.coverImage || ''}" class="card-cover-image" onerror="this.style.backgroundColor='var(--border-color)'; this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';">
-                            <div class="card-category-overlay">${article.category}</div>
-                            <button class="card-edit-btn btn" data-id="${id}">✏️</button>
-                        </div>
-                        <div class="card-content">
-                            <h3 class="card-title">${article.title || '無標題'}</h3>
-                            <div class="card-stats">
-                                <span>👁️ ${article.viewCount || 0}</span>
-                                <span>❤️ ${likeCount || 0}</span>
-                            </div>
-                        </div>
-                    </div>`;
-            }).join('') || '<p>沒有找到相關文章喔！</p>';
+                <article class="article-card" data-id="${id}">
+                    <img src="${article.coverImage || ''}" class="card-cover" onerror="this.style.display='none'">
+                    <div class="card-content">
+                        <h3 class="card-title">${article.title}</h3>
+                        <div class="tags">${tagsHtml}</div>
+                    </div>
+                </article>`;
+            }).join('') || '<p>沒有文章</p>';
         }
-
-        async function renderArticle(id) {
+        
+        async function renderArticleView(id) {
             const article = appState.articles[id];
             if (!article) return;
+            
+            // Increment View Count
             if (!sessionStorage.getItem(`viewed_${id}`)) {
-                sessionStorage.setItem(`viewed_${id}`, 'true');
-                await set(ref(db, `blogData/articles/${id}/viewCount`), increment(1));
+                await update(ref(db, `articles/${id}`), { viewCount: increment(1) });
                 article.viewCount = (article.viewCount || 0) + 1;
+                sessionStorage.setItem(`viewed_${id}`, 'true');
             }
-
+            
+            const likeIconSvg = (isLiked) => `
+                <svg class="like-icon ${isLiked ? 'liked' : 'unliked'}" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+            
             ui.articleView.innerHTML = `
-                <div class="article-container">
-                    <img src="${article.coverImage || ''}" class="article-header-image" data-id="${id}" onerror="this.style.display='none'">
+                <article class="article-container">
+                    <img src="${article.coverImage || ''}" class="article-header-image" onerror="this.style.display='none'">
                     <h1 class="article-title">${article.title}</h1>
-                    <div class="article-stats">
-                        <div class="like-action" data-id="${id}"><span id="like-btn">❤️</span><span id="like-count">0</span></div>
-                        <span>👁️ <span id="view-count">${article.viewCount || 1}</span></span>
+                    <div class="article-meta-info">
+                        <div>👤 Kai</div>
+                        <div>📅 ${article.date}</div>
+                        <div>⏳ ${calculateReadingTime(article.content)}</div>
+                        <div>👁️ ${article.viewCount || 1}</div>
+                        <div id="like-container" data-id="${id}">${likeIconSvg(false)}<span id="like-count">0</span></div>
                     </div>
                     <div class="article-content">${marked.parse(article.content || '')}</div>
-                    <div class="article-feedback">
-                        <div id="comment-section"><h3>留言</h3><form id="comment-form" data-id="${id}"><input id="comment-author" placeholder="你的名字" required><textarea id="comment-text" placeholder="分享你的想法..." required></textarea><button type="submit" class="btn">送出</button></form><div id="comment-list"></div></div>
-                    </div>
+                </article>
+                <nav class="article-bottom-nav"><button id="back-btn" class="btn">返回列表</button></nav>
+                <div class="comment-section">
+                     <h3 class="comment-header"><span id="comment-count">0</span> 則留言</h3>
+                     <div class="comment-form-container">
+                        <div class="comment-avatar">我</div>
+                        <div class="comment-input-area">
+                           <form id="comment-form" data-id="${id}">
+                              <input id="comment-author-input" type="hidden" value="我">
+                              <input id="comment-text-input" class="comment-input" placeholder="新增留言..." required>
+                              <div style="text-align:right;"><button type="submit" class="btn">留言</button></div>
+                           </form>
+                        </div>
+                     </div>
+                     <div id="comment-list"></div>
                 </div>`;
             
-            switchView('article-view');
-            loadLikesAndComments(id);
+            ui.homeView.classList.remove('active');
+            ui.articleView.classList.add('active');
+            window.scrollTo(0,0);
+            updateLikeAndCommentView(id); // Initial load
         }
 
-        async function loadLikesAndComments(id) {
-            const [commentsSnap] = await Promise.all([ get(ref(db, `comments/${id}`)) ]);
-            document.getElementById('like-count').textContent = Object.keys(appState.likes[id] || {}).length;
-            const userKey = localStorage.getItem('blogUserKey');
-            if(userKey && (appState.likes[id] || {})[userKey]) { document.getElementById('like-btn').classList.add('liked'); }
-            
-            const comments = commentsSnap.exists() ? commentsSnap.val() : {};
-            document.getElementById('comment-list').innerHTML = Object.values(comments).sort((a,b) => a.timestamp - b.timestamp).map(c => `<div class="comment"><p>${c.text}</p><div class="comment-meta"><span>By: ${c.author}</span><span>${new Date(c.timestamp).toLocaleDateString()}</span></div></div>`).join('') || '<p>目前沒有留言。</p>';
+        async function updateLikeAndCommentView(id) {
+            // Likes
+            const likesSnap = await get(ref(db, `likes/${id}`));
+            const likes = likesSnap.val() || {};
+            const userKey = localStorage.getItem('userKey');
+            const isLiked = userKey && likes[userKey];
+            document.getElementById('like-container').innerHTML = `${document.querySelector('.like-icon').outerHTML.replace(/class="[^"]*"/, `class="like-icon ${isLiked ? 'liked' : 'unliked'}"`)} <span id="like-count">${Object.keys(likes).length}</span>`;
+
+            // Comments
+            const commentsSnap = await get(ref(db, `comments/${id}`));
+            const comments = commentsSnap.val() || {};
+            document.getElementById('comment-count').textContent = Object.keys(comments).length;
+            document.getElementById('comment-list').innerHTML = Object.values(comments).sort((a,b)=>b.timestamp-a.timestamp).map(c=>`
+            <div class="comment">
+                <div class="comment-avatar">${(c.author || 'A')[0]}</div>
+                <div class="comment-content">
+                    <span class="author">${c.author}</span><span class="timestamp">${new Date(c.timestamp).toLocaleString()}</span>
+                    <p>${c.text}</p>
+                </div>
+            </div>`).join('');
         }
-
-        async function handleLike(id) {
-            let userKey = localStorage.getItem('blogUserKey') || `user_${Date.now()}`;
-            localStorage.setItem('blogUserKey', userKey);
-            const likeBtn = document.getElementById('like-btn');
-            const likeRef = ref(db, `likes/${id}/${userKey}`);
-            
-            appState.likes[id] = appState.likes[id] || {};
-            const isLiked = !!appState.likes[id][userKey];
-
-            await (isLiked ? remove(likeRef) : set(likeRef, true));
-            appState.likes[id][userKey] = !isLiked;
-            if (!appState.likes[id][userKey]) delete appState.likes[id][userKey];
-
-            likeBtn.classList.toggle('liked', !isLiked);
-            document.getElementById('like-count').textContent = Object.keys(appState.likes[id]).length;
-        }
-
-        // --- Editor and Admin ---
-        function openEditor(id = null) {
+        
+        async function openEditor(id = null) {
             const article = id ? appState.articles[id] : {};
-            ui.editorId.value = id;
-            ui.editorTitle.value = article.title || '';
-            ui.editorDate.value = article.date || new Date().toISOString().split('T')[0];
-            ui.editorCategory.value = article.category || (appState.currentFilter !== 'All' ? appState.currentFilter : '');
-            ui.editorCoverImage.value = article.coverImage || '';
-            ui.editorTags.value = ensureArray(article.tags).join(', ');
-            ui.deleteBtn.style.display = id ? 'block' : 'none';
-            if (!editor) {
-                editor = new toastui.Editor({ el: ui.editorContainer, height: '100%', initialEditType: 'markdown', previewStyle: 'vertical' });
-            }
-            editor.setMarkdown(article.content || '');
+            ui.editorOverlay.innerHTML = `
+                <div class="modal">
+                    <input type="hidden" id="editor-id" value="${id || ''}">
+                    <input id="editor-title" value="${article.title || ''}" placeholder="標題">
+                    <input id="editor-date" type="date" value="${article.date || new Date().toISOString().slice(0,10)}">
+                    <!-- ... inputs for category, cover, tags ... -->
+                    <div id="editor-container" style="flex-grow:1;"></div>
+                    <button id="save-btn">儲存</button> <button id="delete-btn" style="${id ? '' : 'display:none;'}">刪除</button>
+                </div>`;
             ui.editorOverlay.style.display = 'flex';
-            editor.focus();
-        }
-
-        async function saveArticle() { /* ... unchanged ... */ }
-        
-        async function deleteArticle() {
-            const id = ui.editorId.value;
-            if (!id || !confirm(`確定要刪除文章 "${appState.articles[id].title}" 嗎？此操作無法復原！`)) return;
             
-            ui.deleteBtn.disabled = true;
-            try {
-                // Remove article, its likes, and its comments
-                await Promise.all([
-                    remove(ref(db, `blogData/articles/${id}`)),
-                    remove(ref(db, `likes/${id}`)),
-                    remove(ref(db, `comments/${id}`))
-                ]);
-                delete appState.articles[id];
-                delete appState.likes[id];
-                ui.editorOverlay.style.display = 'none';
-                filterAndSort();
-            } catch (error) { console.error("Delete failed:", error); } 
-            finally { ui.deleteBtn.disabled = false; }
-        }
-
-        // --- UI Rendering ---
-        const renderSortOptions = () => { /* ... */ };
-        const renderCategories = () => { /* ... */ };
-
-        // --- Event Listeners ---
-        function setupEventListeners() {
-            document.addEventListener('click', e => {
-                const id = e.target.closest('[data-id]')?.dataset.id;
-                if (!e.target.closest('.control-group')) document.querySelectorAll('.control-dropdown').forEach(d => d.classList.remove('active'));
-                if(e.target === ui.siteTitle) switchView('home-view');
-                if(e.target.closest('.article-card') && !e.target.closest('.card-edit-btn')) renderArticle(id);
-                if(e.target.matches('.card-edit-btn')) { e.stopPropagation(); openEditor(id); }
-                if(e.target.closest('.like-action') || (e.target.matches('.article-header-image') && e.detail === 2)) handleLike(id);
-            });
-            document.addEventListener('keydown', e => { if (e.ctrlKey && e.altKey && e.key === 'a') { e.preventDefault(); ui.adminLoginOverlay.style.display='flex'; ui.adminPassword.focus();} });
-            ui.themeToggle.addEventListener('click', () => { ui.body.classList.toggle('dark-mode'); ui.themeToggle.textContent = ui.body.classList.contains('dark-mode') ? '🌙':'☀️'; });
-            ui.newArticleBtn.addEventListener('click', () => openEditor());
-            ui.sortBtn.addEventListener('click', (e) => {e.stopPropagation(); ui.sortDropdown.classList.toggle('active')});
-            ui.catBtn.addEventListener('click', (e) => {e.stopPropagation(); ui.catDropdown.classList.toggle('active')});
-            ui.saveBtn.addEventListener('click', saveArticle);
-            ui.deleteBtn.addEventListener('click', deleteArticle);
-            ui.cancelBtn.addEventListener('click', () => ui.editorOverlay.style.display = 'none');
-            ui.adminLoginBtn.addEventListener('click', () => {
-                if (ui.adminPassword.value === "980621") { 
-                    appState.isEditMode = true; ui.body.classList.add('edit-mode'); ui.newArticleBtn.style.display = 'block'; ui.adminLoginOverlay.style.display = 'none'; ui.adminPassword.value='';
-                } else { ui.adminError.textContent = '密碼錯誤!'; setTimeout(() => ui.adminError.textContent='', 2000); }
-            });
-            ui.articleView.addEventListener('submit', async e => {
-                if (e.target.id === 'comment-form') {
-                    e.preventDefault();
-                    const id = e.target.dataset.id, author = e.target.elements['comment-author'].value.trim(), text = e.target.elements['comment-text'].value.trim();
-                    if(!author || !text) return;
-                    await set(ref(db, `comments/${id}/${Date.now()}`), { author, text, timestamp: Date.now() });
-                    e.target.reset(); loadLikesAndComments(id);
-                }
+            editor = new toastui.Editor({
+                el: document.getElementById('editor-container'), initialEditType: 'markdown', previewStyle: 'vertical',
+                initialValue: article.content || ''
             });
         }
         
-        document.addEventListener('DOMContentLoaded', () => { loadInitialData(); setupEventListeners(); });
+        async function saveArticle() {
+            const id = document.getElementById('editor-id').value || `post_${Date.now()}`;
+            const articleData = {
+                title: document.getElementById('editor-title').value,
+                date: document.getElementById('editor-date').value,
+                content: editor.getMarkdown()
+            };
+            await set(ref(db, `articles/${id}`), articleData);
+            ui.editorOverlay.style.display = 'none';
+            loadData();
+        }
+
+        async function deleteArticle() {
+            const id = document.getElementById('editor-id').value;
+            if (id && confirm('確定要刪除這篇文章嗎？此操作無法復原。')) {
+                await remove(ref(db, `articles/${id}`));
+                await remove(ref(db, `likes/${id}`)); // Also delete associated data
+                await remove(ref(db, `comments/${id}`));
+                ui.editorOverlay.style.display = 'none';
+                loadData();
+            }
+        }
+        
+        // --- Event Listeners ---
+        ui.siteTitle.addEventListener('click', () => { ui.articleView.classList.remove('active'); ui.homeView.classList.add('active'); renderArticleGrid(); });
+        ui.themeToggle.addEventListener('click', () => document.body.classList.toggle('dark-mode'));
+        ui.searchInput.addEventListener('input', (e) => renderArticleGrid(e.target.value));
+        ui.articleGrid.addEventListener('click', e => { const id = e.target.closest('.article-card')?.dataset.id; if(id) renderArticleView(id); });
+        
+        // Delegated listeners for dynamic content
+        document.addEventListener('click', e => {
+            if (e.target.closest('#back-btn')) { ui.articleView.classList.remove('active'); ui.homeView.classList.add('active'); renderArticleGrid(); }
+            if (e.target.closest('#like-container')) {
+                let userKey = localStorage.getItem('userKey');
+                if (!userKey) { userKey = `user_${Date.now()}`; localStorage.setItem('userKey', userKey); }
+                const id = e.target.closest('#like-container').dataset.id;
+                const likeRef = ref(db, `likes/${id}/${userKey}`);
+                const isLiked = document.querySelector('.like-icon.liked');
+                (isLiked) ? remove(likeRef).then(() => updateLikeAndCommentView(id)) : set(likeRef, true).then(() => updateLikeAndCommentView(id));
+            }
+            if(e.target.id === "save-btn") saveArticle();
+            if(e.target.id === "delete-btn") deleteArticle();
+        });
+        
+        document.addEventListener('submit', e => {
+            if (e.target.id === 'comment-form') {
+                e.preventDefault();
+                const id = e.target.dataset.id;
+                const text = document.getElementById('comment-text-input').value.trim();
+                if(text) {
+                    set(ref(db, `comments/${id}/${Date.now()}`), { author: "我", text, timestamp: Date.now() })
+                    .then(() => { e.target.reset(); updateLikeAndCommentView(id); });
+                }
+            }
+        });
+
+        // --- Admin Mode ---
+        ui.manageBtn.addEventListener('click', () => {
+            ui.mgmtOverlay.style.display = 'flex';
+            // Here you would render the management views for tags/cats
+        });
+        ui.newArticleBtn.addEventListener('click', () => openEditor());
+
+        // Simple password auth for edit mode
+        let attemptCount = 0;
+        document.querySelector('footer').addEventListener('click', () => {
+            if (appState.isEditMode) return;
+            const pass = prompt('Enter admin password:');
+            if (pass === "980621") {
+                appState.isEditMode = true;
+                document.body.classList.add('admin-mode');
+                ui.manageBtn.style.display = 'inline-block';
+                ui.newArticleBtn.style.display = 'inline-block';
+                alert('Admin mode activated.');
+            } else if (pass) {
+                attemptCount++;
+                if (attemptCount > 2) alert('Too many failed attempts.');
+                else alert('Incorrect password.');
+            }
+        });
+
+        // --- Initial Load ---
+        loadData();
     </script>
 </body>
 </html>
