@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI Studio</title>
+    <title>KAI's Tech Log - 🍎 最終實用版 ✨</title>
     <!-- EasyMDE Markdown Editor -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
     <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
@@ -177,7 +177,7 @@
 <body>
     <header class="site-header">
         <div class="header-content">
-            <div id="site-title" class="site-title">✨ Kai Studio</div>
+            <div id="site-title" class="site-title">✨ Kai's Tech Log</div>
             <div class="header-controls-wrapper">
                 <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
                 <div class="theme-toggle" id="theme-toggle">☀️</div>
@@ -362,7 +362,7 @@
                     `<span class="tag" style="background-color: ${getTagColor(tag)};">${tag}</span>`
                 ).join('');
                 const likeCount = article.likes || 0;
-                card = document.createElement('div');
+                const card = document.createElement('div');
                 card.className = 'article-card';
                 card.innerHTML = `
                     <img src="${article.coverImage || DEFAULT_IMG_URL}" alt="${article.title}" class="card-cover-image" data-id="${id}" onerror="this.onerror=null; this.src='${DEFAULT_IMG_URL}';">
@@ -648,7 +648,7 @@
             ui.siteTitle.addEventListener('click', () => switchView('home-view'));
             ui.themeToggle.addEventListener('click', () => {
                 const isDark = ui.body.classList.toggle('dark-mode');
-                ui.themeToggle.textContent = isDark ? '🌙' : '☀';
+                ui.themeToggle.textContent = isDark ? '🌙' : '☀️';
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             });
             ui.sortDisplayBtn.addEventListener('click', () => toggleDropdown(ui.sortDropdown));
