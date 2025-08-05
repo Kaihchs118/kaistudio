@@ -4,10 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI's Tech Log - 🍎 最終實用版 ✨</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+    <title>KAI Studio</title>
+    <!-- EasyMDE Markdown Editor -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    <!-- highlight.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" defer></script>
+    <!-- marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
     <style>
         :root {
             --bg-color: #f9f9fb; --text-color: #1d1d1f; --primary-color: #0071e3;
@@ -16,8 +21,6 @@
             --code-bg: #f5f5f7; --code-color: #333; --danger-color: #ff3b30;
             --radius-large: 20px; --radius-medium: 15px; --radius-small: 10px;
             --glass-blur: 18px; --glass-light-bg-color: 255, 255, 255; --glass-light-opacity: 0.7;
-            --tag-mac-color: #0071e3; --tag-windows-color: #d83b01;
-            --tag-linux-color: #fca311; --tag-android-color: #3ddc84;
             --tag-default-color: #8e8e93;
         }
         body.dark-mode {
@@ -26,8 +29,6 @@
             --border-color: #424245; --card-bg: #1c1c1e; --shadow-color: rgba(0, 0, 0, 0.3);
             --code-bg: #2c2c2e; --code-color: #f0f0f0;
             --glass-dark-bg-color: 28, 28, 30; --glass-dark-opacity: 0.75;
-            --tag-mac-color: #2997ff; --tag-windows-color: #e85a19;
-            --tag-linux-color: #ffb74d; --tag-android-color: #69f0ae;
             --tag-default-color: #98989d;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -116,6 +117,7 @@
         @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .dropdown-item { display: block; width: 100%; text-align: left; padding: 10px 15px; border: none; background: none; color: var(--text-color); cursor: pointer; border-radius: var(--radius-small); transition: background-color 0.2s, color 0.2s; font-weight: 500;}
         .dropdown-item:hover, .dropdown-item.active { background-color: var(--primary-color); color: white; }
+        .dropdown-divider { height: 1px; background: var(--border-color); margin: 6px 0; }
         .search-input { width: 150px; padding: 8px 15px 8px 35px; border-radius: var(--radius-medium); border: 1px solid var(--border-color); background-color: var(--code-bg); color: var(--text-color); transition: all 0.3s; }
         .search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.2); }
         .theme-toggle { cursor: pointer; font-size: 1.5rem; display: grid; place-items: center; transition: transform 0.5s ease; }
@@ -163,12 +165,19 @@
         body.edit-mode .site-footer p { cursor: not-allowed; opacity: 0.6; }
         .loader { width: 100%; max-width: 500px; margin: 40px auto; text-align: center; } .progress-bar { height: 8px; background-color: var(--border-color); border-radius: 4px; overflow: hidden; } .progress-bar-inner { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); transition: width 0.5s ease; } .loader p { margin-top: 15px; color: var(--secondary-color); font-weight: 500; } .article-meta { color: var(--secondary-color); margin-bottom: 30px; font-size: 0.95rem; display: flex; flex-wrap: wrap; gap: 8px 15px; align-items: center; } .article-content { font-size: 1.1rem; line-height: 1.8; } .article-bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; display: none; justify-content: space-between; align-items: center; padding: 15px 5%; z-index: 200; } #editor-overlay, #cat-mgmt-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s; } #editor-overlay.active, #cat-mgmt-overlay.active { display: flex; } .editor-modal { height: 90vh; } .cat-mgmt-modal { max-height: 80vh; max-width: 500px; } .modal-header { padding: 20px 25px; border-bottom: 1px solid var(--border-color); font-size: 1.3rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; color: var(--primary-color); } .modal-body { padding: 25px; overflow-y: auto; flex-grow: 1; } .editor-modal-header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 1rem; } .editor-modal-header input { flex-grow: 1; min-width: 150px; padding: 10px; border-radius: var(--radius-medium); border: 1px solid var(--border-color); background-color: var(--bg-color); color: var(--text-color); font-size: 1rem; } #editor-content { width: 100%; height: 100%; border: none; padding: 25px; font-size: 1.1rem; line-height: 1.8; color: var(--text-color); background-color: transparent; resize: none; flex-grow: 1; } .modal-footer { padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 10px; } .editor-modal-footer { justify-content: space-between; } #cat-mgmt-list { list-style: none; padding: 0; margin: 0; } #cat-mgmt-list li { display: flex; align-items: center; padding: 12px 5px; border-bottom: 1px solid var(--border-color); } #add-cat-form { display: flex; gap: 10px; margin-top: 20px; } #add-cat-form input { flex-grow: 1; padding: 10px; border-radius: var(--radius-medium); border: 1px solid var(--border-color); }
         @media (max-width: 768px) { .header-content { flex-direction: column; align-items: flex-start; } .controls { justify-content: flex-start; width: 100%; padding-top: 10px; } .article-title { font-size: 2rem; } #back-to-top { bottom: 20px; right: 20px; } }
+        /* 留言區樣式 */
+        .comments-section { margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 30px; }
+        .comment { margin-bottom: 18px; }
+        .comment-author { font-weight: bold; color: var(--primary-color); }
+        .comment-content { margin-left: 10px; }
+        .like-btn { background: none; border: none; color: var(--accent-color); font-size: 1.2em; cursor: pointer; margin-left: 10px; }
+        .like-btn.liked { color: var(--success-color); }
     </style>
 </head>
 <body>
     <header class="site-header">
         <div class="header-content">
-            <div id="site-title" class="site-title">✨ Kai's Tech Log</div>
+            <div id="site-title" class="site-title">✨ Kai Studio</div>
             <div class="header-controls-wrapper">
                 <div class="search-box"><input type="search" id="search-input" class="search-input" placeholder="搜尋..."></div>
                 <div class="theme-toggle" id="theme-toggle">☀️</div>
@@ -239,7 +248,7 @@
     <footer class="site-footer"><p>© 2025 Kai's Tech Log. (點我進入管理模式)</p></footer>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-        import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+        import { getDatabase, ref, set, get, remove, update, push, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         const firebaseConfig = { 
             apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
             authDomain: "blog-63ad2.firebaseapp.com", 
@@ -254,6 +263,7 @@
         const db = getDatabase(app);
         const articlesRef = ref(db, 'blogData/articles');
         const categoriesRef = ref(db, 'blogData/categories');
+        let easyMDE = null;
         const ui = {
             body: document.body, header: document.querySelector('.site-header'),
             loader: document.getElementById('loader'), loaderText: document.getElementById('loader-text'), progressBarInner: document.getElementById('progress-bar-inner'),
@@ -273,14 +283,13 @@
             footer: document.querySelector('.site-footer p'), backToTopBtn: document.getElementById('back-to-top'),
         };
         function getTagColor(tagName) {
-            const lowerCaseTag = tagName.toLowerCase();
-            switch (lowerCaseTag) {
-                case 'mac': case 'macos': case 'ios': return 'var(--tag-mac-color)';
-                case 'windows': return 'var(--tag-windows-color)';
-                case 'linux': case 'ubuntu': return 'var(--tag-linux-color)';
-                case 'android': return 'var(--tag-android-color)';
-                default: return 'var(--tag-default-color)';
+            // hash tagName to color
+            let hash = 0;
+            for (let i = 0; i < tagName.length; i++) {
+                hash = tagName.charCodeAt(i) + ((hash << 5) - hash);
             }
+            const color = `hsl(${hash % 360}, 70%, 60%)`;
+            return color;
         }
         const DEFAULT_IMG_URL = 'https://via.placeholder.com/400x250/e0e0e0/cccccc?text=Image+Not+Found';
         function showError(msg) {
@@ -312,6 +321,11 @@
                 ui.loaderText.textContent = '糟糕！載入失敗了。';
             }
         }
+        function normalizeTags(tags) {
+            if (Array.isArray(tags)) return tags;
+            if (typeof tags === "string") return tags.split(',').map(t => t.trim()).filter(Boolean);
+            return [];
+        }
         function filterAndSort(searchTerm = '') {
             let filtered = Object.entries(appState.articles);
             if (appState.currentFilter !== 'All') {
@@ -322,7 +336,7 @@
                 filtered = filtered.filter(([, article]) => 
                     (article.title || '').toLowerCase().includes(lower) ||
                     (article.content || '').toLowerCase().includes(lower) ||
-                    (article.tags || []).join(' ').toLowerCase().includes(lower)
+                    normalizeTags(article.tags).join(' ').toLowerCase().includes(lower)
                 );
             }
             filtered.sort(([, a], [, b]) => {
@@ -343,16 +357,21 @@
             }
             appState.sortedArticleIds.forEach(id => {
                 const article = appState.articles[id];
-                const card = document.createElement('div');
-                card.className = 'article-card';
-                const tagsHtml = (article.tags || []).map(tag => 
+                const tagsArr = normalizeTags(article.tags);
+                const tagsHtml = tagsArr.map(tag => 
                     `<span class="tag" style="background-color: ${getTagColor(tag)};">${tag}</span>`
                 ).join('');
+                const likeCount = article.likes || 0;
+                card = document.createElement('div');
+                card.className = 'article-card';
                 card.innerHTML = `
                     <img src="${article.coverImage || DEFAULT_IMG_URL}" alt="${article.title}" class="card-cover-image" data-id="${id}" onerror="this.onerror=null; this.src='${DEFAULT_IMG_URL}';">
                     <div class="card-content" data-id="${id}">
                         <h3 class="card-title">${article.title}</h3>
                         <div class="article-tags">${tagsHtml}</div>
+                        <div style="margin-top:8px;">
+                            <button class="like-btn" data-id="${id}">👍 <span class="like-count">${likeCount}</span></button>
+                        </div>
                     </div>
                     <button class="card-edit-btn" data-id="${id}">✏️ 編輯</button>`;
                 ui.articleGrid.appendChild(card);
@@ -361,10 +380,12 @@
         function renderArticle(id) {
             const article = appState.articles[id];
             if (!article) return;
+            const tagsArr = normalizeTags(article.tags);
             const contentHtml = marked.parse(article.content);
-            const tagsHtml = (article.tags || []).map(tag => 
+            const tagsHtml = tagsArr.map(tag => 
                 `<span class="tag" style="background-color: ${getTagColor(tag)};">${tag}</span>`
             ).join('');
+            const likeCount = article.likes || 0;
             ui.articleView.innerHTML = `
                 <div class="article-container">
                     <img src="${article.coverImage || ''}" alt="${article.title}" class="article-header-image" onerror="this.style.display='none'">
@@ -373,12 +394,27 @@
                         <span>📅 ${article.date}</span>
                         <span>🏷️ ${article.category}</span>
                         <div class="article-tags">${tagsHtml}</div>
+                        <button class="like-btn" data-id="${id}">👍 <span class="like-count">${likeCount}</span></button>
                     </div>
                     <div class="article-content">${contentHtml}</div>
+                    <div class="comments-section" id="comments-section">
+                        <h3>留言</h3>
+                        <div id="comments-list"></div>
+                        <form id="comment-form">
+                            <input type="text" id="comment-author" placeholder="你的名字" required style="margin-bottom:8px; padding:8px; border-radius:8px; border:1px solid var(--border-color); width:40%;">
+                            <textarea id="comment-content" placeholder="留言內容..." required style="width:100%;height:60px; margin-bottom:8px; border-radius:8px; border:1px solid var(--border-color);"></textarea>
+                            <button type="submit" class="btn btn-primary">送出留言</button>
+                        </form>
+                    </div>
                 </div>`;
             document.querySelectorAll('pre code').forEach((block) => { hljs.highlightBlock(block); });
             switchView('article-view');
             renderBottomNav(id);
+            renderComments(id);
+            // Like button event
+            document.querySelector('.like-btn[data-id="'+id+'"]').addEventListener('click', () => handleLike(id));
+            // Comment form event
+            document.getElementById('comment-form').addEventListener('submit', e => handleCommentSubmit(e, id));
         }
         function renderBottomNav(currentId) {
             const currentIndex = appState.sortedArticleIds.indexOf(currentId);
@@ -397,7 +433,9 @@
             if(appState.isEditMode) items.push('manage-categories');
             items.forEach(cat => {
                 if(cat === 'manage-categories'){
-                    ui.catDropdown.innerHTML += `<div class="dropdown-divider"></div>`;
+                    const divider = document.createElement('div');
+                    divider.className = 'dropdown-divider';
+                    ui.catDropdown.appendChild(divider);
                     const item = document.createElement('div');
                     item.className = 'dropdown-item'; item.textContent = '🔧 管理分類'; item.dataset.cat = 'manage-categories';
                     ui.catDropdown.appendChild(item);
@@ -437,17 +475,20 @@
             if (!isActive) dropdown.classList.add('active');
         }
         function openEditor(articleId = null) {
+            if (!easyMDE) {
+                easyMDE = new EasyMDE({ element: ui.editorContent, spellChecker: false, minHeight: "300px" });
+            }
             if (articleId) {
                 const article = appState.articles[articleId];
                 ui.editorId.value = articleId; ui.editorDate.value = article.date;
                 ui.editorCategory.value = article.category; ui.editorCoverImage.value = article.coverImage || '';
-                ui.editorTags.value = (article.tags || []).join(', ');
-                ui.editorContent.value = `${article.title}\n\n${article.content}`;
+                ui.editorTags.value = normalizeTags(article.tags).join(', ');
+                easyMDE.value(`${article.title}\n\n${article.content}`);
                 ui.deleteBtn.style.display = 'block';
             } else {
                 ui.editorId.value = ''; ui.editorDate.value = new Date().toISOString().split('T')[0];
                 ui.editorCategory.value = ''; ui.editorCoverImage.value = '';
-                ui.editorTags.value = ''; ui.editorContent.value = '';
+                ui.editorTags.value = ''; easyMDE.value('');
                 ui.deleteBtn.style.display = 'none';
             }
             ui.editorOverlay.classList.add('active');
@@ -456,7 +497,7 @@
             ui.saveBtn.disabled = true;
             ui.saveBtn.textContent = '儲存中...';
             const id = ui.editorId.value || `post_${new Date().getTime()}`;
-            const [title, ...bodyParts] = ui.editorContent.value.split('\n');
+            const [title, ...bodyParts] = easyMDE.value().split('\n');
             const body = bodyParts.join('\n').trim();
             const tags = ui.editorTags.value.split(',').map(t => t.trim()).filter(Boolean);
             const articleData = {
@@ -515,7 +556,9 @@
             ui.catMgmtList.innerHTML = '';
             appState.allCategories.forEach(cat => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span class="cat-name">${cat}</span><button class="btn btn-danger btn-sm" data-cat-name="${cat}">刪除</button>`;
+                li.innerHTML = `<span class="cat-name">${cat}</span>
+                    <button class="btn btn-danger btn-sm" data-cat-name="${cat}">刪除</button>
+                    <button class="btn btn-secondary btn-sm" data-cat-edit="${cat}">編輯</button>`;
                 ui.catMgmtList.appendChild(li);
             });
             ui.catMgmtOverlay.classList.add('active');
@@ -539,6 +582,29 @@
                     await set(categoriesRef, appState.allCategories);
                     openCatMgmt(); renderCategories();
                 } catch(error) { showError('刪除分類失敗！'); appState.allCategories = originalCategories; }
+            }
+        }
+        async function editCategory(oldCat) {
+            const newCat = prompt("請輸入新的分類名稱：", oldCat);
+            if (!newCat || newCat === oldCat) return;
+            if (appState.allCategories.includes(newCat)) {
+                showError("分類名稱已存在！");
+                return;
+            }
+            const idx = appState.allCategories.indexOf(oldCat);
+            if (idx !== -1) {
+                appState.allCategories[idx] = newCat;
+                // 更新所有文章的分類
+                Object.entries(appState.articles).forEach(([id, article]) => {
+                    if (article.category === oldCat) {
+                        article.category = newCat;
+                        set(ref(db, `blogData/articles/${id}`), article);
+                    }
+                });
+                try {
+                    await set(categoriesRef, appState.allCategories);
+                    openCatMgmt(); renderCategories();
+                } catch(error) { showError('編輯分類失敗！'); }
             }
         }
         function handleAdminToggle() {
@@ -582,7 +648,7 @@
             ui.siteTitle.addEventListener('click', () => switchView('home-view'));
             ui.themeToggle.addEventListener('click', () => {
                 const isDark = ui.body.classList.toggle('dark-mode');
-                ui.themeToggle.textContent = isDark ? '🌙' : '☀️';
+                ui.themeToggle.textContent = isDark ? '🌙' : '☀';
                 localStorage.setItem('theme', isDark ? 'dark' : 'light');
             });
             ui.sortDisplayBtn.addEventListener('click', () => toggleDropdown(ui.sortDropdown));
@@ -614,6 +680,7 @@
                 if (!id) return;
                 if (target.matches('.card-edit-btn')) { openEditor(id); } 
                 else if (target.closest('.card-content, .card-cover-image')) { renderArticle(id); }
+                else if (target.matches('.like-btn')) { handleLike(id); }
             });
             ui.saveBtn.addEventListener('click', saveArticle);
             ui.cancelBtn.addEventListener('click', () => ui.editorOverlay.classList.remove('active'));
@@ -622,12 +689,62 @@
             ui.addCatForm.addEventListener('submit', addCategory);
             ui.catMgmtList.addEventListener('click', e => {
                 if (e.target.matches('.btn-danger')) { deleteCategory(e.target.dataset.catName); }
+                if (e.target.matches('.btn-secondary')) { editCategory(e.target.dataset.catEdit); }
             });
             ui.articleBottomNav.addEventListener('click', e => {
                 if (e.target.matches('.back-btn')) switchView('home-view');
                 if (e.target.matches('.prev-btn:not(.disabled)')) renderArticle(e.target.dataset.id);
                 if (e.target.matches('.next-btn:not(.disabled)')) renderArticle(e.target.dataset.id);
             });
+        }
+        // Like 功能
+        async function handleLike(articleId) {
+            const article = appState.articles[articleId];
+            if (!article) return;
+            // 防止重複按讚（localStorage）
+            const likeKey = `liked_${articleId}`;
+            if (localStorage.getItem(likeKey)) {
+                showError("你已經按過讚囉！");
+                return;
+            }
+            article.likes = (article.likes || 0) + 1;
+            await set(ref(db, `blogData/articles/${articleId}`), article);
+            appState.articles[articleId] = article;
+            localStorage.setItem(likeKey, "1");
+            // 重新渲染
+            renderArticleGrid();
+            if (ui.articleView.classList.contains('active')) renderArticle(articleId);
+        }
+        // 留言功能
+        function renderComments(articleId) {
+            const commentsRef = ref(db, `blogData/comments/${articleId}`);
+            const commentsList = document.getElementById('comments-list');
+            commentsList.innerHTML = '載入中...';
+            onValue(commentsRef, (snapshot) => {
+                const comments = snapshot.val() || {};
+                commentsList.innerHTML = '';
+                Object.values(comments).forEach(comment => {
+                    const div = document.createElement('div');
+                    div.className = 'comment';
+                    div.innerHTML = `<span class="comment-author">${comment.author}</span>: <span class="comment-content">${comment.content}</span>`;
+                    commentsList.appendChild(div);
+                });
+                if (Object.keys(comments).length === 0) {
+                    commentsList.innerHTML = '<p>還沒有人留言，快來搶頭香！</p>';
+                }
+            });
+        }
+        async function handleCommentSubmit(e, articleId) {
+            e.preventDefault();
+            const author = document.getElementById('comment-author').value.trim();
+            const content = document.getElementById('comment-content').value.trim();
+            if (!author || !content) return;
+            const commentsRef = ref(db, `blogData/comments/${articleId}`);
+            await push(commentsRef, {
+                author, content, time: new Date().toISOString()
+            });
+            document.getElementById('comment-author').value = '';
+            document.getElementById('comment-content').value = '';
         }
         document.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('theme') === 'dark') {
